@@ -57,7 +57,7 @@ EOF
 cat > /usr/local/bin/localia-browser <<'EOF'
 #!/bin/sh
 URL=$(cat /etc/localia/start_url 2>/dev/null || echo https://ipinfo.io)
-exec chromium --no-first-run --no-default-browser-check --password-store=basic --lang=es-419 --start-maximized "$URL"
+exec chromium --no-first-run --no-default-browser-check --password-store=basic --lang=es-419 --start-maximized --hide-crash-restore-bubble "$URL"
 EOF
 chmod 755 /usr/local/bin/localia-browser
 mkdir -p /etc/chromium/policies/managed
@@ -106,4 +106,5 @@ cat > /etc/dhcp/dhclient-enter-hooks.d/localia-dns <<'EOF'
 make_resolv_conf() { :; }
 EOF
 rm -f /etc/resolv.conf; printf "nameserver 1.1.1.1\nnameserver 9.9.9.9\n" > /etc/resolv.conf
+bash /tmp/rdp-setup.sh
 echo BAKE_DONE

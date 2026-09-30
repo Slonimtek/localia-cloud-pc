@@ -4,8 +4,9 @@ GET  /health    estado del escritorio y la hora
 GET  /identity  cómo ven los sitios a esta PC (IP y ubicación, a través del túnel)
 POST /tz        {"tz": "America/Montevideo"} cambia la zona horaria del sistema
 POST /restart-desktop  reinicia el escritorio
+POST /rdp-password     {"password": "..."} contraseña para Windows App (máx. 8, letras y números)
 """
-import json, os, subprocess, time, urllib.request
+import json, os, re, subprocess, time, urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 def env():
@@ -64,6 +65,17 @@ class H(BaseHTTPRequestHandler):
                 return self._send(400, {'error': 'bad tz'})
             sh('timedatectl', 'set-timezone', tz)
             return self._send(200, {'ok': True, 'tz': tz})
+        if self.path == '/rdp-password':
+            pw = str(body.get('password', ''))
+            if not re.fullmatch(r'[A-Za-z0-9]{6,8}', pw):
+                return self._send(400, {'error': 'bad password'})
+            f = '/etc/localia/agent.env'
+            lines = [l for l in open(f).read().splitlines() if l and not l.startswith('RDP_PASSWORD=')] + ['RDP_PASSWORD=' + pw]
+            with open(f, 'w') as fh: fh.write('\n'.join(lines) + '\n')
+            os.chmod(f, 0o600)
+            sh('/usr/local/sbin/localia-rdp-pass', timeout=20)
+            subprocess.Popen(['systemctl', 'restart', 'localia-rdp-bridge'])
+            return self._send(200, {'ok': True})
         if self.path == '/restart-desktop':
             subprocess.Popen(['systemctl', 'restart', 'localia-desktop'])
             return self._send(200, {'ok': True})

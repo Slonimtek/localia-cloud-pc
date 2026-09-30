@@ -101,6 +101,37 @@ async function routePc(pc, code) {
   for (const r of await rulesFor(pc.privateIp)) if (!(r.prio === prio && r.table === String(ex.table))) await run('ip', ['rule', 'del', 'from', pc.privateIp, 'lookup', r.table, 'priority', String(r.prio)]);
   return true;
 }
+// ---------- Windows App (RDP) con apertura por pedido ----------
+// Puerto público 33000+N del gateway → 10.60.2.N:3389. Cerrado para todo internet salvo las redes
+// que el usuario habilita desde el portal (ipset localia-rdp, vence a las 12 h).
+const RDP_TTL = 12 * 3600;
+const rdpPort = pc => 33000 + (+String(pc.privateIp || '0.0.0.0').split('.').pop());
+async function ensureRdpDnat(pc) {
+  if (!pc.privateIp) return;
+  const rule = ['-p', 'tcp', '--dport', String(rdpPort(pc)), '-j', 'DNAT', '--to-destination', `${pc.privateIp}:3389`];
+  const c = await run('iptables', ['-t', 'nat', '-C', 'LOCALIA-RDP', ...rule]);
+  if (!c.ok) await run('iptables', ['-t', 'nat', '-A', 'LOCALIA-RDP', ...rule]);
+}
+async function removeRdpDnat(pc) { if (pc.privateIp) await run('iptables', ['-t', 'nat', '-D', 'LOCALIA-RDP', '-p', 'tcp', '--dport', String(rdpPort(pc)), '-j', 'DNAT', '--to-destination', `${pc.privateIp}:3389`]); }
+async function allowRdp(pc, ip) {
+  const m = String(ip).match(/^(\d+)\.(\d+)\.(\d+)\.\d+$/); if (!m) return null;   // solo IPv4
+  const net = `${m[1]}.${m[2]}.${m[3]}.0/24`;
+  const r = await run('ipset', ['add', 'localia-rdp', `${net},tcp:3389,${pc.privateIp}/32`, 'timeout', String(RDP_TTL), '-exist']);
+  return r.ok ? { net, until: new Date(Date.now() + RDP_TTL * 1000).toISOString() } : null;
+}
+function newRdpPassword() { const A = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789'; return Array.from(crypto.randomBytes(8), b => A[b % A.length]).join(''); }
+async function ensureRdpPassword(pc) {
+  if (pc.rdpPassword && pc.rdpSet) return true;
+  if (!pc.rdpPassword) pc.rdpPassword = newRdpPassword();
+  const r = await agent(pc, '/rdp-password', { method: 'POST', body: JSON.stringify({ password: pc.rdpPassword }) }, 25000);
+  pc.rdpSet = r.status === 200; save(); return pc.rdpSet;
+}
+function rdpFile(pc) {
+  return [`full address:s:${ENV.GW_PUBLIC_IP}:${rdpPort(pc)}`, 'username:s:localia', 'prompt for credentials:i:0', 'screen mode id:i:2', 'use multimon:i:0',
+    'smart sizing:i:1', 'dynamic resolution:i:0', 'desktopwidth:i:1920', 'desktopheight:i:1080', 'session bpp:i:24', 'authentication level:i:0',
+    'negotiate security layer:i:1', 'enablecredsspsupport:i:0', 'redirectclipboard:i:1', 'audiomode:i:2', 'autoreconnection enabled:i:1',
+    `alternate shell:s:`, `remoteapplicationmode:i:0`].join('\r\n') + '\r\n';
+}
 async function unroutePc(pc) { if (!pc.privateIp) return; for (const r of await rulesFor(pc.privateIp)) await run('ip', ['rule', 'del', 'from', pc.privateIp, 'lookup', r.table, 'priority', String(r.prio)]); }
 async function wgStatus() {
   const r = await run('wg', ['show', 'all', 'dump']);
@@ -141,6 +172,7 @@ mkdir -p /etc/localia
 cat > /etc/localia/agent.env <<'E'
 TOKEN=${pc.token}
 PC_ID=${pc.id}
+RDP_PASSWORD=${pc.rdpPassword || ''}
 E
 chmod 600 /etc/localia/agent.env
 echo "https://${PORTAL_HOST}/donde?pc=${pc.id}" > /etc/localia/start_url
@@ -148,7 +180,15 @@ hostnamectl set-hostname localia-pc-${pc.id} || true
 timedatectl set-timezone ${ex ? ex.tz : 'UTC'} || true
 systemctl restart localia-agent
 # el escritorio arranca después del cambio de nombre (si no, XFCE no conecta con el display)
-systemctl restart localia-desktop
+# y sin el bloqueo de perfil que Chromium dejó con el nombre viejo de la máquina
+# Chromium sin el aviso de "restaurar páginas" después de un reinicio
+sed -i 's/--start-maximized "/--start-maximized --hide-crash-restore-bubble "/' /usr/local/bin/localia-browser || true
+# contraseña de Windows App y puente al escritorio
+/usr/local/sbin/localia-rdp-pass || true
+systemctl stop localia-desktop || true
+rm -f /home/localia/.config/chromium/Singleton*
+systemctl start localia-desktop
+systemctl restart localia-rdp-bridge || true
 `;
   return Buffer.from(s).toString('base64');
 }
@@ -197,7 +237,7 @@ async function provision(pc) {
   const mark = (step, text) => { P.step = step; P.steps.push({ step, text, at: now() }); save(); };
   try {
     await createInstance(pc); mark('reserving', `PC ${TIERS[pc.tier].name} reservada en Virginia (${pc.instanceId})`);
-    await routePc(pc, pc.active); mark('tunnel', `Salida asignada: ${exitBy(pc.active).name} · corte automático activo`);
+    await routePc(pc, pc.active); await ensureRdpDnat(pc); mark('tunnel', `Salida asignada: ${exitBy(pc.active).name} · corte automático activo`);
     const t0 = Date.now();
     while (Date.now() - t0 < 6 * 60e3) { await refreshPc(pc); if (pc.ec2 === 'running') break; await sleep(4000); }
     mark('booting', 'PC prendida, arrancando el escritorio');
@@ -248,9 +288,9 @@ async function api(req, res, url) {
     const exits = [...new Set((b.exits || []).filter(c => exitBy(c)))]; const active = exits.includes(b.active) ? b.active : exits[0];
     if (!active) return send(res, 400, { error: 'Elegí al menos un país.' });
     const live = db.pcs.filter(x => x.status !== 'deleted');
-    if (live.filter(x => x.userId === u.id).length >= MAX_PCS_PER_USER) return send(res, 429, { error: `En el demo cada cuenta puede tener hasta ${MAX_PCS_PER_USER} PCs.` });
+    if (!u.admin && live.filter(x => x.userId === u.id).length >= MAX_PCS_PER_USER) return send(res, 429, { error: `En el demo cada cuenta puede tener hasta ${MAX_PCS_PER_USER} PCs.` });
     if (live.length >= MAX_PCS_TOTAL) return send(res, 429, { error: 'El demo llegó al máximo de PCs. Borrá una para crear otra.' });
-    const pc = { id: rid(6), userId: u.id, name: String(b.name || '').slice(0, 40) || 'Mi PC', tier, exits, active, token: crypto.randomBytes(24).toString('hex'), status: 'active', createdAt: now(), lastActivity: now() };
+    const pc = { id: rid(6), userId: u.id, name: String(b.name || '').slice(0, 40) || 'Mi PC', tier, exits, active, token: crypto.randomBytes(24).toString('hex'), rdpPassword: newRdpPassword(), rdpSet: true, status: 'active', createdAt: now(), lastActivity: now() };
     db.pcs.push(pc); ev(pc, `PC creada: ${TIERS[tier].name}, te ven en ${exitBy(active).name}`); save();
     provision(pc); return send(res, 200, { pc: pubPc(pc) });
   }
@@ -263,8 +303,21 @@ async function api(req, res, url) {
     if (act === 'start' && m === 'POST') { await ec2['us-east-1'].send(new StartInstancesCommand({ InstanceIds: [pc.instanceId] })); pc.lastActivity = now(); ev(pc, 'La prendiste desde el panel'); await routePc(pc, pc.active); return send(res, 200, { pc: pubPc(await refreshPc(pc)) }); }
     if (act === 'stop' && m === 'POST') { await ec2['us-east-1'].send(new StopInstancesCommand({ InstanceIds: [pc.instanceId] })); ev(pc, 'La apagaste desde el panel. Tus archivos quedan guardados.'); return send(res, 200, { pc: pubPc(await refreshPc(pc)) }); }
     if (act === 'reboot' && m === 'POST') { await ec2['us-east-1'].send(new RebootInstancesCommand({ InstanceIds: [pc.instanceId] })); ev(pc, 'La reiniciaste desde el panel'); return send(res, 200, { pc: pubPc(pc) }); }
+    if (act === 'rdp' && m === 'POST') {   // habilita la red del usuario y devuelve los datos para Windows App
+      if (pc.ec2 !== 'running') { await refreshPc(pc); if (pc.ec2 !== 'running') return send(res, 409, { error: 'Prendé la PC primero.' }); }
+      await ensureRdpDnat(pc);
+      if (!(await ensureRdpPassword(pc))) return send(res, 503, { error: 'La PC todavía está arrancando. Probá en un minuto.' });
+      const a = await allowRdp(pc, clientIp(req)); if (!a) return send(res, 400, { error: 'No pudimos habilitar tu red (¿IPv6?).' });
+      ev(pc, `Habilitaste Windows App desde la red ${a.net} por 12 h`);
+      return send(res, 200, { rdp: { host: ENV.GW_PUBLIC_IP, port: rdpPort(pc), address: `${ENV.GW_PUBLIC_IP}:${rdpPort(pc)}`, username: 'localia', password: pc.rdpPassword, network: a.net, until: a.until } });
+    }
+    if (act === 'rdp-file' && m === 'GET') {
+      if (pc.ec2 === 'running') { await ensureRdpDnat(pc); await allowRdp(pc, clientIp(req)); }
+      res.writeHead(200, { 'Content-Type': 'application/x-rdp', 'Content-Disposition': `attachment; filename="Localia-${String(pc.name).replace(/[^A-Za-z0-9_-]+/g, '-')}.rdp"`, 'Cache-Control': 'no-store' });
+      return res.end(rdpFile(pc));
+    }
     if (act === 'restart-desktop' && m === 'POST') { await agent(pc, '/restart-desktop', { method: 'POST', body: '{}' }); ev(pc, 'Reiniciaste el escritorio'); return send(res, 200, { ok: true }); }
-    if (act === 'delete' && m === 'POST') { if (pc.instanceId) await ec2['us-east-1'].send(new TerminateInstancesCommand({ InstanceIds: [pc.instanceId] })).catch(() => {}); await unroutePc(pc); pc.status = 'deleted'; ev(pc, 'PC borrada', 'warn'); save(); return send(res, 200, { ok: true }); }
+    if (act === 'delete' && m === 'POST') { if (pc.instanceId) await ec2['us-east-1'].send(new TerminateInstancesCommand({ InstanceIds: [pc.instanceId] })).catch(() => {}); await unroutePc(pc); await removeRdpDnat(pc); pc.status = 'deleted'; ev(pc, 'PC borrada', 'warn'); save(); return send(res, 200, { ok: true }); }
     if (act === 'exit' && m === 'POST') {
       const b = await body(req); const code = String(b.code || '');
       if (!exitBy(code)) return send(res, 400, { error: 'País desconocido.' });
@@ -423,7 +476,7 @@ server.on('upgrade', (req, socket, head) => {
 // ---------- tareas de fondo ----------
 async function boot() {
   await syncExitPeers();
-  for (const pc of db.pcs.filter(x => x.status !== 'deleted' && x.privateIp)) await routePc(pc, pc.active);  // reglas perdidas si se reinició el gateway
+  for (const pc of db.pcs.filter(x => x.status !== 'deleted' && x.privateIp)) { await routePc(pc, pc.active); await ensureRdpDnat(pc); }  // reglas perdidas si se reinició el gateway
   server.listen(PORT, '127.0.0.1', () => console.log(`Localía portal en :${PORT} · https://${PORTAL_HOST}`));
 }
 setInterval(async () => {   // se apaga sola si nadie la usa (cuida la plata)

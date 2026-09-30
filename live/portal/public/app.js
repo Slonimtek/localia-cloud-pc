@@ -186,6 +186,9 @@ function pcCardFull(pc){const e=ex(pc.active);const busy=['pending','stopping','
    <div class="cta-row" style="margin:12px 0 0"><button class="btn btn-ghost btn-sm" data-act="copy-link" data-url="${esc(directUrl(pc))}">${ico.copy} Copiar link</button><a class="btn btn-ghost btn-sm" href="${directUrl(pc)}" target="_blank" rel="noopener">${ico.monitor} Abrir a pantalla completa</a></div>
    <details class="tbl" style="margin-top:12px"><summary>Cómo instalarla como app</summary><ul class="steps-ol" style="list-style:disc"><li><b>Compu (Chrome o Edge):</b> abrí el link y tocá el ícono de instalar en la barra de direcciones (o menú ⋮ → "Instalar").</li><li><b>iPhone o iPad (Safari):</b> abrí el link → Compartir → "Agregar a inicio".</li><li><b>Android (Chrome):</b> abrí el link → menú ⋮ → "Agregar a la pantalla principal".</li></ul></details></div>
    <div class="qrbox"><div class="qr-slot" data-url="${esc(directUrl(pc))}"></div><small class="muted">Escaneala con el celular</small></div></div>
+  <div class="tab-body winapp"><div><h3>${ico.monitor} Con la app de escritorio remoto de Microsoft</h3>
+   <p class="sm muted">Entrá a tu PC con <b>Windows App</b> (Windows, Mac, iPhone, iPad o Android). Es el mismo escritorio que ves en el navegador. Por seguridad, el acceso se habilita solo para la red donde estás, por 12 horas.</p></div>
+   <button class="btn btn-primary btn-sm" data-act="rdp" data-id="${pc.id}" ${pc.state!=='running'?'disabled title="Prendé la PC primero"':''}>${ico.monitor} Conectar con Windows App</button></div>
   <div class="tab-body" style="border-top:1px solid var(--line)"><h3 style="font-size:15px;font-family:var(--font);font-weight:700;margin-bottom:6px">Actividad</h3><ul class="feed">${(pc.events||[]).slice(0,6).map(e=>`<li><time>${ago(e.at)}</time><span>${esc(e.text)}</span></li>`).join('')||'<li><span class="muted">Sin actividad todavía.</span></li>'}</ul></div></section>`}
 function vPanel(){if(!S.user)return vAuth();
  const n=S.pcs.length;
@@ -289,6 +292,18 @@ const A={
    <div class="cmd"><span id="cmdTxt">${esc(r.command)}</span></div><div class="modal-act"><button class="btn btn-ghost" data-act="copy-cmd">${ico.copy} Copiar</button><button class="btn btn-primary" data-act="close-modal">Listo</button></div><p class="fine">El código sirve una sola vez.</p>`)}catch(e){toast(e.message,true)}},
  fullscreen:()=>{const f=$('#pcFrame')||$('#desk');try{document.fullscreenElement?document.exitFullscreen():f.requestFullscreen()}catch(e){}},
  'copy-link':el=>{navigator.clipboard&&navigator.clipboard.writeText(el.dataset.url).then(()=>toast('Link copiado')).catch(()=>toast(el.dataset.url))},
+ rdp:async el=>{S.busy=true;el.disabled=true;const old=el.innerHTML;el.innerHTML=`${ico.restart} Habilitando…`;
+  try{const r=(await api(`/api/pcs/${el.dataset.id}/rdp`,{method:'POST',body:{}})).rdp;const until=new Date(r.until).toLocaleTimeString('es-UY',{hour:'2-digit',minute:'2-digit'});
+   openModal(`<h3>Conectar con Windows App</h3><p class="okbox">${ico.check} Listo: tu red (<span class="mono">${esc(r.network)}</span>) puede entrar hasta las ${until}.</p>
+   <ol class="steps-ol" style="margin-top:14px;gap:10px">
+    <li><b>Instalá Windows App</b> (gratis, de Microsoft): <a href="https://apps.microsoft.com/detail/9n1f85v9t8bn" target="_blank" rel="noopener">Windows</a> · <a href="https://apps.apple.com/app/windows-app/id1295203466" target="_blank" rel="noopener">Mac</a> · <a href="https://apps.apple.com/app/windows-app-mobile/id714464092" target="_blank" rel="noopener">iPhone/iPad</a> · <a href="https://play.google.com/store/apps/details?id=com.microsoft.rdc.androidx" target="_blank" rel="noopener">Android</a>. En Windows también sirve "Conexión a Escritorio remoto", que ya viene instalada.</li>
+    <li><b>Abrí tu PC:</b> bajá el archivo de conexión y abrilo con Windows App.<div class="cta-row" style="margin:8px 0 0"><a class="btn btn-ghost btn-sm" href="/api/pcs/${el.dataset.id}/rdp-file">${ico.link} Bajar archivo .rdp</a></div>
+     <span class="sm muted">O agregala a mano: "Agregar PC" → nombre <span class="mono">${esc(r.address)}</span>, usuario <span class="mono">${esc(r.username)}</span>.</span></li>
+    <li><b>Contraseña:</b> <span class="cmd" style="display:inline-flex;margin:4px 0 0"><span id="rdpPw">${esc(r.password)}</span></span> <button class="btn btn-ghost btn-sm" data-act="copy-link" data-url="${esc(r.password)}">${ico.copy} Copiar</button></li>
+   </ol>
+   <p class="note">${ico.info}<span>La primera vez, la app avisa que no puede verificar el certificado de la PC: tocá "Continuar". Si cambiás de red (otro wifi o el celular), volvé a tocar "Conectar con Windows App".</span></p>
+   <div class="modal-act"><button class="btn btn-primary" data-act="close-modal">Listo</button></div>`)}
+  catch(e){toast(e.message,true)}el.disabled=false;el.innerHTML=old;S.busy=false},
  'copy-cmd':()=>{const t=$('#cmdTxt').textContent;navigator.clipboard&&navigator.clipboard.writeText(t).then(()=>toast('Copiado')).catch(()=>{})},
 };
 document.addEventListener('click',e=>{if(e.target.matches('[data-bg]')){closeModal();return}const el=e.target.closest('[data-act]');if(!el||el.disabled)return;const f=A[el.dataset.act];if(f){e.preventDefault();f(el,e)}});
