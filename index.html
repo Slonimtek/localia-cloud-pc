@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Localía — tu PC en tu país</title>
-<meta name="description" content="Localía by Slonimtek: una computadora en la nube que vive en el país que elijas. Abrila desde el navegador y los sitios te ven como alguien de ahí. Mockup navegable.">
+<meta name="description" content="Localía by Slonimtek: una computadora en la nube que vive cerca tuyo y sale a internet por el país que elijas. Abrila desde el navegador y los sitios te ven como alguien de ahí. Mockup navegable.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2.5c-6.4 0-11.5 5-11.5 11.2C4.5 21.6 16 29.5 16 29.5s11.5-7.9 11.5-15.8C27.5 7.5 22.4 2.5 16 2.5z' fill='%231c6cb5'/%3E%3Crect x='9.6' y='8.2' width='12.8' height='8.6' rx='1.8' fill='%23fff'/%3E%3Crect x='13.2' y='18.4' width='5.6' height='1.8' rx='.9' fill='%23fff'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -604,6 +604,73 @@ table.ops-t{width:100%;border-collapse:collapse;font-size:14px;min-width:760px}
 .arch b{display:block;font-size:14.5px;margin:4px 0;color:var(--ink)}
 .arch .k{font-family:var(--mono);font-size:11px;color:var(--sol);letter-spacing:.08em;text-transform:uppercase}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* v2 · PC cerca tuyo + salida por país */
+.route3{display:grid;grid-template-columns:auto minmax(14px,1fr) auto minmax(14px,1fr) auto;gap:6px;margin-bottom:14px}
+.r3n{display:flex;flex-direction:column;align-items:center;text-align:center;gap:3px;min-width:0}
+.r3n b{font-size:12.5px;line-height:1.2;margin-top:3px}
+.r3n small{color:var(--muted);font-size:11.5px;line-height:1.2;white-space:nowrap}
+.r3n .rt-code .i{width:20px;height:20px}
+.r3n.pc .rt-code{border:2px solid var(--sky);color:var(--sky)}
+.r3n.to .rt-code{border:2px solid var(--stamp);color:var(--stamp)}
+.r3l{align-self:start;margin-top:21px;height:2px;position:relative;background-image:linear-gradient(90deg,var(--line-2) 50%,transparent 0);background-size:10px 2px}
+.r3l span{position:absolute;top:-4px;left:0;width:10px;height:10px;border-radius:50%;background:var(--sky);box-shadow:0 0 0 4px color-mix(in srgb,var(--sky) 22%,transparent);animation:travel 2.6s ease-in-out infinite}
+.r3l.b span{background:var(--stamp);box-shadow:0 0 0 4px color-mix(in srgb,var(--stamp) 22%,transparent);animation-delay:1.3s}
+.flow{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,1fr);align-items:stretch;gap:8px;margin-top:22px}
+.fn{padding:14px;border-radius:14px;border:1px solid var(--line);background:var(--surface);min-width:0}
+.sec.alt .fn{background:var(--bg)}
+.fn .k{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--sol)}
+.fn b{display:block;font-size:15px;margin:4px 0 2px}
+.fn small{color:var(--muted);font-size:12.5px;display:block}
+.fn.hl{border-color:var(--stamp);box-shadow:0 0 0 3px color-mix(in srgb,var(--stamp) 14%,transparent)}
+.fa{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11px;color:var(--muted);font-family:var(--mono);text-align:center;max-width:96px;line-height:1.25}
+.fa .i{color:var(--line-2);width:22px;height:22px}
+@media(max-width:900px){.flow{grid-template-columns:1fr}.fa{flex-direction:row;max-width:none;justify-content:flex-start;padding-left:16px;text-align:left}.fa .i{transform:rotate(90deg)}}
+.flow-note{display:flex;gap:8px;margin-top:14px;font-size:14px;color:var(--ink-2)}
+.flow-note .i{color:var(--sky);margin-top:2px}
+.trust{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media(max-width:900px){.trust{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.trust{grid-template-columns:1fr}}
+.origin b{color:var(--ink)}
+.origin .o-arrow .i{width:16px;height:16px;color:var(--muted)}
+.tag-f{font-size:11.5px;font-family:var(--mono);color:var(--stamp);font-weight:600}
+.cc-ip{font-size:12px;font-family:var(--mono);color:var(--muted)}
+.fib{display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;margin-top:14px;padding:14px;border-radius:12px;border:1.5px dashed var(--line-2);background:var(--surface)}
+.fib.on{border-style:solid;border-color:var(--stamp);background:color-mix(in srgb,var(--stamp) 6%,var(--surface))}
+.fib b{display:block}.fib small{display:block;color:var(--ink-2);font-size:13.5px;margin-top:2px}
+.fib .px{margin-left:auto;font-family:var(--mono);font-size:13px;white-space:nowrap;padding-left:6px}
+.radio.sq{border-radius:6px}
+.on > .radio.sq{border-color:var(--stamp);background:var(--stamp)}
+.on > .radio.sq::after{content:"";width:9px;height:5px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:translateY(-1px) rotate(-45deg);background:none;border-radius:0}
+.extras{margin-top:6px}
+.extras .field-l .muted{font-weight:400;font-size:13.5px}
+.exit-switch{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;font-size:14px;color:var(--ink-2)}
+.exit-switch .seg button{display:inline-flex;align-items:center;gap:6px}
+.exit,.dev{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px dashed var(--line-2);flex-wrap:wrap}
+.exit .stamp{color:var(--stamp);flex:none;transform:rotate(-8deg)}
+.exit-t,.dev-t{flex:1;min-width:160px}.exit-t b,.dev-t b{display:block}.exit-t small,.dev-t small{color:var(--muted);font-size:12.5px}
+.dev-ic{width:40px;height:40px;border-radius:10px;background:var(--sky-soft);color:var(--sky-ink);display:grid;place-items:center;flex:none}
+.dev .sel{font-size:13.5px;padding:6px 8px}
+.upsell{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:12px;padding:16px;border-radius:12px;background:var(--surface-2)}
+.upsell > div{flex:1;min-width:220px}
+.ses-sel{display:inline-flex;align-items:center;gap:6px;padding:3px 4px 3px 10px;border-radius:999px;background:#2a1f55;border:1px solid #5a3ea6;white-space:nowrap;font-size:12.5px;color:#d9ccff}
+.ses-sel select{font:inherit;font-weight:700;color:#fff;background:#3a2b73;border:0;border-radius:999px;padding:4px 8px;cursor:pointer}
+.switching{position:absolute;inset:0;z-index:1500;display:grid;place-items:center;background:rgba(7,16,29,.74);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.switching > div{text-align:center;color:#fff;display:grid;justify-items:center;gap:8px;padding:20px;max-width:340px}
+.switching .stamp{color:#ab93f3;animation:stampin .55s cubic-bezier(.2,.8,.3,1.25)}
+.switching b{font-size:18px}.switching small{color:#9fb2c9;font-size:13px}
+.tv-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.tv{border-radius:10px;padding:12px;background:linear-gradient(135deg,#1c3b66,#2a1f55);color:#fff;min-height:78px;display:flex;flex-direction:column;justify-content:space-between;gap:8px;font-size:13px}
+.tv .live{font-family:var(--mono);font-size:10px;letter-spacing:.1em;background:#c2352d;border-radius:4px;padding:2px 6px;align-self:flex-start}
+.tip{margin-top:12px;padding:12px;border-radius:10px;background:#f1edff;color:#33455e;font-size:13.5px;display:flex;gap:8px;align-items:flex-start}
+.tip .i{color:#5a3ea6;margin-top:1px}
+.qr{width:176px;height:176px;margin:16px auto 6px;display:block;background:#fff;padding:10px;border-radius:12px;border:1px solid var(--line)}
+.steps-ol{margin:10px 0 0;padding-left:20px;color:var(--ink-2);font-size:14.5px;display:grid;gap:4px}
+.zones{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}
+@media(max-width:760px){.zones{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.calc-ctl.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.range-row + .range-row{margin-top:8px}
+.range-row label{min-width:150px}
 </style>
 </head>
 <body>
@@ -611,7 +678,7 @@ table.ops-t{width:100%;border-collapse:collapse;font-size:14px;min-width:760px}
 <nav class="ribbon" aria-label="Navegación del mockup"><div class="rib-in" id="rib">
   <span class="rib-tag">Mockup</span>
   <a href="#inicio" data-r="inicio">Inicio</a><span class="rib-sep">/</span>
-  <a href="#armar/1" data-r="armar/1">1 · País</a>
+  <a href="#armar/1" data-r="armar/1">1 · Dónde te ven</a>
   <a href="#armar/2" data-r="armar/2">2 · Tamaño</a>
   <a href="#armar/3" data-r="armar/3">3 · Sistema</a>
   <a href="#armar/4" data-r="armar/4">4 · Datos</a>
@@ -632,77 +699,89 @@ const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
 
 /* ---------- datos ---------- */
+/* Países de salida: dónde te ven. La PC vive cerca del usuario (ZONES). */
 const COUNTRIES=[
- {code:'UY',name:'Uruguay',city:'Montevideo',tz:'America/Montevideo',lang:'Español (Uruguay) · teclado latino',cur:'Pesos uruguayos',mult:1.4,region:'latam',infra:'Antel Data Center · Pando'},
- {code:'AR',name:'Argentina',city:'Buenos Aires',tz:'America/Argentina/Buenos_Aires',lang:'Español (Argentina) · teclado latino',cur:'Pesos argentinos',mult:1.3,region:'latam',infra:'AWS Local Zone · Buenos Aires'},
- {code:'CL',name:'Chile',city:'Santiago',tz:'America/Santiago',lang:'Español (Chile) · teclado latino',cur:'Pesos chilenos',mult:1.3,region:'latam',infra:'AWS Local Zone · Santiago'},
- {code:'PE',name:'Perú',city:'Lima',tz:'America/Lima',lang:'Español (Perú) · teclado latino',cur:'Soles',mult:1.3,region:'latam',infra:'AWS Local Zone · Lima'},
- {code:'MX',name:'México',city:'Querétaro',tz:'America/Mexico_City',lang:'Español (México) · teclado latino',cur:'Pesos mexicanos',mult:1.15,region:'latam',infra:'AWS · Región México'},
- {code:'BR',name:'Brasil',city:'São Paulo',tz:'America/Sao_Paulo',lang:'Português (Brasil) · teclado ABNT2',cur:'Reales',mult:1.5,region:'latam',infra:'AWS · Región São Paulo'},
- {code:'CO',name:'Colombia',city:'Bogotá',tz:'America/Bogota',lang:'Español (Colombia)',cur:'Pesos colombianos',mult:1.3,region:'latam',soon:true,infra:'AWS Local Zone · Bogotá (anunciada)'},
- {code:'US',name:'Estados Unidos',city:'Virginia',tz:'America/New_York',lang:'Inglés (EE.UU.) · teclado US',cur:'Dólares',mult:1.0,region:'world',infra:'AWS · Región N. Virginia'},
- {code:'ES',name:'España',city:'Aragón',tz:'Europe/Madrid',lang:'Español (España) · teclado ES',cur:'Euros',mult:1.1,region:'world',infra:'AWS · Región España'},
- {code:'IL',name:'Israel',city:'Tel Aviv',tz:'Asia/Jerusalem',lang:'Hebreo e inglés · teclado HE',cur:'Shekels',mult:1.15,region:'world',infra:'AWS · Región Tel Aviv'},
+ {code:'UY',name:'Uruguay',city:'Montevideo',tz:'America/Montevideo',lang:'Español (Uruguay) · teclado latino',cur:'Pesos uruguayos',region:'latam',exit:'Antel · Montevideo',fibra:true},
+ {code:'AR',name:'Argentina',city:'Buenos Aires',tz:'America/Argentina/Buenos_Aires',lang:'Español (Argentina) · teclado latino',cur:'Pesos argentinos',region:'latam',exit:'AWS Local Zone · Buenos Aires',fibra:true},
+ {code:'CL',name:'Chile',city:'Santiago',tz:'America/Santiago',lang:'Español (Chile) · teclado latino',cur:'Pesos chilenos',region:'latam',exit:'AWS Local Zone · Santiago'},
+ {code:'PY',name:'Paraguay',city:'Asunción',tz:'America/Asuncion',lang:'Español (Paraguay) · teclado latino',cur:'Guaraníes',region:'latam',exit:'Proveedor local · Asunción'},
+ {code:'PE',name:'Perú',city:'Lima',tz:'America/Lima',lang:'Español (Perú) · teclado latino',cur:'Soles',region:'latam',exit:'AWS Local Zone · Lima'},
+ {code:'CO',name:'Colombia',city:'Bogotá',tz:'America/Bogota',lang:'Español (Colombia) · teclado latino',cur:'Pesos colombianos',region:'latam',exit:'Proveedor local · Bogotá'},
+ {code:'MX',name:'México',city:'Querétaro',tz:'America/Mexico_City',lang:'Español (México) · teclado latino',cur:'Pesos mexicanos',region:'latam',exit:'AWS · Querétaro'},
+ {code:'BR',name:'Brasil',city:'São Paulo',tz:'America/Sao_Paulo',lang:'Portugués (Brasil) · teclado ABNT2',cur:'Reales',region:'latam',exit:'AWS · São Paulo'},
+ {code:'BO',name:'Bolivia',city:'La Paz',tz:'America/La_Paz',lang:'Español (Bolivia)',cur:'Bolivianos',region:'latam',soon:true,exit:'A definir'},
+ {code:'US',name:'Estados Unidos',city:'Virginia',tz:'America/New_York',lang:'Inglés (EE.UU.) · teclado US',cur:'Dólares',region:'world',exit:'AWS · Virginia'},
+ {code:'ES',name:'España',city:'Madrid',tz:'Europe/Madrid',lang:'Español (España) · teclado ES',cur:'Euros',region:'world',exit:'Proveedor local · Madrid'},
+ {code:'IL',name:'Israel',city:'Tel Aviv',tz:'Asia/Jerusalem',lang:'Hebreo e inglés · teclado HE',cur:'Shekels',region:'world',exit:'AWS · Tel Aviv'},
 ];
 const C=Object.fromEntries(COUNTRIES.map(c=>[c.code,c]));
+/* Dónde está el usuario → en qué zona ponemos su PC. lat = demora extra PC→salida. */
 const ORIGINS={
- TLV:{label:'Tel Aviv, Israel',city:'Tel Aviv',lat:{UY:250,AR:255,CL:275,PE:230,MX:190,BR:220,CO:200,US:135,ES:70,IL:4}},
- MAD:{label:'Madrid, España',city:'Madrid',lat:{UY:185,AR:190,CL:205,PE:165,MX:125,BR:160,CO:140,US:80,ES:6,IL:70}},
- MIA:{label:'Miami, EE.UU.',city:'Miami',lat:{UY:125,AR:125,CL:110,PE:75,MX:45,BR:110,CO:50,US:30,ES:100,IL:145}},
- NYC:{label:'Nueva York, EE.UU.',city:'Nueva York',lat:{UY:140,AR:140,CL:125,PE:90,MX:60,BR:120,CO:70,US:10,ES:85,IL:135}},
- MVD:{label:'Montevideo, Uruguay',city:'Montevideo',lat:{UY:4,AR:12,CL:40,PE:75,MX:140,BR:34,CO:95,US:125,ES:190,IL:255}},
+ TLV:{label:'Tel Aviv, Israel',city:'Tel Aviv',pc:'Tel Aviv',ms:4,mult:1.15,zone:'AWS · Tel Aviv',lat:{UY:250,AR:255,CL:275,PY:250,PE:230,CO:200,MX:190,BR:220,BO:260,US:135,ES:70,IL:4}},
+ MAD:{label:'Madrid, España',city:'Madrid',pc:'España',ms:8,mult:1.1,zone:'AWS · España',lat:{UY:185,AR:190,CL:205,PY:190,PE:165,CO:140,MX:125,BR:160,BO:195,US:80,ES:6,IL:70}},
+ MIA:{label:'Miami, EE.UU.',city:'Miami',pc:'Miami',ms:3,mult:1.05,zone:'AWS Local Zone · Miami',lat:{UY:125,AR:125,CL:110,PY:120,PE:75,CO:50,MX:45,BR:110,BO:100,US:30,ES:100,IL:145}},
+ NYC:{label:'Nueva York, EE.UU.',city:'Nueva York',pc:'Virginia',ms:9,mult:1.0,zone:'AWS · Virginia',lat:{UY:140,AR:140,CL:125,PY:135,PE:90,CO:70,MX:60,BR:120,BO:115,US:10,ES:85,IL:135}},
+ MVD:{label:'Montevideo, Uruguay',city:'Montevideo',pc:'Montevideo',ms:3,mult:1.4,zone:'Antel · Montevideo',lat:{UY:4,AR:12,CL:40,PY:25,PE:75,CO:95,MX:140,BR:34,BO:60,US:125,ES:190,IL:255}},
 };
 const TIERS={
  mini:{name:'Mini',cpu:2,ram:4,disk:64,base:29,win:10,rate:0.042,winRate:0.018,for:'Bancos, trámites, compras y mails',long:'Para entrar a tu banco, hacer trámites y comprar como si estuvieras allá.'},
  standard:{name:'Standard',cpu:4,ram:16,disk:128,base:59,win:20,rate:0.166,winRate:0.074,for:'Trabajar todo el día',long:'Office, videollamadas, muchas pestañas y varias apps a la vez.'},
  gold:{name:'Gold',cpu:8,ram:32,disk:256,base:119,win:40,rate:0.384,winRate:0.368,for:'Diseño, edición y programación',long:'Para programas pesados: diseño, edición de fotos y video, desarrollo.'},
 };
+const EXTRA=6,FIBRA=9,CONEX=4;
 const APPS=[['chrome','Chrome'],['firefox','Firefox'],['libreoffice','LibreOffice'],['m365','Microsoft 365 (con tu cuenta)'],['zoom','Zoom'],['whatsapp','WhatsApp Desktop'],['vscode','VS Code'],['gimp','GIMP']];
 const IDLE=[['15','15 min'],['30','30 min'],['60','1 hora'],['always','Siempre prendida']];
 const IDLE_L={'15':'tras 15 min sin uso','30':'tras 30 min sin uso','60':'tras 1 hora sin uso',always:'nunca (siempre prendida)'};
 const PAYS=[['mp','MercadoPago','Pagás en tu moneda: pesos, reales o soles.'],['card','Tarjeta de crédito o débito','Visa, Mastercard o Amex.'],['paypal','PayPal','Desde cualquier país.']];
-const STEPS=['País','Tamaño','Sistema','Tus datos','Pago'];
-const USES=['Home banking','Trámites del Estado','Tiendas y apps del país','Medios locales','Clientes de allá'];
-const HERO_PAIRS=[{from:'Madrid',code:'MAD',to:'UY'},{from:'Tel Aviv',code:'TLV',to:'AR'},{from:'Miami',code:'MIA',to:'MX'},{from:'Nueva York',code:'NYC',to:'CL'}];
+const STEPS=['Dónde te ven','Tamaño','Sistema','Tus datos','Pago'];
+const USES=['Home banking','Trámites del Estado','Tele, radio y noticias','Tiendas y apps del país','Clientes de allá'];
+const HERO_PAIRS=[{code:'MAD',to:'UY'},{code:'TLV',to:'AR'},{code:'MIA',to:'MX'},{code:'NYC',to:'CL'}];
 const FAQ=[
+ ['¿Dónde está mi PC?','Cerca tuyo, para que ande rápida. Lo que cambia es por dónde sale a internet: por el país que elegiste, con una IP fija de ahí, solo tuya.'],
+ ['¿Sirve para ver la tele de mi país?','Sí para canales de aire, radios y sitios de noticias que solo se ven desde allá. Para video largo conviene conectar tu tele o tu celular directo a tu salida: se ve mejor que por la PC. Las grandes plataformas de streaming lo prohíben en sus términos y a veces lo bloquean.'],
+ ['¿Puedo tener varios países?','Sí, en la misma PC. Cada país con su IP fija y lo cambiás en un clic, desde la barra de tu PC o desde el panel.'],
+ ['¿Qué pasa si se corta la conexión con el país?','Tu PC se queda sin internet unos segundos hasta que vuelve el túnel. Nunca sale por otro lado: así tu banco jamás te ve en otro país.'],
  ['¿Tengo que instalar algo?','No. Abrís tu PC desde Chrome, Safari o Edge, en la compu, la tablet o el celular.'],
- ['¿Qué pasa si cierro la pestaña?','Tu PC sigue ahí. Si no la usás por 30 minutos hiberna sola (así no pagás de más) y cuando la volvés a abrir está como la dejaste.'],
  ['¿Por qué me piden la cédula?','Porque una IP del país vale mientras esté limpia. Verificamos a cada persona para que nadie la use para fraudes, y así los bancos no la bloquean.'],
- ['¿Puedo tener PCs en varios países?','Sí. Cada una con su IP, su hora y su idioma. Las manejás todas desde tu panel.'],
  ['¿Qué no se puede hacer?','Minar criptomonedas, mandar spam, abrir cuentas a nombre de otras personas o esquivar sanciones internacionales. Si lo detectamos, pausamos la PC.'],
 ];
 const OPS_ROWS=[
- {code:'UY',ip:'local',pcs:46,hrs:88,flag:1,margin:.37},
- {code:'AR',ip:'dc',pcs:31,hrs:97,flag:12,margin:.34},
- {code:'US',ip:'dc',pcs:18,hrs:121,flag:21,margin:.44},
- {code:'BR',ip:'dc',pcs:12,hrs:104,flag:17,margin:.29},
- {code:'MX',ip:'dc',pcs:9,hrs:80,flag:14,margin:.41},
- {code:'ES',ip:'dc',pcs:7,hrs:72,flag:13,margin:.42},
- {code:'CL',ip:'dc',pcs:5,hrs:90,flag:10,margin:.33},
- {code:'IL',ip:'dc',pcs:4,hrs:61,flag:9,margin:.45},
- {code:'PE',ip:'dc',pcs:2,hrs:66,flag:8,margin:.31},
+ {code:'UY',exit:'Antel · fibra + VPS',ip:'ISP local',ips:68,flag:1,tb:2.1},
+ {code:'AR',exit:'AWS Local Zone + fibra',ip:'Mixta',ips:49,flag:9,tb:1.6},
+ {code:'US',exit:'AWS · Virginia',ip:'Datacenter',ips:22,flag:21,tb:.9},
+ {code:'BR',exit:'AWS · São Paulo',ip:'Datacenter',ips:18,flag:17,tb:.7},
+ {code:'MX',exit:'AWS · Querétaro',ip:'Datacenter',ips:14,flag:13,tb:.5},
+ {code:'ES',exit:'Proveedor local · Madrid',ip:'Datacenter',ips:11,flag:12,tb:.4},
+ {code:'CL',exit:'AWS Local Zone · Santiago',ip:'Datacenter',ips:9,flag:10,tb:.3},
+ {code:'CO',exit:'Proveedor local · Bogotá',ip:'Datacenter',ips:8,flag:7,tb:.3},
+ {code:'PY',exit:'Proveedor local · Asunción',ip:'ISP local',ips:5,flag:3,tb:.2},
+ {code:'PE',exit:'AWS Local Zone · Lima',ip:'Datacenter',ips:4,flag:8,tb:.1},
+ {code:'IL',exit:'AWS · Tel Aviv',ip:'Datacenter',ips:3,flag:9,tb:.1},
 ];
+const ZONES_OPS=[['Tel Aviv',52],['España',38],['Miami',27],['Virginia',17]];
 const ALERTS=[
- {sev:'bad',lab:'Grave',t:'PC-0412 · Argentina',d:'CPU al 100% hace 6 horas y conexiones a pools de minería.',r:'Pausada automáticamente',b:['Ver detalle','Reactivar']},
- {sev:'warn',lab:'Atención',t:'PC-0388 · Estados Unidos',d:'1.200 intentos de mandar mail por el puerto 25 en 10 minutos.',r:'Puerto bloqueado · cliente avisado',b:['Ver detalle']},
+ {sev:'bad',lab:'Grave',t:'PC-0412 · zona Miami',d:'CPU al 100% hace 6 horas y conexiones a pools de minería.',r:'Pausada automáticamente',b:['Ver detalle','Reactivar']},
+ {sev:'info',lab:'Info',t:'Túnel UY-03 · Montevideo',d:'Se cortó 40 segundos por un corte de fibra.',r:'Corte automático: 0 fugas · reconectado solo',b:['Ver detalle']},
+ {sev:'warn',lab:'Atención',t:'PC-0388 · zona Virginia',d:'1.200 intentos de mandar mail por el puerto 25 en 10 minutos.',r:'Puerto bloqueado · cliente avisado',b:['Ver detalle']},
+ {sev:'info',lab:'Info',t:'IP AR-0071 · Buenos Aires',d:'Una plataforma de streaming la marcó como VPN.',r:'IP rotada · cliente avisado',b:['Ver detalle']},
  {sev:'warn',lab:'Atención',t:'Alta nueva · Uruguay',d:'El nombre de la cédula no coincide con el de la tarjeta.',r:'En revisión manual',b:['Revisar']},
- {sev:'info',lab:'Info',t:'IP 0071 · Brasil',d:'Apareció en una lista pública de VPN.',r:'Rotando la IP y pidiendo la baja',b:['Ver detalle']},
  {sev:'bad',lab:'Grave',t:'Registro bloqueado',d:'Intento de alta desde un país con sanciones internacionales.',r:'Rechazado en el registro',b:[]},
 ];
-const QUICK=[['banco','Mi banco me pide un código nuevo'],['lenta','Mi PC está lenta'],['disco','Quiero más disco'],['viaje','Me voy de viaje, ¿la pauso?']];
+const QUICK=[['tele','¿Puedo ver la tele de mi país?'],['banco','Mi banco me pide un código nuevo'],['lenta','Mi PC está lenta'],['viaje','Me voy de viaje, ¿la pauso?']];
 const REPLY={
+ tele:c=>`Sí: canales de aire, radios y sitios de noticias de ${c.name} andan, porque te ven desde allá. Para video largo, conectá tu tele directo a tu salida (pestaña Países y dispositivos): se ve mejor que por la PC. Ojo: las plataformas de streaming grandes prohíben esto en sus términos y a veces lo bloquean.`,
  banco:c=>`Es normal la primera vez: tu banco ve una computadora nueva. Poné el código una vez y marcá "recordar este dispositivo". Como tu IP de ${c.name} es fija, no te lo vuelve a pedir.`,
  lenta:()=>'Miré tu PC: la memoria está al 91% y tenés 38 pestañas abiertas en el navegador 😅. Cerrá algunas o, si la usás así todos los días, te conviene Gold (lo ves en la pestaña Plan).',
- disco:()=>'Te sumo 64 GB por US$ 6 al mes. Se aplica en el próximo reinicio y no perdés nada. ¿Lo agrego?',
  viaje:()=>'Si no la usás, se apaga sola y queda guardada. Si te vas más de un mes, desde Plan la podés pausar y pagás solo el disco.',
 };
 
 /* ---------- estado ---------- */
-const S={origin:'TLV',country:'UY',tier:'standard',os:'windows',apps:new Set(['chrome','libreoffice','zoom','whatsapp']),idle:'30',
- kyc:'none',rules:false,pay:'mp',cycle:'m',measured:false,step:1,pcSel:0,tab:'resumen',pcsData:null,moveTo:null,typing:false,
+const S={origin:'TLV',country:'UY',extras:new Set(['AR']),fibra:false,conexion:false,tier:'standard',os:'windows',
+ apps:new Set(['chrome','libreoffice','zoom','whatsapp']),idle:'30',kyc:'none',rules:false,pay:'mp',cycle:'m',step:1,tab:'resumen',
+ pc:null,wins:['bienvenida'],skipConnect:false,moveTo:null,typing:false,
  user:{name:'Lucía Fernández',email:'lucia.fernandez@ejemplo.com',wa:'+972 50 000 0000'},
  chat:[{me:false,t:'¡Hola Lucía! 👋 Soy Sofi, de soporte de Localía. Te contesto por acá o por WhatsApp. ¿En qué te ayudo?'}],
- calc:{code:'UY',tier:'standard',os:'windows',h:0}};
+ calc:{zone:'TLV',tier:'standard',os:'windows',h:0,n:2,gb:38}};
 
 /* ---------- helpers ---------- */
 const TODAY=new Date();
@@ -710,38 +789,39 @@ const STAMP_DATE=[TODAY.getDate(),TODAY.getMonth()+1,TODAY.getFullYear()%100].ma
 const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
 const n0=v=>Math.round(v).toLocaleString('es-UY');
 const n1=v=>(Math.round(v*10)/10).toLocaleString('es-UY',{minimumFractionDigits:1,maximumFractionDigits:1});
+const ipTail=code=>((code.charCodeAt(0)*7+code.charCodeAt(1)*3)%200)+20;
 function clock(tz){try{return new Intl.DateTimeFormat('es-UY',{timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date())}catch(e){return '--:--'}}
 function utc(tz){try{const p=new Intl.DateTimeFormat('en-US',{timeZone:tz,timeZoneName:'shortOffset'}).formatToParts(new Date()).find(x=>x.type==='timeZoneName');return p?p.value.replace('GMT','UTC').replace('-','−'):''}catch(e){return ''}}
 const country=()=>C[S.country];
-function planPrice(tier,code,os){const t=TIERS[tier];return Math.round(t.base*C[code].mult)+(os==='windows'?t.win:0)}
-function hourRate(tier,code,os){const t=TIERS[tier];return (t.rate+(os==='windows'?t.winRate:0))*C[code].mult}
-function alwaysOnExtra(tier,code,os){return Math.round(hourRate(tier,code,os)*580*1.2/5)*5}
-function monthly(){return planPrice(S.tier,S.country,S.os)+(S.idle==='always'?alwaysOnExtra(S.tier,S.country,S.os):0)}
+const zone=()=>ORIGINS[S.origin];
+function pcPrice(tier,z,os){const t=TIERS[tier];return Math.round(t.base*ORIGINS[z].mult)+(os==='windows'?t.win:0)}
+function hourRate(tier,z,os){const t=TIERS[tier];return (t.rate+(os==='windows'?t.winRate:0))*ORIGINS[z].mult}
+function alwaysOnExtra(tier,z,os){return Math.round(hourRate(tier,z,os)*580*1.2/5)*5}
+const extraList=()=>[...S.extras].filter(c=>c!==S.country&&C[c]&&!C[c].soon);
+const fibraOn=()=>S.fibra&&!!C[S.country].fibra;
+function monthly(){return pcPrice(S.tier,S.origin,S.os)+extraList().length*EXTRA+(fibraOn()?FIBRA:0)+(S.conexion?CONEX:0)+(S.idle==='always'?alwaysOnExtra(S.tier,S.origin,S.os):0)}
 function monthlyTotal(){const m=monthly();return S.cycle==='a'?Math.round(m*.85):m}
 function q(ms){
- if(ms<60)return{k:'ok',t:'como estar ahí',d:'Sirve para todo, hasta para juegos.'};
- if(ms<150)return{k:'good',t:'muy fluida',d:'Para todo, menos juegos online.'};
- return{k:'mid',t:'fluida para lo de todos los días',d:'Bancos, trámites, compras, mails y videollamadas. Para juegos, no.'};
+ if(ms<60)return{k:'ok',t:'como estar ahí'};
+ if(ms<150)return{k:'good',t:'muy fluida'};
+ return{k:'mid',t:'fluida para lo de todos los días'};
 }
-function econ(code,tier,os,h){
- const t=TIERS[tier],c=C[code];const price=planPrice(tier,code,os);const rate=hourRate(tier,code,os);
- const compute=rate*h;const disk=t.disk*.08*c.mult*1.25;const ip=3.65;const access=7;const fees=price*.05;
- const fixed=disk+ip+access+fees;const cost=compute+fixed;const margin=price-cost;
- return{price,rate,compute,disk,ip,access,fees,cost,margin,pct:margin/price,be:Math.max(0,(price-fixed)/rate)};
-}
+function econ(k){const t=TIERS[k.tier],o=ORIGINS[k.zone];const price=pcPrice(k.tier,k.zone,k.os)+(k.n-1)*EXTRA;const rate=hourRate(k.tier,k.zone,k.os);
+ const compute=rate*k.h;const disk=t.disk*.08*o.mult*1.25;const exits=k.n*(3.65+1.5);const data=k.gb*.09*2;const access=7;const fees=price*.05;
+ const fixed=disk+exits+data+access+fees;const cost=compute+fixed;const margin=price-cost;
+ return{price,rate,compute,disk,exits,data,access,fees,fixed,cost,margin,pct:margin/price,be:(price-fixed)/rate}}
 function usage(){const out=[];let seed=11;const rnd=()=>{seed=(seed*9301+49297)%233280;return seed/233280};
  for(let d=1;d<=30;d++){const dt=new Date(2026,8,d);const wd=dt.getDay();let h;
-  if(wd===0||wd===6)h=rnd()<.55?0:Math.round(rnd()*16)/10;else h=Math.round((2+rnd()*3.6)*10)/10;
-  out.push({d,dt,h})}return out}
+  if(wd===0||wd===6)h=rnd()<.55?0:Math.round(rnd()*16)/10;else h=Math.round((2+rnd()*3.6)*10)/10;out.push({d,dt,h})}return out}
 const USAGE=usage();const USAGE_TOTAL=Math.round(USAGE.reduce((a,b)=>a+b.h,0));
 S.calc.h=USAGE_TOTAL;
 function backupDates(){const out=[];for(let i=0;i<7;i++){const d=new Date(TODAY);d.setDate(d.getDate()-i);
  const wd=d.toLocaleDateString('es-UY',{weekday:'long'});const dm=d.toLocaleDateString('es-UY',{day:'numeric',month:'long'});
- out.push({label:i===0?'Hoy':i===1?'Ayer':cap(wd),long:`${wd} ${dm}`,dm,size:n1(46-i*.3)})}return out}
-function syncPcs(){const second=S.country==='AR'?'ES':'AR';
- S.pcsData=[{code:S.country,tier:S.tier,os:S.os,state:'on',disk:46,hrs:USAGE_TOTAL},{code:second,tier:'mini',os:'linux',state:'off',disk:12,hrs:11}]}
-function pcs(){if(!S.pcsData)syncPcs();return S.pcsData}
-const pcName=p=>`Mi PC en ${C[p.code].name}`;
+ out.push({label:i===0?'Hoy':i===1?'Ayer':cap(wd),long:`${wd} ${dm}`,size:n1(46-i*.3)})}return out}
+function initPc(){const exits=[S.country,...extraList()];const second=exits[1]||exits[0];
+ S.pc={state:'on',active:S.country,exits,disk:46,hrs:USAGE_TOTAL,
+  devices:[{name:'Tele del living',kind:'tv',code:S.country,on:true},{name:'Celular de Lucía',kind:'phone',code:second,on:false}]}}
+function pcs(){if(!S.pc)initPc();return S.pc}
 
 /* ---------- íconos ---------- */
 const P=d=>`<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
@@ -753,11 +833,13 @@ const ico={
  bank:P('<path d="M3 9.5L12 4l9 5.5"/><path d="M5 10v7M9.5 10v7M14.5 10v7M19 10v7M3.5 20h17"/>'),
  doc:P('<path d="M7 3h7l5 5v11a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2z"/><path d="M14 3v5h5M9 13h6M9 17h4"/>'),
  cart:P('<path d="M3 4h2l2.2 11h10.6L20 8H6.2"/><circle cx="9" cy="19" r="1.4"/><circle cx="17" cy="19" r="1.4"/>'),
- brief:P('<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2M3 12.5h18"/>'),
+ tv:P('<rect x="3" y="7" width="18" height="12" rx="2"/><path d="M8 3l4 4 4-4"/>'),
+ phone:P('<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/>'),
  monitor:P('<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M9 20h6M12 16v4"/>'),
  lock:P('<rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V8a4 4 0 018 0v2.5"/>'),
  chat:P('<path d="M20 12a8 8 0 01-11.6 7.1L4 20l1-4.1A8 8 0 1120 12z"/>'),
  globe:P('<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.5 2.6 3.6 5.4 3.6 8.5s-1.1 5.9-3.6 8.5c-2.5-2.6-3.6-5.4-3.6-8.5S9.5 6.1 12 3.5z"/>'),
+ link:P('<path d="M9 15l6-6"/><path d="M11 6l1-1a4 4 0 015.7 5.7l-1 1M13 18l-1 1a4 4 0 01-5.7-5.7l1-1"/>'),
  arrow:P('<path d="M5 12h14M13 6l6 6-6 6"/>'),
  back:P('<path d="M19 12H5M11 6l-6 6 6 6"/>'),
  power:P('<path d="M12 3v8"/><path d="M6.3 7.2a7.5 7.5 0 1011.4 0"/>'),
@@ -793,6 +875,10 @@ function stamp(c,size){const id='sp'+(++sid);const txt=`LOCALÍA · ${c.name.toU
  <text font-family="JetBrains Mono,monospace" font-size="8.6" font-weight="600" letter-spacing=".8" fill="currentColor"><textPath href="#${id}" xlink:href="#${id}" textLength="268" lengthAdjust="spacing">${txt}</textPath></text>
  <text x="60" y="67" text-anchor="middle" font-family="Bricolage Grotesque,sans-serif" font-weight="800" font-size="25" fill="currentColor">${c.code}</text>
  <text x="60" y="80" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="6.8" fill="currentColor">${STAMP_DATE}</text></g></svg>`}
+function qrSVG(){let seed=42;const rnd=()=>{seed=(seed*9301+49297)%233280;return seed/233280};const N=25;let r='';
+ const finder=(x,y)=>`<rect x="${x}" y="${y}" width="7" height="7" fill="#0c1a2c"/><rect x="${x+1}" y="${y+1}" width="5" height="5" fill="#fff"/><rect x="${x+2}" y="${y+2}" width="3" height="3" fill="#0c1a2c"/>`;
+ for(let y=0;y<N;y++)for(let x=0;x<N;x++){const inF=(x<8&&y<8)||(x>N-9&&y<8)||(x<8&&y>N-9);if(!inF&&rnd()<.48)r+=`<rect x="${x}" y="${y}" width="1" height="1" fill="#0c1a2c"/>`}
+ return `<svg class="qr" viewBox="0 0 ${N} ${N}" shape-rendering="crispEdges" role="img" aria-label="Código de ejemplo">${r}${finder(0,0)}${finder(N-7,0)}${finder(0,N-7)}</svg>`}
 
 /* ---------- shells ---------- */
 function topbar(){const home=parse().r==='inicio';
@@ -802,26 +888,37 @@ function topbar(){const home=parse().r==='inicio';
  ${home?'<a class="btn btn-primary btn-sm" href="#armar/1">Elegir mi país</a>':''}</nav></div></header>`}
 function appBar(ops){
  return `<header class="app-bar${ops?' dark':''}"><div class="wrap top-in"><a class="brand" href="#inicio">${logo()}<b>Localía</b>${ops?'<span class="int-badge">Operación</span>':'<small>by Slonimtek</small>'}</a>
- ${ops?'':`<nav class="app-nav"><button class="${['plan','soporte'].includes(S.tab)?'':'on'}" data-act="tab" data-tab="resumen">Mis PCs</button><button class="${S.tab==='plan'?'on':''}" data-act="tab" data-tab="plan">Facturación</button><button class="${S.tab==='soporte'?'on':''}" data-act="tab" data-tab="soporte">Soporte</button></nav>`}
+ ${ops?'':`<nav class="app-nav"><button class="${['paises','plan','soporte'].includes(S.tab)?'':'on'}" data-act="tab" data-tab="resumen">Mi PC</button><button class="${S.tab==='paises'?'on':''}" data-act="tab" data-tab="paises">Países</button><button class="${S.tab==='plan'?'on':''}" data-act="tab" data-tab="plan">Facturación</button><button class="${S.tab==='soporte'?'on':''}" data-act="tab" data-tab="soporte">Soporte</button></nav>`}
  <div class="top-nav"><button class="icon-btn" data-act="theme" aria-label="Cambiar tema claro u oscuro">${ico.moon}</button><span class="avatar" title="${ops?'Equipo Slonimtek':'Lucía Fernández'}">${ops?'ST':'LF'}</span></div></div></header>`}
 const footer=()=>`<footer class="foot"><div class="wrap foot-in"><div class="brand">${logo()}<b>Localía</b><small>by Slonimtek</small></div><p>Mockup navegable. Precios, demoras y datos son ilustrativos.</p></div></footer>`;
+function flow(o,c){return `<div class="flow">
+ <div class="fn"><span class="k">Vos</span><b>${o.city}</b><small>tu compu, tablet o celular</small></div>
+ <div class="fa">${ico.arrow}<span>escritorio remoto · ${o.ms} ms</span></div>
+ <div class="fn"><span class="k">Tu PC</span><b>${o.pc}</b><small>cerca tuyo, para que ande rápida</small></div>
+ <div class="fa">${ico.arrow}<span>túnel cifrado</span></div>
+ <div class="fn hl"><span class="k">Salida</span><b>${c.city}, ${c.name}</b><small>IP fija, solo tuya</small></div>
+ <div class="fa">${ico.arrow}<span>internet</span></div>
+ <div class="fn"><span class="k">Los sitios</span><b>Te ven en ${c.name}</b><small>banco, trámites, tele, tiendas</small></div></div>`}
 
 /* ---------- inicio ---------- */
-function heroVis(p){const c=C[p.to];return `
- <div class="route"><div class="rt-end"><span class="rt-code mono">${p.code}</span><div><b>Vos</b><small>${p.from}</small></div></div>
- <div class="rt-line"><span></span></div>
- <div class="rt-end rt-to"><div><b>Tu PC</b><small>${c.city}, ${c.name}</small></div><span class="rt-code mono">${c.code}</span></div></div>
- <div class="bw"><div class="bw-bar"><i></i><i></i><i></i><span class="bw-url mono">localía · mi PC en ${c.name}</span></div>
+function heroVis(p){const c=C[p.to],o=ORIGINS[p.code];return `
+ <div class="route3">
+  <div class="r3n"><span class="rt-code mono">${p.code}</span><b>Vos</b><small>${o.city}</small></div>
+  <div class="r3l"><span></span></div>
+  <div class="r3n pc"><span class="rt-code">${ico.monitor}</span><b>Tu PC</b><small>cerca tuyo · ${o.ms} ms</small></div>
+  <div class="r3l b"><span></span></div>
+  <div class="r3n to"><span class="rt-code mono">${c.code}</span><b>Te ven en</b><small>${c.city}</small></div></div>
+ <div class="bw"><div class="bw-bar"><i></i><i></i><i></i><span class="bw-url mono">localía · te ven en ${c.name}</span></div>
  <div class="bw-desk wall"><div class="bw-stamp">${stamp(c,220)}</div>
   <div class="mini-win"><div class="mini-tt">¿Desde dónde te ven?</div>
    <div class="mini-row"><span>País</span><b class="ok">${c.name} ✓</b></div>
    <div class="mini-row"><span>Ciudad</span><b>${c.city}</b></div>
-   <div class="mini-row"><span>IP</span><b class="mono">fija · •••.142</b></div>
-   <div class="mini-row"><span>¿VPN o proxy?</span><b class="ok">No ✓</b></div></div>
+   <div class="mini-row"><span>IP</span><b class="mono">fija · •••.${ipTail(c.code)}</b></div>
+   <div class="mini-row"><span>¿Fugas de IP?</span><b class="ok">Ninguna ✓</b></div></div>
   <div class="mini-task"><span class="mini-start"></span><span class="mini-app"></span><span class="mini-app"></span><span class="mini-clock mono" data-clock="${c.tz}">${clock(c.tz)}</span></div></div></div>
  <div class="float f1">${ico.shield} IP de ${c.name}, fija y solo tuya</div>
  <div class="float f2">${ico.clock} Hora de ${c.city}: <b class="mono" data-clock="${c.tz}">${clock(c.tz)}</b></div>
- <div class="float f3">${ico.save} Copia de seguridad: anoche ✓</div>`}
+ <div class="float f3">${ico.link} Túnel cifrado · corte automático</div>`}
 const useCard=(i,t,d)=>`<div class="use-card"><div class="ic">${i}</div><h3>${t}</h3><p>${d}</p></div>`;
 const trust=(i,t,d)=>`<div class="tr">${i}<b>${t}</b><p>${d}</p></div>`;
 function planPreview(k,t){return `<div class="plan t-${k}"><div class="plan-top"><span class="tier-name">${t.name}</span>${k==='standard'?'<span class="tier-flag">La más elegida</span>':''}</div>
@@ -833,45 +930,48 @@ function vHome(){return `${topbar()}
  <div class="hero-copy">
   <div class="eyebrow">Slonimtek presenta · Localía</div>
   <h1>Tu computadora en tu país, <em>estés donde estés.</em></h1>
-  <p class="lead">Una PC en la nube que vive en Uruguay, Argentina, México o el país que elijas. La abrís desde el navegador y los sitios te ven como alguien de ahí: tu banco, tus trámites, las tiendas y las apps locales.</p>
+  <p class="lead">Una PC en la nube que vive cerca tuyo y sale a internet por Uruguay, Argentina, México o el país que elijas. La abrís desde el navegador y los sitios te ven como alguien de ahí: tu banco, tus trámites, la tele, las tiendas y las apps locales.</p>
   <div class="cta-row"><a class="btn btn-primary btn-lg" href="#armar/1">Elegir mi país ${ico.arrow}</a><button class="btn btn-ghost btn-lg" data-act="scroll" data-target="como">Cómo funciona</button></div>
-  <ul class="proof"><li>${ico.check} Sin instalar nada</li><li>${ico.check} IP fija del país, solo tuya</li><li>${ico.check} Desde US$ 29 por mes</li></ul>
+  <ul class="proof"><li>${ico.check} Sin instalar nada</li><li>${ico.check} IP fija del país, solo tuya</li><li>${ico.check} Varios países en una sola PC</li></ul>
  </div>
  <div class="hero-vis" id="heroVis">${heroVis(HERO_PAIRS[0])}</div>
 </div></section>
 <section class="sec" id="para-que"><div class="wrap">
- <div class="sec-head"><div class="eyebrow">Para qué sirve</div><h2>Jugá de local, aunque estés lejos.</h2><p>Muchos sitios solo funcionan bien, o directamente solo funcionan, si entrás desde el país. Con Localía tenés una compu allá, siempre lista.</p></div>
+ <div class="sec-head"><div class="eyebrow">Para qué sirve</div><h2>Jugá de local, aunque estés lejos.</h2><p>Muchos sitios solo funcionan bien, o directamente solo funcionan, si entrás desde el país. Con Localía, para ellos estás ahí.</p></div>
  <div class="uses">
-  ${useCard(ico.bank,'Tu banco, sin bloqueos','Entrá a tu home banking como si estuvieras en casa. Tu banco ve siempre la misma compu, del país.')}
+  ${useCard(ico.bank,'Tu banco, sin bloqueos','Entrá a tu home banking como si estuvieras en casa. Tu banco ve siempre la misma compu y la misma IP del país.')}
   ${useCard(ico.doc,'Trámites del Estado','Portales de impuestos, registros y turnos que no abren desde el exterior.')}
+  ${useCard(ico.tv,'La tele y los medios de tu país','Canales, radios y noticias que solo se ven desde allá. En la PC o directo en tu tele.')}
   ${useCard(ico.cart,'Tiendas y apps locales','Precios en moneda local, compras para tu familia y apps que solo existen allá.')}
-  ${useCard(ico.brief,'Clientes de allá','Sistemas y portales de clientes que solo aceptan conexiones desde el país.')}
  </div></div></section>
 <section class="sec alt" id="como"><div class="wrap">
- <div class="sec-head"><div class="eyebrow">Cómo funciona</div><h2>Tres pasos y estás.</h2></div>
+ <div class="sec-head"><div class="eyebrow">Cómo funciona</div><h2>Tu PC cerca tuyo. Tu país, donde lo necesites.</h2><p>La PC está cerca de donde vivís, así anda rápida. Todo lo que hacés en internet sale por el país que elegiste.</p></div>
  <div class="steps3">
-  <div class="st"><span class="n">01</span><h3>Elegí el país</h3><p>Uruguay, Argentina, Chile, Perú, México, Brasil, Estados Unidos, España o Israel. Te decimos cómo se va a sentir desde donde estás.</p></div>
+  <div class="st"><span class="n">01</span><h3>Elegí dónde te ven</h3><p>Uruguay, Argentina, Chile, Paraguay, Perú, Colombia, México, Brasil, Estados Unidos, España o Israel. Uno o varios.</p></div>
   <div class="st"><span class="n">02</span><h3>Elegí el tamaño</h3><p>Mini para bancos y trámites, Standard para trabajar todo el día, Gold para programas pesados.</p></div>
-  <div class="st"><span class="n">03</span><h3>Abrila en el navegador</h3><p>En unos minutos está lista. Tocás "Abrir mi PC" y aparece en una pestaña, en la compu, la tablet o el celular.</p></div>
- </div></div></section>
+  <div class="st"><span class="n">03</span><h3>Abrila en el navegador</h3><p>En unos minutos está lista. Tocás "Abrir mi PC" y aparece en una pestaña. Cambiás de país en un clic.</p></div>
+ </div>
+ ${flow(ORIGINS.TLV,C.UY)}
+</div></section>
 <section class="sec" id="precios"><div class="wrap">
- <div class="sec-head"><div class="eyebrow">Tamaños</div><h2>Mini, Standard o Gold.</h2><p>El precio depende del país. Cambiás de tamaño cuando quieras, sin perder nada.</p></div>
+ <div class="sec-head"><div class="eyebrow">Tamaños</div><h2>Mini, Standard o Gold.</h2><p>Incluye un país. Cada país extra suma US$ ${EXTRA} por mes. Cambiás de tamaño cuando quieras, sin perder nada.</p></div>
  <div class="plans">${Object.entries(TIERS).map(([k,t])=>planPreview(k,t)).join('')}</div>
- <p class="fine" style="margin-top:14px">Precios ilustrativos en dólares, con Linux, en Estados Unidos. Windows suma su licencia.</p>
+ <p class="fine" style="margin-top:14px">Precios ilustrativos en dólares, con Linux y la PC en Estados Unidos. El precio depende de dónde está tu PC, no del país donde te ven. Windows suma su licencia.</p>
 </div></section>
 <section class="sec alt"><div class="wrap">
- <div class="sec-head"><div class="eyebrow">¿No es lo mismo que una VPN?</div><h2>No. Una VPN te presta una dirección. Localía te da una compu entera allá.</h2></div>
- <div class="cmp-wrap"><table class="cmp"><thead><tr><th></th><th>VPN</th><th>Localía</th></tr></thead><tbody>
-  <tr><th>Qué te da</th><td>Otra dirección de internet</td><td>Una computadora entera en el país</td></tr>
-  <tr><th>La IP</th><td>Compartida con miles; muchos sitios la bloquean</td><td>Fija, solo tuya y verificada</td></tr>
+ <div class="sec-head"><div class="eyebrow">¿Y una VPN común?</div><h2>Una VPN te presta una dirección compartida. Localía te da una compu entera y una IP del país solo tuya.</h2></div>
+ <div class="cmp-wrap"><table class="cmp"><thead><tr><th></th><th>VPN común</th><th>Localía</th></tr></thead><tbody>
+  <tr><th>Qué te da</th><td>Otra dirección de internet</td><td>Una computadora entera, con salida propia por el país</td></tr>
+  <tr><th>La IP</th><td>Compartida con miles; muchos sitios la bloquean</td><td>Fija, solo tuya y revisada todos los días</td></tr>
+  <tr><th>Si se corta</th><td>Salís con tu IP real sin darte cuenta</td><td>Tu PC se queda sin internet: nunca aparecés en otro país</td></tr>
   <tr><th>Hora, idioma y teclado</th><td>Los de tu compu</td><td>Los del país</td></tr>
-  <tr><th>Tus archivos</th><td>En tu compu</td><td>En tu PC de allá, con copia cada noche</td></tr>
-  <tr><th>Tu banco</th><td>Suele desconfiar</td><td>Ve siempre la misma compu</td></tr>
+  <tr><th>Tu banco</th><td>Suele desconfiar</td><td>Ve siempre la misma compu y la misma IP</td></tr>
  </tbody></table></div></div></section>
 <section class="sec"><div class="wrap">
  <div class="sec-head"><div class="eyebrow">Tranquilidad</div><h2>La cuidamos por vos.</h2></div>
  <div class="trust">
   ${trust(ico.shield,'IP limpia, todos los días','Revisamos a diario que tu IP no aparezca como VPN. Si pasa, la cambiamos y te avisamos.')}
+  ${trust(ico.link,'Corte automático','Si el túnel con tu país se cae, tu PC se queda sin internet. Nunca sale por otro lado.')}
   ${trust(ico.save,'Copia cada noche','Guardamos 7 días. Si algo se rompe, volvés a ayer con un botón.')}
   ${trust(ico.lock,'Cerrada a internet','Tu PC no tiene puertas abiertas: solo entrás vos, desde tu cuenta.')}
   ${trust(ico.id,'Clientes verificados','Verificamos a cada persona. Por eso nuestras IPs no quedan quemadas.')}
@@ -882,50 +982,53 @@ function vHome(){return `${topbar()}
  <div class="faq">${FAQ.map(([a,b])=>`<details><summary>${a}</summary><p>${b}</p></details>`).join('')}</div>
 </div></section>
 <section class="sec"><div class="wrap"><div class="cta-card">${stamp(C.UY,112)}
- <div><h2>¿Desde qué país necesitás estar?</h2><p>Armá tu PC en tres minutos.</p></div>
+ <div><h2>¿Desde qué país querés que te vean?</h2><p>Armá tu PC en tres minutos.</p></div>
  <a class="btn btn-primary btn-lg" href="#armar/1">Elegir mi país ${ico.arrow}</a></div></div></section>
 ${footer()}`}
 
 /* ---------- wizard ---------- */
-function ccCard(x){const o=ORIGINS[S.origin];const ms=o.lat[x.code];const qq=q(ms);const on=x.code===S.country;
+function ccCard(x){const on=x.code===S.country;
  return `<button class="cc${on?' on':''}" data-act="country" data-code="${x.code}" ${x.soon?'disabled':''} aria-pressed="${on}">
  <span class="cc-code mono">${x.code}</span><span class="cc-txt"><b>${x.name}</b><small>${x.city}</small></span>
- ${x.soon?'<span class="cc-soon">Próximamente</span>':`<span class="cc-lat">${S.measured?`<i class="qd q-${qq.k}"></i><span class="mono">~${ms} ms</span>`:'<span class="measuring">midiendo…</span>'}</span>`}
+ ${x.soon?'<span class="cc-soon">Próximamente</span>':`<span class="cc-lat">${x.fibra?'<span class="tag-f">IP fija · fibra local</span>':'<span class="cc-ip">IP fija</span>'}</span>`}
  ${on?`<span class="cc-check">${ico.check}</span>`:''}</button>`}
-function idCard(c){const o=ORIGINS[S.origin];const ms=o.lat[c.code];const qq=q(ms);
+function idCard(c){const o=zone();const ms=o.lat[c.code];const f=fibraOn();
  return `<div class="idc"><div class="idc-top"><div><div class="eyebrow">Así te van a ver los sitios</div><h3>Una compu en ${c.city}, ${c.name}</h3></div><div class="idc-stamp">${stamp(c,104)}</div></div>
  <dl class="idc-rows">
   <div><dt>Ubicación</dt><dd>${c.city}, ${c.name}</dd></div>
-  <div><dt>Dirección IP</dt><dd><span class="mono">•••.•••.•••.142</span> <span class="tag-ok">fija · solo tuya</span></dd></div>
-  <div><dt>Hora local</dt><dd><span class="mono" data-clock="${c.tz}">${clock(c.tz)}</span> <span class="muted">${utc(c.tz)}</span></dd></div>
+  <div><dt>Dirección IP</dt><dd><span class="mono">•••.${ipTail(c.code)}</span> <span class="tag-ok">fija · solo tuya</span></dd></div>
+  <div><dt>Hora de tu PC</dt><dd><span class="mono" data-clock="${c.tz}">${clock(c.tz)}</span> <span class="muted">${utc(c.tz)}</span></dd></div>
   <div><dt>Idioma y teclado</dt><dd>${c.lang}</dd></div>
   <div><dt>Precios en tiendas</dt><dd>${c.cur}</dd></div>
-  <div><dt>¿Parece una VPN?</dt><dd class="okt">${ico.check} No</dd></div>
+  <div><dt>Tipo de conexión</dt><dd>${f?'Fibra local':'Datacenter'}</dd></div>
  </dl>
- <div class="idc-lat"><i class="qd q-${qq.k}"></i><div>${S.measured?`<b>Desde ${o.city}: ~${ms} ms · ${qq.t}</b><span>${qq.d}</span>`:`<b>Midiendo la demora desde ${o.city}…</b><span>Esto nos dice qué tan fluida se va a sentir.</span>`}</div></div>
+ ${c.fibra?`<button class="fib${f?' on':''}" data-act="fibra" aria-pressed="${f}"><span class="radio sq"></span><span><b>IP de fibra local</b><small>Sale por una conexión de fibra en ${c.city}: para los sitios parece una casa u oficina de ahí. Lo más "local" que hay.</small></span><span class="px">+US$ ${FIBRA}/mes</span></button>`:''}
+ <div class="idc-lat"><i class="qd q-ok"></i><div><b>Tu PC anda fluida: está en ${o.pc}, a ~${o.ms} ms de vos.</b><span>Las páginas de ${c.name} cargan con ~${ms} ms extra por el túnel: no se nota para navegar, ver la tele o hacer trámites.</span></div></div>
  <div class="idc-uses"><span class="muted">Ideal para</span> ${USES.map(u=>`<span class="chip">${u}</span>`).join('')}</div></div>`}
-function vStep1(){const latam=COUNTRIES.filter(x=>x.region==='latam'),world=COUNTRIES.filter(x=>x.region!=='latam');
- return `<div class="step-head"><div class="eyebrow">Paso 1 de 5 · El país</div><h2>¿En qué país necesitás estar?</h2>
- <p class="sub">Tu PC vive en ese país, con IP fija de ahí, hora local e idioma. Tu banco, los trámites y las tiendas te ven como alguien de ahí.</p></div>
- <div class="origin"><span>${ico.pin} Estás en</span><select data-chg="origin" aria-label="Tu ubicación actual">${Object.entries(ORIGINS).map(([k,v])=>`<option value="${k}" ${k===S.origin?'selected':''}>${v.label}</option>`).join('')}</select><small class="muted">detectado por tu navegador</small></div>
+function vStep1(){const o=zone();const latam=COUNTRIES.filter(x=>x.region==='latam'),world=COUNTRIES.filter(x=>x.region!=='latam');
+ return `<div class="step-head"><div class="eyebrow">Paso 1 de 5 · Dónde te ven</div><h2>¿Desde qué país querés que te vean?</h2>
+ <p class="sub">Tu PC va a estar cerca tuyo, para que ande rápida. Pero todo lo que hagas en internet sale por el país que elijas, con una IP fija de ahí, solo tuya.</p></div>
+ <div class="origin"><span>${ico.pin} Estás en</span><select data-chg="origin" aria-label="Tu ubicación actual">${Object.entries(ORIGINS).map(([k,v])=>`<option value="${k}" ${k===S.origin?'selected':''}>${v.label}</option>`).join('')}</select><span class="o-arrow">${ico.arrow}</span><span>tu PC va en <b>${o.pc}</b>, a ~${o.ms} ms de vos</span></div>
  <h4 class="grp">Latinoamérica</h4><div class="cc-grid">${latam.map(ccCard).join('')}</div>
  <h4 class="grp">Resto del mundo</h4><div class="cc-grid">${world.map(ccCard).join('')}</div>
  <button class="linkish" data-act="ask-country">¿Tu país no está? Pedilo y te avisamos cuando llegue.</button>
- ${idCard(country())}`}
-function tierCard(k,t,code,os,cur,act){const on=cur===k;const p=planPrice(k,code,os);
+ ${idCard(country())}
+ <div class="extras"><span class="field-l">¿Necesitás más de un país? <span class="muted">+US$ ${EXTRA}/mes cada uno · en la misma PC, cambiás en un clic</span></span>
+ <div class="chips">${COUNTRIES.filter(x=>!x.soon&&x.code!==S.country).map(x=>{const on=S.extras.has(x.code);return `<button class="tog ${on?'on':''}" data-act="extra" data-code="${x.code}" aria-pressed="${on}">${on?ico.check:ico.plus} ${x.name}</button>`}).join('')}</div></div>`}
+function tierCard(k,t,z,os,cur,act){const on=cur===k;const p=pcPrice(k,z,os);
  return `<button class="tier t-${k}${on?' on':''}" data-act="${act}" data-tier="${k}">${k==='standard'?'<span class="tier-flag">La más elegida</span>':''}
  <span class="tier-name">${t.name}</span><span class="tier-for">${t.for}</span>
  <span class="tier-price"><b>US$ ${p}</b><small>/mes</small></span>
  <span class="tier-specs mono"><span>${t.cpu} vCPU</span><span>${t.ram} GB RAM</span><span>${t.disk} GB SSD</span></span>
  <span class="tier-long">${t.long}</span>
  ${on?`<span class="tier-sel">${ico.check} ${act==='tier'?'Elegida':'Tu plan'}</span>`:`<span class="tier-sel ghost">${act==='tier'?'Elegir':'Cambiar a '+t.name}</span>`}</button>`}
-function vStep2(){const c=country();
+function vStep2(){const c=country(),o=zone();
  return `<div class="step-head"><div class="eyebrow">Paso 2 de 5 · El tamaño</div><h2>¿Qué tan potente la querés?</h2><p class="sub">Podés cambiar de tamaño cuando quieras, sin perder nada.</p></div>
- <div class="use"><span>¿Para qué la vas a usar?</span>${[['mini','Bancos y trámites'],['standard','Trabajar todo el día'],['gold','Diseño y edición']].map(([t,l])=>`<button class="pill ${S.tier===t?'on':''}" data-act="tier" data-tier="${t}">${l}</button>`).join('')}</div>
- <div class="tiers">${Object.entries(TIERS).map(([k,t])=>tierCard(k,t,S.country,S.os,S.tier,'tier')).join('')}</div>
- <p class="note">${ico.info}<span>Precios para ${c.name}${S.os==='windows'?', con Windows':''}. Una PC en ${c.name} ${c.mult>1?'cuesta un poco más que en Estados Unidos, porque la nube allá es más cara':'tiene el precio base'}. Todas incluyen IP fija, copia de seguridad diaria y soporte.</span></p>`}
-function vStep3(){const t=TIERS[S.tier];const c=country();const extra=alwaysOnExtra(S.tier,S.country,S.os);
- return `<div class="step-head"><div class="eyebrow">Paso 3 de 5 · Sistema y ajustes</div><h2>¿Con qué sistema?</h2><p class="sub">Viene configurada con la hora, el idioma y el teclado de ${c.name}.</p></div>
+ <div class="use"><span>¿Para qué la vas a usar?</span>${[['mini','Bancos, trámites y tele'],['standard','Trabajar todo el día'],['gold','Diseño y edición']].map(([t,l])=>`<button class="pill ${S.tier===t?'on':''}" data-act="tier" data-tier="${t}">${l}</button>`).join('')}</div>
+ <div class="tiers">${Object.entries(TIERS).map(([k,t])=>tierCard(k,t,S.origin,S.os,S.tier,'tier')).join('')}</div>
+ <p class="note">${ico.info}<span>Precios con tu PC en ${o.pc}${S.os==='windows'?' y Windows':''}. El precio depende de dónde está tu PC, no del país donde te ven. Incluye ${c.name}; cada país extra suma US$ ${EXTRA}.</span></p>`}
+function vStep3(){const t=TIERS[S.tier];const c=country();const extra=alwaysOnExtra(S.tier,S.origin,S.os);
+ return `<div class="step-head"><div class="eyebrow">Paso 3 de 5 · Sistema y ajustes</div><h2>¿Con qué sistema?</h2><p class="sub">Viene con la hora, el idioma y el teclado de ${c.name}.</p></div>
  <div class="opts">
   <button class="opt ${S.os==='windows'?'on':''}" data-act="os" data-os="windows"><span class="radio"></span><span><b>Windows</b><span class="d">El de siempre, con licencia legal incluida.</span><small>Basado en Windows Server con escritorio.</small></span><span class="px">+US$ ${t.win}/mes</span></button>
   <button class="opt ${S.os==='linux'?'on':''}" data-act="os" data-os="linux"><span class="radio"></span><span><b>Linux (Ubuntu)</b><span class="d">Rápido y liviano. Ideal para navegar y programar.</span><small>Sin costo de licencia.</small></span><span class="px">incluido</span></button>
@@ -934,7 +1037,9 @@ function vStep3(){const t=TIERS[S.tier];const c=country();const extra=alwaysOnEx
  <div class="chips">${APPS.map(([k,l])=>`<button class="tog ${S.apps.has(k)?'on':''}" data-act="app" data-app="${k}" aria-pressed="${S.apps.has(k)}">${S.apps.has(k)?ico.check:ico.plus} ${l}</button>`).join('')}</div>
  <span class="field-l">Que se apague sola después de</span>
  <div class="seg">${IDLE.map(([v,l])=>`<button class="${S.idle===v?'on':''}" data-act="idle" data-v="${v}">${l}${v==='always'?` <small>+US$ ${extra}</small>`:''}</button>`).join('')}</div>
- <p class="note">${ico.info}<span>Apagarse sola no cierra nada: tu PC hiberna y, cuando la volvés a abrir, está como la dejaste en menos de un minuto. "Siempre prendida" cuesta más porque la nube cobra cada hora.</span></p>`}
+ <p class="note">${ico.info}<span>Apagarse sola no cierra nada: tu PC hiberna y, cuando la volvés a abrir, está como la dejaste en menos de un minuto.</span></p>
+ <span class="field-l">Tu tele y tu celular</span>
+ <button class="opt${S.conexion?' on':''}" data-act="conexion" aria-pressed="${S.conexion}"><span class="radio sq"></span><span><b>Conectá también tu tele y tu celular a ${c.name}</b><span class="d">Para ver video, directo es mejor que por la PC: calidad completa, sin cortes y sin cargar tu PC.</span><small>Usan la misma salida y la misma IP fija de ${c.name}.</small></span><span class="px">+US$ ${CONEX}/mes</span></button>`}
 function kycBox(c){
  if(S.kyc==='done')return `<div class="kyc done"><div class="kyc-row"><div class="kyc-doc"><span>MUESTRA</span></div><div><b class="okt">${ico.check} Identidad verificada</b><div class="sm muted">Documento de ${c.name} · coincide con tu nombre · lo guardamos cifrado</div></div></div></div>`;
  const items=['Leyendo el documento',`Detectando el país: ${c.name}`,'Validando el número','Comparando con tu nombre'];
@@ -950,25 +1055,29 @@ function vStep4(){const c=country();const u=S.user;
  ${kycBox(c)}
  <div class="rules"><b>Reglas de uso</b><ul><li>No minar criptomonedas.</li><li>No mandar spam ni atacar otros sistemas.</li><li>No abrir cuentas a nombre de otras personas.</li><li>No usarla para esquivar sanciones internacionales.</li></ul>
  <label class="check"><input type="checkbox" data-chg="rules" ${S.rules?'checked':''}> <span>Acepto las reglas. Si detectan algo de esto, pausan la PC y me avisan.</span></label></div>`}
-function vStep5(){const c=country(),t=TIERS[S.tier];const plan=Math.round(t.base*c.mult);const win=S.os==='windows'?t.win:0;const extra=S.idle==='always'?alwaysOnExtra(S.tier,S.country,S.os):0;const m=plan+win+extra;const tot=monthlyTotal();
+function vStep5(){const c=country(),t=TIERS[S.tier],o=zone();const plan=Math.round(t.base*o.mult);const win=S.os==='windows'?t.win:0;const ex=extraList();const extra=S.idle==='always'?alwaysOnExtra(S.tier,S.origin,S.os):0;const m=monthly();const tot=monthlyTotal();
  return `<div class="step-head"><div class="eyebrow">Paso 5 de 5 · Pago</div><h2>Último paso</h2><p class="sub">Pagás por adelantado, en tu moneda. Cancelás cuando quieras.</p></div>
  <div class="seg" style="margin-top:20px"><button class="${S.cycle==='m'?'on':''}" data-act="cycle" data-v="m">Mensual</button><button class="${S.cycle==='a'?'on':''}" data-act="cycle" data-v="a">Anual · 15% menos</button></div>
  <div class="pays">${PAYS.map(([k,l,d])=>`<button class="opt ${S.pay===k?'on':''}" data-act="pay" data-v="${k}"><span class="radio"></span><span><b>${l}</b><span class="d">${d}</span></span></button>`).join('')}</div>
  <div class="lines">
-  <div><span>PC ${t.name} en ${c.name}</span><span class="mono">US$ ${plan}</span></div>
+  <div><span>PC ${t.name} en ${o.pc}</span><span class="mono">US$ ${plan}</span></div>
   ${win?`<div><span>Licencia de Windows</span><span class="mono">US$ ${win}</span></div>`:''}
+  <div><span>Te ven en ${c.name}</span><span class="mono">incluido</span></div>
+  ${ex.length?`<div><span>Países extra: ${ex.map(x=>C[x].name).join(', ')}</span><span class="mono">US$ ${ex.length*EXTRA}</span></div>`:''}
+  ${fibraOn()?`<div><span>IP de fibra local en ${c.city}</span><span class="mono">US$ ${FIBRA}</span></div>`:''}
+  ${S.conexion?`<div><span>Tele y celular conectados</span><span class="mono">US$ ${CONEX}</span></div>`:''}
   ${extra?`<div><span>Siempre prendida</span><span class="mono">US$ ${extra}</span></div>`:''}
-  <div><span>IP fija de ${c.name} · copias diarias · soporte</span><span class="mono">incluido</span></div>
+  <div><span>IP fija · corte automático · copias diarias · soporte</span><span class="mono">incluido</span></div>
   ${S.cycle==='a'?`<div><span>Descuento anual (15%)</span><span class="mono">−US$ ${m-tot}</span></div>`:''}
   <div class="tot"><span>Total por mes</span><span>US$ ${tot}</span></div>
  </div>
  <div class="cta-row" style="margin:22px 0 8px"><button class="btn btn-primary btn-lg" data-act="checkout" id="payBtn">${ico.lock} Pagar US$ ${S.cycle==='a'?tot*12:tot}${S.cycle==='a'?' por el año':''} y armar mi PC</button></div>
  <p class="fine">Mockup: no se cobra nada.${S.pay==='mp'?' Con MercadoPago pagás en tu moneda, al cambio del día.':''}</p>`}
-function summary(){const c=country(),t=TIERS[S.tier];
- return `<aside class="card sum"><div class="sum-head"><div><div class="eyebrow">Tu PC</div><h3>${t.name} en ${c.name}</h3></div>${stamp(c,80)}</div>
- <dl><div><dt>País</dt><dd>${c.city}, ${c.name}</dd></div><div><dt>Tamaño</dt><dd>${t.name} · ${t.cpu} vCPU · ${t.ram} GB</dd></div><div><dt>Sistema</dt><dd>${S.os==='windows'?'Windows':'Linux'}</dd></div><div><dt>Se apaga sola</dt><dd>${IDLE_L[S.idle]}</dd></div></dl>
+function summary(){const c=country(),t=TIERS[S.tier],o=zone();const ex=extraList();const adds=[fibraOn()?'fibra local':'',S.conexion?'tele y celular':''].filter(Boolean);
+ return `<aside class="card sum"><div class="sum-head"><div><div class="eyebrow">Tu PC</div><h3>Te ven en ${c.name}${ex.length?` <span class="muted" style="font-size:15px">+${ex.length}</span>`:''}</h3></div>${stamp(c,80)}</div>
+ <dl><div><dt>Te ven en</dt><dd>${[c.name,...ex.map(x=>C[x].name)].join(' · ')}</dd></div><div><dt>Tu PC está en</dt><dd>${o.pc} · ${o.ms} ms de vos</dd></div><div><dt>Tamaño</dt><dd>${t.name} · ${t.cpu} vCPU · ${t.ram} GB</dd></div><div><dt>Sistema</dt><dd>${S.os==='windows'?'Windows':'Linux'}</dd></div><div><dt>Se apaga sola</dt><dd>${IDLE_L[S.idle]}</dd></div>${adds.length?`<div><dt>Extras</dt><dd>${adds.join(' · ')}</dd></div>`:''}</dl>
  <div class="sum-price"><b>US$ ${monthlyTotal()}</b><span class="muted">/mes${S.cycle==='a'?' · plan anual':''}</span></div>
- <ul class="sum-inc"><li>${ico.check} IP fija de ${c.name}, solo tuya</li><li>${ico.check} Copia de seguridad cada noche</li><li>${ico.check} Se abre desde el navegador</li><li>${ico.check} Soporte por WhatsApp</li></ul>
+ <ul class="sum-inc"><li>${ico.check} IP fija de ${c.name}, solo tuya</li><li>${ico.check} Corte automático: nunca salís por otro país</li><li>${ico.check} Copia de seguridad cada noche</li><li>${ico.check} Soporte por WhatsApp</li></ul>
  <p class="fine">Precios ilustrativos del mockup.</p></aside>`}
 function vWizard(n){const c=country(),t=TIERS[S.tier];const body=[vStep1,vStep2,vStep3,vStep4,vStep5][n-1]();
  const canNext=n!==4||(S.kyc==='done'&&S.rules);
@@ -979,119 +1088,144 @@ function vWizard(n){const c=country(),t=TIERS[S.tier];const body=[vStep1,vStep2,
   ${n===4&&!canNext?'<span class="wiz-hint">Verificá tu identidad y aceptá las reglas para seguir.</span>':''}
   ${n<5?`<button class="btn btn-primary" data-act="next" ${canNext?'':'disabled'}>Siguiente: ${STEPS[n]} ${ico.arrow}</button>`:''}</div>
  </section>${summary()}</div></main>
- ${n<5?`<div class="wiz-mbar"><div><b>US$ ${monthlyTotal()}</b><span class="muted">/mes</span><small>${c.name} · ${t.name}</small></div><button class="btn btn-primary" data-act="next" ${canNext?'':'disabled'}>Siguiente ${ico.arrow}</button></div>`:''}`}
+ ${n<5?`<div class="wiz-mbar"><div><b>US$ ${monthlyTotal()}</b><span class="muted">/mes</span><small>Te ven en ${c.name} · ${t.name}</small></div><button class="btn btn-primary" data-act="next" ${canNext?'':'disabled'}>Siguiente ${ico.arrow}</button></div>`:''}`}
 
 /* ---------- armando ---------- */
-function vBuilding(){const c=country(),t=TIERS[S.tier];const os=S.os==='windows'?'Windows':'Linux';
- const steps=['Pago confirmado',`Reservando tu PC ${t.name} en ${c.city}`,`Asignando tu IP fija de ${c.name}`,`Instalando ${os} y tus apps`,`Poniendo hora, idioma y teclado de ${c.name}`,'Activando la copia de seguridad de cada noche','Cerrando la PC a internet y abriendo tu acceso seguro',`Chequeo final: ¿los sitios te ven en ${c.name}?`];
+function vBuilding(){const c=country(),t=TIERS[S.tier],o=zone();const os=S.os==='windows'?'Windows':'Linux';const ex=extraList();
+ const steps=['Pago confirmado',`Reservando tu PC ${t.name} en ${o.pc}, a ${o.ms} ms de vos`,`Abriendo tu salida en ${c.city} con IP fija${fibraOn()?' de fibra':''}`,
+  ...(ex.length?[`Sumando ${ex.map(x=>C[x].name).join(' y ')}, cada uno con su IP fija`]:[]),
+  'Conectando tu PC con la salida por un túnel cifrado','Activando el corte automático: si el túnel se cae, tu PC no sale por otro lado',
+  `Instalando ${os} y tus apps, con hora e idioma de ${c.name}`,'Activando la copia de seguridad de cada noche',`Chequeo final: ¿los sitios te ven en ${c.name}? ¿Hay fugas de IP?`];
  return `${topbar()}<main class="build"><div class="card build-card">
  <div class="build-stamp" id="bStamp">${stamp(c,130)}</div>
- <div class="build-head"><div class="eyebrow" id="bEye">Armando tu PC</div><h2 id="bTitle">Estamos armando tu PC en ${c.city}</h2><p class="sub" id="bSub">Tarda unos minutos. Podés cerrar esta pestaña: te avisamos por WhatsApp.</p></div>
+ <div class="build-head"><div class="eyebrow" id="bEye">Armando tu PC</div><h2 id="bTitle">Estamos armando tu PC</h2><p class="sub" id="bSub">Va a estar en ${o.pc} y te van a ver en ${c.name}. Podés cerrar esta pestaña: te avisamos por WhatsApp.</p></div>
  <div class="bar"><span id="bBar"></span></div>
  <ol class="bsteps" id="bSteps">${steps.map(s=>`<li><span class="bi"></span><span>${s}</span></li>`).join('')}</ol>
  <div id="bDone" hidden>
-  <div class="wa"><div class="wa-av">${ico.chat}</div><div class="wa-b"><b>Localía</b><br>¡Hola ${S.user.name.split(' ')[0]||''}! Tu PC ${t.name} en ${c.city} está lista. Los sitios ya te ven en ${c.name} ✓<small>WhatsApp · recién</small></div></div>
+  <div class="wa"><div class="wa-av">${ico.chat}</div><div class="wa-b"><b>Localía</b><br>¡Hola ${S.user.name.split(' ')[0]||''}! Tu PC ${t.name} está lista. Los sitios ya te ven en ${c.city}, ${c.name} ✓ Sin fugas de IP ✓<small>WhatsApp · recién</small></div></div>
   <div class="cta-row" style="margin:22px 0 0"><a class="btn btn-primary" href="#pc">${ico.monitor} Abrir mi PC</a><a class="btn btn-ghost" href="#panel">Ir a mi panel</a></div>
  </div></div></main>`}
-function runBuild(){S.pcSel=0;syncPcs();const lis=$$('#bSteps li');const bar=$('#bBar');let i=0;
+function runBuild(){initPc();S.wins=['bienvenida'];const lis=$$('#bSteps li');const bar=$('#bBar');let i=0;
  const f=()=>{if(i>0)lis[i-1].className='done';
   if(i<lis.length){lis[i].className='now';bar.style.width=(i/lis.length*100)+'%';i++;later(f,i===1?450:650)}
-  else{bar.style.width='100%';const c=country();$('#bStamp').classList.add('stamped');$('#bEye').textContent='Lista';$('#bTitle').textContent=`¡Tu PC en ${c.name} está lista!`;$('#bSub').textContent=`La armamos en ${c.city}. Abrila desde acá o desde el mensaje que te mandamos.`;$('#bDone').hidden=false}};
+  else{bar.style.width='100%';const c=country();$('#bStamp').classList.add('stamped');$('#bEye').textContent='Lista';$('#bTitle').textContent=`¡Listo! Te ven en ${c.name}`;$('#bSub').textContent=`Tu PC está en ${zone().pc} y sale a internet por ${c.city}. Abrila desde acá o desde el mensaje que te mandamos.`;$('#bDone').hidden=false}};
  later(f,300)}
 
 /* ---------- sesión ---------- */
-function win(id,c){
+function win(id,c){const o=zone();
  if(id==='bienvenida')return `<div class="win" data-win="bienvenida" style="left:calc(50% - 215px);top:7%"><div class="win-t">${ico.info} Bienvenida<button class="x" data-act="win-close" aria-label="Cerrar">${ico.x}</button></div>
- <div class="win-b"><div class="wel-top"><div><div class="eyebrow">Estás de local</div><h3>Tu PC en ${c.name} está lista</h3></div>${stamp(c,80)}</div>
- <ul class="wel-tips"><li>${ico.globe}<div><b>Los sitios te ven en ${c.city}.</b> Entrá a tu banco o a tus trámites como siempre.</div></li>
- <li>${ico.save}<div><b>Tus archivos se guardan solos</b> todas las noches a las 03:00.</div></li>
- <li>${ico.power}<div><b>Si cerrás la pestaña, tu PC sigue ahí.</b> Tras 30 minutos sin uso hiberna y, al volver, está como la dejaste.</div></li></ul>
+ <div class="win-b"><div class="wel-top"><div><div class="eyebrow">Estás de local</div><h3>Te ven en ${c.city}, ${c.name}</h3></div>${stamp(c,80)}</div>
+ <ul class="wel-tips"><li>${ico.monitor}<div><b>Tu PC está en ${o.pc}, a ${o.ms} ms de vos:</b> por eso anda rápida. Lo que hagas en internet sale por ${c.city}.</div></li>
+ <li>${ico.globe}<div><b>Cambiá de país desde la barra de arriba.</b> Cada país tiene su IP fija.</div></li>
+ <li>${ico.link}<div><b>Si se corta el túnel, tu PC se queda sin internet</b> unos segundos. Nunca sale por otro lado.</div></li>
+ <li>${ico.save}<div><b>Tus archivos se guardan solos</b> todas las noches a las 03:00.</div></li></ul>
  <button class="btn btn-primary btn-sm" data-act="win-close">Entendido</button></div></div>`;
  if(id==='navegador')return `<div class="win" data-win="navegador" style="left:18%;top:12%"><div class="win-t">${ico.browser} Navegador<button class="x" data-act="win-close" aria-label="Cerrar">${ico.x}</button></div>
  <div class="win-b"><div class="addr">${ico.lock}<span>página de prueba · ¿desde dónde me ven?</span></div>
  <h3 style="font-size:19px;margin-bottom:8px">Te vemos en ${c.city}, ${c.name}</h3>
- <dl class="res"><div><dt>País</dt><dd class="okt">${ico.check} ${c.name}</dd></div><div><dt>Ciudad</dt><dd>${c.city}</dd></div><div><dt>IP</dt><dd class="mono">•••.•••.•••.142 (fija)</dd></div><div><dt>¿VPN o proxy?</dt><dd class="okt">${ico.check} No detectado</dd></div><div><dt>Hora del sistema</dt><dd><span class="mono" data-clock="${c.tz}">${clock(c.tz)}</span> ${utc(c.tz)}</dd></div><div><dt>Idioma</dt><dd>${c.lang.split(' · ')[0]}</dd></div></dl></div></div>`;
+ <dl class="res"><div><dt>País</dt><dd class="okt">${ico.check} ${c.name}</dd></div><div><dt>Ciudad</dt><dd>${c.city}</dd></div><div><dt>IP</dt><dd class="mono">•••.•••.•••.${ipTail(c.code)} (fija)</dd></div><div><dt>¿VPN o proxy?</dt><dd class="okt">${ico.check} No detectado</dd></div><div><dt>¿Fugas (DNS, WebRTC)?</dt><dd class="okt">${ico.check} Ninguna</dd></div><div><dt>Hora del sistema</dt><dd><span class="mono" data-clock="${c.tz}">${clock(c.tz)}</span> ${utc(c.tz)}</dd></div><div><dt>Idioma</dt><dd>${c.lang.split(' · ')[0]}</dd></div></dl></div></div>`;
+ if(id==='tele')return `<div class="win" data-win="tele" style="left:24%;top:16%"><div class="win-t">${ico.tv} Tele y radio de ${c.name}<button class="x" data-act="win-close" aria-label="Cerrar">${ico.x}</button></div>
+ <div class="win-b"><div class="tv-grid">${[['Canales de aire','En vivo'],['Noticias 24 horas','En vivo'],['Radios','En vivo'],['Programas y series del país','A demanda']].map(([a,b])=>`<div class="tv"><span class="live">${b.toUpperCase()}</span><span>${a}</span></div>`).join('')}</div>
+ <div class="tip">${ico.info}<div><b>Para ver video largo, conectá tu tele directo a tu salida de ${c.name}.</b> Se ve mejor que por la PC. Lo configurás en el panel, en "Países y dispositivos".</div></div>
+ <div class="cta-row" style="margin:12px 0 0"><button class="btn btn-ghost btn-sm" data-act="to-devices">Conectar mi tele</button></div></div></div>`;
  return `<div class="win" data-win="archivos" style="left:30%;top:20%"><div class="win-t">${ico.folder} Mis archivos<button class="x" data-act="win-close" aria-label="Cerrar">${ico.x}</button></div>
  <div class="win-b"><div class="folders">${[['Documentos','1.240 archivos'],['Descargas','86 archivos'],['Escritorio','12 archivos'],['Fotos','3.912 archivos']].map(([a,b])=>`<div>${ico.folder}<span>${a}</span><small>${b}</small></div>`).join('')}</div>
- <div class="win-foot">${ico.check} Copia de seguridad: hoy 03:00 · 46 GB de ${TIERS[pcs()[S.pcSel].tier].disk} GB</div></div></div>`}
+ <div class="win-foot">${ico.check} Copia de seguridad: hoy 03:00 · 46 GB de ${TIERS[S.tier].disk} GB</div></div></div>`}
 const dicon=(w,i,l)=>`<button class="dicon" data-act="open" data-w="${w}"><span class="tile">${i}</span>${l}</button>`;
-function vSession(){const pc=pcs()[S.pcSel];const c=C[pc.code];const o=ORIGINS[S.origin];const ms=o.lat[c.code];const qq=q(ms);
+function vSession(){const pc=pcs();const c=C[pc.active];const o=zone();
  return `<div class="ses"><div class="ses-bar">
  <a class="brand" href="#panel">${logo()}<b>Localía</b></a>
- <span class="ses-chip"><b>${pcName(pc)}</b></span>
- <span class="ses-chip hide-m">${ico.pin} ${c.city}</span>
- <span class="ses-chip"><i class="qd q-ok"></i> IP de ${c.name}</span>
- <span class="ses-chip hide-m"><i class="qd q-${qq.k}"></i> ~${ms} ms</span>
+ <span class="ses-chip hide-m">${ico.monitor} Tu PC · ${o.pc} · ${o.ms} ms</span>
+ <label class="ses-sel"><span>Te ven en</span><select data-chg="exit" aria-label="País por donde salís a internet">${pc.exits.map(x=>`<option value="${x}" ${x===pc.active?'selected':''}>${C[x].name}</option>`).join('')}</select></label>
+ <span class="ses-chip hide-m"><i class="qd q-ok"></i> Túnel activo</span>
  <span class="ses-sp"></span>
  <button class="ses-btn" data-act="ses-tool" data-t="clip">${ico.clip}<span>Portapapeles</span></button>
  <button class="ses-btn" data-act="ses-tool" data-t="up">${ico.upload}<span>Subir archivo</span></button>
  <button class="ses-btn" data-act="ses-full">${ico.full}<span>Pantalla completa</span></button>
  <a class="ses-btn exit" href="#panel">${ico.exit}<span>Salir</span></a></div>
  <div class="desk wall" id="desk"><div class="desk-stamp">${stamp(c,360)}</div>
- <div class="icons">${dicon('archivos',ico.folder,'Mis archivos')}${dicon('navegador',ico.browser,'Navegador')}${dicon('bienvenida',ico.info,'Bienvenida')}</div>
- ${win('bienvenida',c)}
- <div class="task"><button class="tbtn" data-act="open" data-w="bienvenida" aria-label="Inicio">${ico.grid}</button><button class="tbtn" data-act="open" data-w="navegador" aria-label="Navegador">${ico.browser}</button><button class="tbtn" data-act="open" data-w="archivos" aria-label="Mis archivos">${ico.folder}</button>
- <div class="tray"><span class="hide-m">${ico.wifi}</span><span class="mono hide-m">ES</span><div class="clk"><b class="mono" data-clock="${c.tz}">${clock(c.tz)}</b><small>hora de ${c.city}</small></div></div></div>
- <div class="conn" id="conn"><div class="conn-in">${stamp(c,104)}<h3>Conectando con tu PC en ${c.city}</h3><ul class="bsteps" id="connSteps"></ul></div></div>
+ <div class="icons">${dicon('archivos',ico.folder,'Mis archivos')}${dicon('navegador',ico.browser,'Navegador')}${dicon('tele',ico.tv,'Tele y radio')}${dicon('bienvenida',ico.info,'Bienvenida')}</div>
+ ${S.wins.map(w=>win(w,c)).join('')}
+ <div class="task"><button class="tbtn" data-act="open" data-w="bienvenida" aria-label="Inicio">${ico.grid}</button><button class="tbtn" data-act="open" data-w="navegador" aria-label="Navegador">${ico.browser}</button><button class="tbtn" data-act="open" data-w="tele" aria-label="Tele y radio">${ico.tv}</button><button class="tbtn" data-act="open" data-w="archivos" aria-label="Mis archivos">${ico.folder}</button>
+ <div class="tray"><span class="hide-m">${ico.wifi}</span><span class="mono hide-m">${c.code}</span><div class="clk"><b class="mono" data-clock="${c.tz}">${clock(c.tz)}</b><small>hora de ${c.city}</small></div></div></div>
+ <div class="conn${S.skipConnect?' gone':''}" id="conn"><div class="conn-in">${stamp(c,104)}<h3>Conectando con tu PC</h3><ul class="bsteps" id="connSteps"></ul></div></div>
  </div></div>`}
-function runConnect(){const pc=pcs()[S.pcSel];const c=C[pc.code];const st=[];if(pc.state!=='on')st.push('Prendiendo tu PC (menos de un minuto)');
- st.push('Verificando que sos vos','Abriendo la conexión cifrada',`Llegando a ${c.city}`);
+function runConnect(){const pc=pcs();const c=C[pc.active];const o=zone();const st=[];if(pc.state!=='on')st.push('Prendiendo tu PC (menos de un minuto)');
+ st.push('Verificando que sos vos',`Abriendo tu PC en ${o.pc}`,`Chequeando el túnel a ${c.city}`);
  const ul=$('#connSteps');ul.innerHTML=st.map(s=>`<li><span class="bi"></span>${s}</li>`).join('');const lis=[...ul.children];let i=0;
  const f=()=>{if(i>0)lis[i-1].className='done';if(i<lis.length){lis[i].className='now';i++;later(f,560)}else{pc.state='on';later(()=>$('#conn')&&$('#conn').classList.add('gone'),200)}};f()}
+function switchExit(code){const pc=pcs();if(code===pc.active)return;const c=C[code];const desk=$('#desk');
+ if(desk){desk.insertAdjacentHTML('beforeend',`<div class="switching" id="swOv"><div>${stamp(c,96)}<b>Cambiando tu salida a ${c.name}…</b><small>Tu PC no sale a internet hasta que el túnel nuevo esté listo.</small></div></div>`)}
+ setTimeout(()=>{pc.active=code;if(parse().r!=='pc')return;S.skipConnect=true;if(!S.wins.includes('navegador'))S.wins.push('navegador');rerender();toast(`Listo: ahora te ven en ${c.city}, ${c.name}.`)},1300)}
 
 /* ---------- panel ---------- */
 function stPill(st){const m={on:['st-on','Prendida'],off:['st-off','Apagada'],starting:['st-busy','Prendiendo…'],stopping:['st-busy','Apagando…'],restarting:['st-busy','Reiniciando…']}[st];return `<span class="st-pill ${m[0]}"><i></i>${m[1]}</span>`}
-function pcCard(p,i){const c=C[p.code],t=TIERS[p.tier];
- return `<button class="pcc${i===S.pcSel?' on':''}" data-act="pcsel" data-i="${i}">${stamp(c,52)}<span class="pcc-t"><b>${pcName(p)}</b><small>${t.name} · ${p.os==='windows'?'Windows':'Linux'} · ${c.city}</small></span>${stPill(p.state)}</button>`}
-function tabResumen(p){const c=C[p.code],t=TIERS[p.tier];const o=ORIGINS[S.origin];
+const exitIsFibra=code=>code===S.country&&fibraOn();
+function tabResumen(p){const c=C[p.active],t=TIERS[S.tier];const o=zone();const other=p.exits.find(x=>x!==p.active);
  return `<div class="grid2">
  <div class="box"><h3>${ico.shield} Chequeo de identidad</h3><p class="sm muted">Lo revisamos todos los días a las 09:00, hora de ${c.city}.</p>
   <div class="chk-rows">
    <div><span>Los sitios te ven en</span><span class="okt">${ico.check} ${c.city}, ${c.name}</span></div>
-   <div><span>Tu IP fija</span><span class="okt">${ico.check} •••.142, sin cambios</span></div>
+   <div><span>Tu IP fija</span><span class="okt">${ico.check} •••.${ipTail(c.code)}, sin cambios</span></div>
    <div><span>¿Aparece como VPN o proxy?</span><span class="okt">${ico.check} No</span></div>
-   <div><span>Hora, idioma y teclado</span><span class="okt">${ico.check} De ${c.name}</span></div>
+   <div><span>Túnel y corte automático</span><span class="okt">${ico.check} Probado hoy</span></div>
+   <div><span>¿Fugas de IP (DNS, WebRTC)?</span><span class="okt">${ico.check} Ninguna</span></div>
   </div>
   <p class="sm muted">Si algo cambia, te avisamos por WhatsApp y lo arreglamos antes de que tu banco lo note.</p></div>
  <div class="box"><h3>${ico.monitor} Tu PC este mes</h3>
   <div class="tiles">
    <div class="tile"><div class="l">Horas prendida</div><div class="v">${p.hrs} h</div><div class="s">el resto, apagada y sin gastar</div></div>
    <div class="tile"><div class="l">Disco usado</div><div class="v">${p.disk} GB</div><div class="s">de ${t.disk} GB</div><div class="meter"><span style="width:${Math.round(p.disk/t.disk*100)}%"></span></div></div>
-   <div class="tile"><div class="l">Última copia</div><div class="v">Hoy 03:00</div><div class="s">guardamos 7 días</div></div>
-   <div class="tile"><div class="l">Próximo cobro</div><div class="v">US$ ${planPrice(p.tier,p.code,p.os)}</div><div class="s">30 de octubre</div></div>
+   <div class="tile"><div class="l">Datos por tus salidas</div><div class="v">38 GB</div><div class="s">${n1(38/p.hrs)} GB por hora de uso</div></div>
+   <div class="tile"><div class="l">Próximo cobro</div><div class="v">US$ ${monthlyTotal()}</div><div class="s">30 de octubre</div></div>
   </div></div></div>
  <div class="box" style="margin-top:16px"><h3>Actividad reciente</h3><ul class="feed">
+  ${other?`<li><time>hoy 20:14</time><span>Usaste la salida de ${C[other].name} durante 25 minutos.</span></li>`:''}
   <li><time>hoy 12:41</time><span>Hibernó sola tras 30 minutos sin uso.</span></li>
   <li><time>hoy 09:02</time><span>La abriste desde Chrome, en ${o.city}.</span></li>
-  <li><time>hoy 03:00</time><span>Copia de seguridad completa (${p.disk} GB).</span></li>
-  <li><time>ayer 22:10</time><span>Se instalaron actualizaciones de seguridad.</span></li>
-  <li><time>ayer 09:00</time><span>Chequeo de identidad: todo en orden en ${c.name}.</span></li></ul></div>`}
+  <li><time>hoy 04:17</time><span>El túnel a ${c.city} se cortó 3 segundos. El corte automático funcionó: no salió nada por fuera.</span></li>
+  <li><time>hoy 03:00</time><span>Copia de seguridad completa (${p.disk} GB).</span></li></ul></div>`}
+function exitRow(code,active){const c=C[code];
+ return `<div class="exit">${stamp(c,48)}<div class="exit-t"><b>${c.name} · ${c.city}</b><small class="mono">IP fija •••.${ipTail(code)} · ${exitIsFibra(code)?'fibra local':'datacenter'} · chequeo de hoy ✓</small></div>
+ ${active?'<span class="st-pill st-on"><i></i>En uso ahora</span>':`<button class="btn btn-ghost btn-sm" data-act="use-exit" data-code="${code}">Usar ahora</button>`}</div>`}
+function tabPaises(p){const c=C[p.active];
+ const devs=p.devices.map((d,i)=>`<div class="dev"><span class="dev-ic">${d.kind==='tv'?ico.tv:ico.phone}</span><div class="dev-t"><b>${d.name}</b><small>${d.on?'Conectada':'Sin conectar'} · sale por ${C[d.code].name}</small></div><select class="sel" data-chg="dev-country" data-i="${i}" aria-label="País del dispositivo">${p.exits.map(x=>`<option value="${x}" ${x===d.code?'selected':''}>${C[x].name}</option>`).join('')}</select></div>`).join('');
+ return `<div class="grid2">
+ <div class="box"><h3>${ico.globe} Dónde te ven</h3><p class="sm muted">Cada país con su IP fija, solo tuya. Cambiás en un clic, también desde la barra de tu PC.</p>
+  ${p.exits.map(x=>exitRow(x,x===p.active)).join('')}
+  <div class="cta-row" style="margin:14px 0 0"><button class="btn btn-ghost btn-sm" data-act="add-exit">${ico.plus} Agregar un país · US$ ${EXTRA}/mes</button></div></div>
+ <div class="box"><h3>${ico.link} Corte automático</h3><p class="sm muted">Si el túnel con el país se cae, tu PC se queda sin internet unos segundos en vez de salir por ${zone().pc}. Así tu banco nunca te ve en otro lado.</p>
+  <div class="chk-rows"><div><span>Estado</span><span class="okt">${ico.check} Activado</span></div><div><span>Última prueba</span><span class="okt">${ico.check} Hoy 04:17</span></div><div><span>Fugas de IP este mes</span><span class="okt">${ico.check} 0</span></div><div><span>Escritorio remoto</span><span>Va directo, no por el túnel</span></div></div></div></div>
+ <div class="box" style="margin-top:16px"><h3>${ico.tv} Tu tele y tu celular</h3><p class="sm muted">Conectalos directo a tu salida de ${c.name}. Para ver video es mucho mejor que por la PC: calidad completa, sin cortes.</p>
+  ${S.conexion?`${devs}<div class="cta-row" style="margin:14px 0 0"><button class="btn btn-ghost btn-sm" data-act="connect-dev">${ico.plus} Conectar otro dispositivo</button></div>`
+  :`<div class="upsell"><div><b>Sumá tu tele y tu celular por US$ ${CONEX}/mes</b><div class="sm muted">Usan tus mismos países y tus mismas IP fijas.</div></div><button class="btn btn-primary btn-sm" data-act="conexion-on">Sumar</button></div>`}
+  <p class="fine" style="margin-top:12px">Las plataformas de streaming grandes no permiten ver el catálogo de otro país en sus términos y pueden bloquearlo.</p></div>`}
 function tabCopias(){const d=backupDates();
  return `<div class="box"><h3>${ico.save} Copias de seguridad</h3><p class="sm muted">Una por noche, a las 03:00. Guardamos los últimos 7 días.</p>
  ${d.map((b,i)=>`<div class="bk"><div class="d">${b.label}<small>${b.long} · 03:00</small></div><div class="m">${b.size} GB</div><button class="btn btn-ghost btn-sm" data-act="restore" data-i="${i}">${ico.restart} Volver a este día</button></div>`).join('')}
  <div class="cta-row" style="margin:16px 0 0"><button class="btn btn-ghost btn-sm" data-act="file-restore">${ico.folder} Recuperar un solo archivo</button></div></div>`}
-function tabUso(p){const off=720-p.hrs;
+function tabUso(p){const off=720-p.hrs;const wk=USAGE.filter(u=>u.dt.getDay()%6!==0);
  return `<div class="box"><h3>Horas prendida por día · septiembre</h3><p class="sm muted">Cuando no la usás, hiberna sola: ${off} horas apagada este mes, sin gastar.</p>
  <div class="chart" id="uchart"></div>
  <details class="tbl"><summary>Ver los datos</summary><table><thead><tr><th>Día</th><th>Horas</th></tr></thead><tbody>${USAGE.map(u=>`<tr><td>${u.dt.toLocaleDateString('es-UY',{weekday:'short',day:'numeric'})}</td><td>${n1(u.h)} h</td></tr>`).join('')}</tbody></table></details></div>
- <div class="tiles t4"><div class="tile"><div class="l">Prendida</div><div class="v">${p.hrs} h</div><div class="s">de 720 h del mes</div></div><div class="tile"><div class="l">Promedio por día hábil</div><div class="v">${n1(USAGE.filter(u=>u.dt.getDay()%6!==0).reduce((a,b)=>a+b.h,0)/USAGE.filter(u=>u.dt.getDay()%6!==0).length)} h</div><div class="s">lunes a viernes</div></div><div class="tile"><div class="l">Hibernó sola</div><div class="v">41 veces</div><div class="s">tras 30 min sin uso</div></div><div class="tile"><div class="l">Te ahorraste</div><div class="v">US$ ${alwaysOnExtra(p.tier,p.code,p.os)}</div><div class="s">vs. tenerla siempre prendida</div></div></div>`}
-function tabPlan(p){const c=C[p.code];
- return `<div class="tiers">${Object.entries(TIERS).map(([k,t])=>tierCard(k,t,p.code,p.os,p.tier,'plan-change')).join('')}</div>
- <div class="plan-row"><div><b>${ico.move} Mudar mi PC a otro país</b><span>Copiamos todo al país nuevo. Tu IP cambia a la de ese país.</span></div><button class="btn btn-ghost btn-sm" data-act="move">Mudar</button></div>
- <div class="plan-row"><div><b>${ico.pause} Pausar por un mes</b><span>Para viajes largos: queda guardada y pagás solo el disco (US$ ${Math.round(TIERS[p.tier].disk*.08*c.mult*1.25+3.65)}).</span></div><button class="btn btn-ghost btn-sm" data-act="pause">Pausar</button></div>
- <p class="fine" style="margin-top:12px">Próximo cobro: 30 de octubre · US$ ${planPrice(p.tier,p.code,p.os)} con MercadoPago. Precios ilustrativos.</p>`}
-function tabSoporte(){const avail=QUICK;
+ <div class="tiles t4"><div class="tile"><div class="l">Prendida</div><div class="v">${p.hrs} h</div><div class="s">de 720 h del mes</div></div><div class="tile"><div class="l">Promedio por día hábil</div><div class="v">${n1(wk.reduce((a,b)=>a+b.h,0)/wk.length)} h</div><div class="s">lunes a viernes</div></div><div class="tile"><div class="l">Datos por tus salidas</div><div class="v">38 GB</div><div class="s">casi todo navegación</div></div><div class="tile"><div class="l">Te ahorraste</div><div class="v">US$ ${alwaysOnExtra(S.tier,S.origin,S.os)}</div><div class="s">vs. tenerla siempre prendida</div></div></div>`}
+function tabPlan(){const o=zone();
+ return `<div class="tiers">${Object.entries(TIERS).map(([k,t])=>tierCard(k,t,S.origin,S.os,S.tier,'plan-change')).join('')}</div>
+ <div class="plan-row"><div><b>${ico.move} Me mudé: mover mi PC cerca mío</b><span>Hoy está en ${o.pc}. Si te mudás, la movemos para que siga rápida. Tus países e IPs no cambian.</span></div><button class="btn btn-ghost btn-sm" data-act="move-pc">Mover</button></div>
+ <div class="plan-row"><div><b>${ico.pause} Pausar por un mes</b><span>Para viajes largos: queda guardada y pagás solo el disco y tus IPs.</span></div><button class="btn btn-ghost btn-sm" data-act="pause">Pausar</button></div>
+ <p class="fine" style="margin-top:12px">Próximo cobro: 30 de octubre · US$ ${monthlyTotal()} con MercadoPago. Precios ilustrativos.</p>`}
+function tabSoporte(){
  return `<div class="chat">${S.chat.map(m=>`<div class="msg ${m.me?'me':'them'}">${m.t}<small>${m.me?'Vos':'Sofi · Soporte Localía'}</small></div>`).join('')}${S.typing?'<div class="msg them typing"><i></i><i></i><i></i></div>':''}</div>
- <div class="quick">${avail.map(([k,l])=>`<button class="tog" data-act="quick" data-k="${k}">${l}</button>`).join('')}</div>
+ <div class="quick">${QUICK.map(([k,l])=>`<button class="tog" data-act="quick" data-k="${k}">${l}</button>`).join('')}</div>
  <p class="fine" style="margin-top:12px">También por WhatsApp, en español, de 8 a 22 h.</p>`}
-function vPanel(){const list=pcs();if(S.pcSel>=list.length)S.pcSel=0;const p=list[S.pcSel];const c=C[p.code],t=TIERS[p.tier];const st=p.state;const busy=['starting','stopping','restarting'].includes(st);
- const tabs=[['resumen','Resumen'],['copias','Copias de seguridad'],['uso','Uso'],['plan','Plan'],['soporte','Soporte']];
- const body={resumen:tabResumen,copias:tabCopias,uso:tabUso,plan:tabPlan,soporte:tabSoporte}[S.tab](p);
+function vPanel(){const p=pcs();const c=C[p.active],t=TIERS[S.tier],o=zone();const st=p.state;const busy=['starting','stopping','restarting'].includes(st);
+ const tabs=[['resumen','Resumen'],['paises','Países y dispositivos'],['copias','Copias de seguridad'],['uso','Uso'],['plan','Plan'],['soporte','Soporte']];
+ const body={resumen:tabResumen,paises:tabPaises,copias:tabCopias,uso:tabUso,plan:tabPlan,soporte:tabSoporte}[S.tab](p);
  return `${appBar(false)}<main class="wrap app-main">
- <div class="app-head"><div><div class="eyebrow">Mi panel</div><h1>Hola, ${S.user.name.split(' ')[0]||'Lucía'}</h1><p>Tenés ${list.length} PCs en ${new Set(list.map(x=>x.code)).size} países.</p></div><a class="btn btn-ghost btn-sm" href="#armar/1">${ico.plus} Otra PC en otro país</a></div>
- <div class="pcs">${list.map(pcCard).join('')}</div>
- <section class="card pcd"><div class="pcd-head"><div><h2>${pcName(p)} ${stPill(st)}</h2>
-  <div class="pcd-meta"><span class="chip">${ico.pin} ${c.city}, ${c.name}</span><span class="chip">${ico.globe} IP fija <span class="mono">•••.142</span></span><span class="chip">${ico.cpu} ${t.name} · ${t.cpu} vCPU · ${t.ram} GB</span><span class="chip">${p.os==='windows'?'Windows':'Linux'}</span></div></div>
+ <div class="app-head"><div><div class="eyebrow">Mi panel</div><h1>Hola, ${S.user.name.split(' ')[0]||'Lucía'}</h1><p>Tu PC está en ${o.pc} y te ven en ${p.exits.length} ${p.exits.length>1?'países':'país'}.</p></div><button class="btn btn-ghost btn-sm" data-act="add-exit">${ico.plus} Agregar un país</button></div>
+ <section class="card pcd"><div class="pcd-head"><div><h2>Mi PC ${stPill(st)}</h2>
+  <div class="pcd-meta"><span class="chip">${ico.monitor} En ${o.pc} · ${o.ms} ms de vos</span><span class="chip">${ico.link} Túnel activo · corte automático</span><span class="chip">${ico.cpu} ${t.name} · ${t.cpu} vCPU · ${t.ram} GB</span><span class="chip">${S.os==='windows'?'Windows':'Linux'}</span></div>
+  <div class="exit-switch"><span>Te ven en</span><div class="seg">${p.exits.map(x=>`<button class="${x===p.active?'on':''}" data-act="use-exit" data-code="${x}">${C[x].name}</button>`).join('')}</div><span class="mono sm muted">IP •••.${ipTail(c.code)}</span></div></div>
   <div class="pcd-act"><button class="btn btn-primary" data-act="openpc" ${busy?'disabled':''}>${ico.monitor} ${st==='off'?'Prender y abrir':'Abrir mi PC'}</button>
   <button class="btn btn-ghost btn-sm" data-act="power" ${busy?'disabled':''}>${ico.power} ${st==='off'?'Prender':'Apagar'}</button>
   <button class="btn btn-ghost btn-sm" data-act="restart" ${st!=='on'?'disabled':''}>${ico.restart} Reiniciar</button>
@@ -1114,51 +1248,60 @@ function drawUsage(el){if(!el)return;const W=Math.max(280,el.clientWidth),H=210,
  hit.addEventListener('pointermove',move);hit.addEventListener('pointerdown',move);hit.addEventListener('pointerleave',leave)}
 
 /* ---------- operación ---------- */
-function calcHTML(){const k=S.calc;const e=econ(k.code,k.tier,k.os,k.h);const max=Math.max(e.price,e.cost);
- const rows=[['Cómputo',e.compute,`US$ ${e.rate.toFixed(3).replace('.',',')}/h × ${k.h} h`],['Disco + copias',e.disk,`${TIERS[k.tier].disk} GB`],['IP fija',e.ip,''],['Acceso seguro',e.access,'Cloudflare, por usuario'],['Cobro',e.fees,'5% del precio']];
- const be=Math.min(730,e.be);const hp=k.h/730*100,bp=be/730*100;const cls=p=>p<12?'l0':p>88?'l1':'';
+function calcHTML(){const k=S.calc;const e=econ(k);const max=Math.max(e.price,e.cost);
+ const rows=[['Cómputo',e.compute,`US$ ${e.rate.toFixed(3).replace('.',',')}/h × ${k.h} h`],['Disco + copias',e.disk,`${TIERS[k.tier].disk} GB`],['Salidas',e.exits,`${k.n} × IP fija + parte del nodo`],['Datos',e.data,`${k.gb} GB × 2 tramos`],['Acceso seguro',e.access,'Cloudflare, por usuario'],['Cobro',e.fees,'5% del precio']];
+ const losesAlways=e.price<=e.fixed;const be=Math.min(730,Math.max(0,e.be));const hp=k.h/730*100,bp=be/730*100;const cls=p=>p<12?'l0':p>88?'l1':'';
+ const beLabel=losesAlways?'Pierde plata aunque esté apagada':e.be>=730?'Gana aun prendida 24/7':'Equilibrio: '+Math.round(be)+' h';
  return `<div class="cost">
- <div class="cost-l rev"><span class="lab">Cobrás al cliente</span><span class="track"><span class="bh" style="width:${e.price/max*100}%;display:block"></span></span><span class="val">US$ ${n0(e.price)}</span></div>
+ <div class="cost-l rev"><span class="lab">Cobrás al cliente<small class="muted mono">PC + ${k.n-1} país${k.n-1===1?'':'es'} extra</small></span><span class="track"><span class="bh" style="width:${e.price/max*100}%;display:block"></span></span><span class="val">US$ ${n0(e.price)}</span></div>
  ${rows.map(([l,v,s],i)=>`<div class="cost-l${i===0?' sep':''}"><span class="lab">${l}${s?`<small class="muted mono">${s}</small>`:''}</span><span class="track"><span class="bh" style="width:${Math.max(.6,v/max*100)}%;display:block"></span></span><span class="val">US$ ${n0(v)}</span></div>`).join('')}</div>
  <div class="margin-h"><b style="color:${e.margin>=0?'var(--ok)':'var(--bad)'}">${e.margin>=0?'+':'−'}US$ ${n0(Math.abs(e.margin))}</b><span>${e.margin>=0?'de margen':'de pérdida'} por mes · ${Math.round(e.pct*100)}%</span></div>
- <div class="be" role="img" aria-label="Punto de equilibrio en ${Math.round(be)} horas por mes; hoy ${k.h} horas">
-  <div class="okz" style="width:${bp}%"></div><div class="mk" style="left:calc(${hp}% - 1.5px)"></div>
+ <div class="be" role="img" aria-label="${beLabel}; hoy ${k.h} horas por mes">
+  <div class="okz" style="width:${losesAlways?0:bp}%"></div><div class="mk" style="left:calc(${hp}% - 1.5px)"></div>
   <span class="lab top ${cls(hp)}" style="left:${hp}%"><b>Hoy: ${k.h} h</b></span>
-  <span class="lab bot ${cls(bp)}" style="left:${bp}%">${e.be>=730?'Gana aun prendida 24/7':'Equilibrio: '+Math.round(be)+' h'}</span></div>
+  <span class="lab bot ${cls(losesAlways?0:bp)}" style="left:${losesAlways?0:bp}%">${beLabel}</span></div>
  <div class="be-leg"><span><i class="sw okc"></i> gana plata</span><span><i class="sw badc"></i> pierde plata</span><span class="muted">24/7 = 730 h al mes</span></div>
- <p class="fine" style="margin-top:12px">Estimación ilustrativa: validar con la calculadora de AWS y la cotización de Antel (Antel podría facturar por mes y no por hora).</p>`}
-function updateCalc(){const o=$('#calcOut');if(o)o.innerHTML=calcHTML();const v=$('#hrsV');if(v)v.textContent=S.calc.h+' h'}
-function vOps(){const k=S.calc;const maxP=Math.max(...OPS_ROWS.map(r=>r.pcs));
+ <p class="note">${ico.info}<span>Ver video por la PC hace pasar los datos dos veces (salida → PC → vos). Con la tele conectada directo, una sola vez: por eso la Conexión para tele y celular protege el margen.</span></p>
+ <p class="fine" style="margin-top:10px">Estimación ilustrativa: validar con la calculadora de AWS y la cotización de Antel.</p>`}
+function updateCalc(){const o=$('#calcOut');if(o)o.innerHTML=calcHTML();const v=$('#hrsV');if(v)v.textContent=S.calc.h+' h';const g=$('#gbV');if(g)g.textContent=S.calc.gb+' GB'}
+function vOps(){const k=S.calc;const maxI=Math.max(...OPS_ROWS.map(r=>r.ips));
  return `${appBar(true)}<main class="wrap app-main">
- <div class="app-head"><div><div class="eyebrow">Vista interna · Slonimtek</div><h1>Operación Localía</h1><p>Cómo cuidamos las PCs, las IPs y el margen. <span class="muted">Datos ilustrativos.</span></p></div></div>
+ <div class="app-head"><div><div class="eyebrow">Vista interna · Slonimtek</div><h1>Operación Localía</h1><p>Cómo cuidamos las PCs, las salidas por país y el margen. <span class="muted">Datos ilustrativos.</span></p></div></div>
  <div class="kpis">
-  <div class="kpi"><div class="l">PCs activas</div><div class="v">134</div><div class="s">en 9 países</div></div>
-  <div class="kpi"><div class="l">Ingreso mensual</div><div class="v">US$ 11,2k</div><div class="s">+18% vs. agosto</div></div>
-  <div class="kpi"><div class="l">Costo total</div><div class="v">US$ 6,9k</div><div class="s">nube + acceso + cobros</div></div>
-  <div class="kpi"><div class="l">Margen bruto</div><div class="v">38%</div><div class="s">gracias al apagado automático</div></div>
-  <div class="kpi"><div class="l">Pausadas por abuso</div><div class="v">3</div><div class="s">en septiembre</div></div>
+  <div class="kpi"><div class="l">PCs activas</div><div class="v">134</div><div class="s">en 4 zonas, cerca de los clientes</div></div>
+  <div class="kpi"><div class="l">Salidas activas</div><div class="v">211 IPs</div><div class="s">en 11 países</div></div>
+  <div class="kpi"><div class="l">Ingreso mensual</div><div class="v">US$ 12,4k</div><div class="s">+18% vs. agosto</div></div>
+  <div class="kpi"><div class="l">Margen bruto</div><div class="v">36%</div><div class="s">gracias al apagado automático</div></div>
+  <div class="kpi"><div class="l">Fugas de IP</div><div class="v">0</div><div class="s">este mes · corte automático</div></div>
  </div>
+ <section class="box" style="margin-bottom:16px"><h3>${ico.link} Cómo viaja la conexión</h3>${flow(ORIGINS.TLV,C.UY)}
+  <p class="flow-note">${ico.info}<span>El escritorio remoto (Cloudflare) va directo, no por el túnel, así no se suma demora. Todo lo demás sale por el país elegido, por la red y no por una app adentro de la PC: el usuario no la puede apagar. Si el túnel se cae, la PC queda sin internet.</span></p></section>
  <div class="ops-grid">
-  <section class="box"><h3>${ico.alert} Alertas de uso indebido</h3><p class="sm muted">Reglas automáticas: minería, spam, fraude y sanciones. La mayoría se resuelve sola.</p>
+  <section class="box"><h3>${ico.alert} Alertas</h3><p class="sm muted">Reglas automáticas: minería, spam, fraude, sanciones y salud de los túneles.</p>
    ${ALERTS.map(a=>`<div class="alert"><span class="sev sev-${a.sev}">${a.sev==='info'?ico.info:a.sev==='bad'?ico.stop:ico.alert} ${a.lab}</span><div><b>${a.t}</b><p>${a.d}</p><div class="done">${ico.check} ${a.r}</div>${a.b.length?`<div class="acts">${a.b.map(b=>`<button class="btn btn-ghost btn-sm" data-act="ops-act" data-b="${b}">${b}</button>`).join('')}</div>`:''}</div></div>`).join('')}</section>
-  <section class="box"><h3>${ico.cpu} Calculadora de margen por PC</h3><p class="sm muted">El negocio está en el apagado automático: cobrás un mes fijo y la nube te cobra solo las horas prendida.</p>
+  <section class="box"><h3>${ico.cpu} Calculadora de margen por cliente</h3><p class="sm muted">Cobrás un mes fijo; la nube cobra horas prendida y datos. Mové los controles.</p>
    <div class="calc-ctl">
-    <select class="sel" data-chg="calc-code" aria-label="País">${COUNTRIES.filter(x=>!x.soon).map(x=>`<option value="${x.code}" ${x.code===k.code?'selected':''}>${x.name}</option>`).join('')}</select>
+    <select class="sel" data-chg="calc-zone" aria-label="Zona de la PC">${Object.entries(ORIGINS).map(([z,v])=>`<option value="${z}" ${z===k.zone?'selected':''}>PC en ${v.pc}</option>`).join('')}</select>
     <select class="sel" data-chg="calc-tier" aria-label="Tamaño">${Object.entries(TIERS).map(([t,v])=>`<option value="${t}" ${t===k.tier?'selected':''}>${v.name}</option>`).join('')}</select>
     <select class="sel" data-chg="calc-os" aria-label="Sistema"><option value="windows" ${k.os==='windows'?'selected':''}>Windows</option><option value="linux" ${k.os==='linux'?'selected':''}>Linux</option></select></div>
+   <div class="calc-ctl two"><select class="sel" data-chg="calc-n" aria-label="Países">${[1,2,3,4].map(n=>`<option value="${n}" ${n===k.n?'selected':''}>${n} país${n>1?'es':''}</option>`).join('')}</select><span></span></div>
    <div class="range-row"><label for="hrs">Horas prendida al mes</label><input id="hrs" type="range" min="0" max="730" step="1" value="${k.h}" data-inp="hours"><b class="mono" id="hrsV">${k.h} h</b></div>
+   <div class="range-row"><label for="gb">Datos por la salida</label><input id="gb" type="range" min="0" max="400" step="2" value="${k.gb}" data-inp="gb"><b class="mono" id="gbV">${k.gb} GB</b></div>
    <div id="calcOut">${calcHTML()}</div></section>
  </div>
- <section class="box"><h3>${ico.globe} Por país</h3><p class="sm muted">Hipótesis a validar en el piloto: las IPs de un proveedor local (Antel) se marcan mucho menos como VPN que las de datacenter.</p>
- <div class="tbl-wrap"><table class="ops-t"><thead><tr><th>País</th><th>Dónde está la PC</th><th>Tipo de IP</th><th class="num">PCs</th><th class="num">Horas prom.</th><th class="num">IPs marcadas VPN</th><th class="num">Margen</th></tr></thead><tbody>
- ${OPS_ROWS.map(r=>{const c=C[r.code];return `<tr><td><span class="cty"><span class="c">${c.code}</span>${c.name}</span></td><td>${c.infra}</td><td>${r.ip==='local'?'<span class="tag-ok">Proveedor local</span>':'Datacenter'}</td>
- <td class="num"><span class="ibar"><i style="width:${Math.round(r.pcs/maxP*80)}px"></i>${r.pcs}</span></td><td class="num">${r.hrs} h</td>
- <td class="num">${r.flag}% ${r.flag>=15?`<span class="sev sev-warn" style="min-width:0;margin-left:6px">${ico.alert} alto</span>`:''}</td><td class="num">${Math.round(r.margin*100)}%</td></tr>`}).join('')}
- </tbody></table></div></section>
+ <section class="box"><h3>${ico.globe} Salidas por país</h3><p class="sm muted">Hipótesis a validar en el piloto: las IPs de proveedor local o fibra (Antel) se marcan mucho menos como VPN que las de datacenter.</p>
+ <div class="tbl-wrap"><table class="ops-t"><thead><tr><th>País</th><th>Dónde sale</th><th>Tipo de IP</th><th class="num">IPs activas</th><th class="num">Marcadas como VPN</th><th class="num">Datos / mes</th></tr></thead><tbody>
+ ${OPS_ROWS.map(r=>{const c=C[r.code];return `<tr><td><span class="cty"><span class="c">${c.code}</span>${c.name}</span></td><td>${r.exit}</td><td>${r.ip==='ISP local'?'<span class="tag-ok">ISP local</span>':r.ip}</td>
+ <td class="num"><span class="ibar"><i style="width:${Math.round(r.ips/maxI*80)}px"></i>${r.ips}</span></td>
+ <td class="num">${r.flag}% ${r.flag>=15?`<span class="sev sev-warn" style="min-width:0;margin-left:6px">${ico.alert} alto</span>`:''}</td><td class="num">${n1(r.tb)} TB</td></tr>`}).join('')}
+ </tbody></table></div>
+ <h3 style="margin-top:18px">${ico.monitor} Zonas de PCs</h3><div class="zones">${ZONES_OPS.map(([z,n])=>`<div class="tile"><div class="l">PC en ${z}</div><div class="v">${n}</div><div class="s">PCs activas</div></div>`).join('')}</div></section>
  <section class="box" style="margin-top:16px"><h3>Cómo está armado</h3><div class="arch">
   <div><span class="k">Vidriera y panel</span><b>Cloudflare Workers + D1</b>Esta web, el panel del cliente y las cuentas.</div>
   <div><span class="k">Acceso</span><b>Cloudflare Access + Tunnel</b>Escritorio remoto en el navegador. Las PCs no exponen ningún puerto.</div>
-  <div><span class="k">Las PCs</span><b>AWS + Antel</b>Regiones y Local Zones (Buenos Aires, Santiago, Lima, Querétaro); Antel en Uruguay.</div>
+  <div><span class="k">Las PCs</span><b>Cerca del cliente</b>AWS en Tel Aviv, España, Miami y Virginia. Pocas zonas, fáciles de operar.</div>
+  <div><span class="k">Salidas por país</span><b>Túneles WireGuard</b>Antel en Uruguay, AWS Local Zones y proveedores locales. IP fija por cliente.</div>
+  <div><span class="k">Seguridad de salida</span><b>Corte automático</b>Sin túnel no hay internet. DNS por el túnel y WebRTC bloqueado: cero fugas.</div>
   <div><span class="k">Identidad</span><b>KYC con cedula-ocr</b>Cédula o pasaporte verificados antes de prender la primera PC.</div>
   <div><span class="k">Cobros</span><b>MercadoPago · Stripe</b>En moneda local y por adelantado.</div>
   <div><span class="k">Avisos y soporte</span><b>WhatsApp</b>PC lista, alertas de IP y soporte con personas.</div>
@@ -1183,9 +1326,8 @@ function route(){timers.forEach(t=>{clearTimeout(t);clearInterval(t)});timers=[]
  const key=r==='armar'?'armar/'+S.step:r;$$('#rib a').forEach(x=>x.classList.toggle('on',x.dataset.r===key));
  if(lastHash!==location.hash){window.scrollTo(0,0);lastHash=location.hash}
  if(r==='inicio'){let i=0;const t=setInterval(()=>{const v=$('#heroVis');if(!v)return;v.classList.add('fade');setTimeout(()=>{i=(i+1)%HERO_PAIRS.length;v.innerHTML=heroVis(HERO_PAIRS[i]);v.classList.remove('fade')},350)},4200);timers.push(t)}
- if(r==='armar'&&S.step===1&&!S.measured)later(()=>{S.measured=true;rerender()},1300);
  if(r==='armando')runBuild();
- if(r==='pc')runConnect();
+ if(r==='pc'){if(S.skipConnect)S.skipConnect=false;else runConnect()}
  if(r==='panel'&&S.tab==='uso')drawUsage($('#uchart'));
 }
 function rerender(){const y=window.scrollY;route();window.scrollTo(0,y)}
@@ -1196,8 +1338,11 @@ const A={
  scroll:el=>{const t=document.getElementById(el.dataset.target);t&&t.scrollIntoView({behavior:'smooth',block:'start'})},
  theme:()=>{const cur=document.documentElement.dataset.theme||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');const nx=cur==='dark'?'light':'dark';document.documentElement.dataset.theme=nx;try{localStorage.setItem('localia-theme',nx)}catch(e){}},
  'pick-tier':el=>{S.tier=el.dataset.tier;go('armar/1')},
- country:el=>{S.country=el.dataset.code;rerender()},
- 'ask-country':()=>openModal(`<h3>¿Qué país necesitás?</h3><p>Sumamos países según lo que nos piden. Elegí uno y te avisamos cuando llegue.</p><div class="chips" style="margin-top:14px">${['Colombia','Paraguay','Bolivia','Ecuador','Canadá','Italia','Alemania','Reino Unido'].map(n=>`<button class="tog" data-act="notify" data-n="${n}">${n}</button>`).join('')}</div><div class="modal-act"><button class="btn btn-ghost btn-sm" data-act="close-modal">Cerrar</button></div>`),
+ country:el=>{S.country=el.dataset.code;S.extras.delete(S.country);rerender()},
+ extra:el=>{const k=el.dataset.code;S.extras.has(k)?S.extras.delete(k):S.extras.add(k);rerender()},
+ fibra:()=>{S.fibra=!S.fibra;rerender()},
+ conexion:()=>{S.conexion=!S.conexion;rerender()},
+ 'ask-country':()=>openModal(`<h3>¿Qué país necesitás?</h3><p>Sumar un país es rápido: solo hace falta una salida ahí. Elegí uno y te avisamos cuando llegue.</p><div class="chips" style="margin-top:14px">${['Bolivia','Ecuador','Venezuela','Canadá','Italia','Alemania','Reino Unido','Francia'].map(n=>`<button class="tog" data-act="notify" data-n="${n}">${n}</button>`).join('')}</div><div class="modal-act"><button class="btn btn-ghost btn-sm" data-act="close-modal">Cerrar</button></div>`),
  notify:el=>{closeModal();toast(`Listo: te avisamos por WhatsApp cuando llegue ${el.dataset.n}.`)},
  tier:el=>{S.tier=el.dataset.tier;rerender()},
  os:el=>{S.os=el.dataset.os;rerender()},
@@ -1209,50 +1354,59 @@ const A={
  next:()=>go('armar/'+(S.step+1)),
  prev:()=>go(S.step>1?'armar/'+(S.step-1):'inicio'),
  checkout:el=>{el.disabled=true;el.innerHTML=`${ico.clock} ${S.pay==='mp'?'Conectando con MercadoPago…':'Procesando el pago…'}`;later(()=>go('armando'),1100)},
- pcsel:el=>{S.pcSel=+el.dataset.i;rerender()},
- tab:el=>{S.tab=el.dataset.tab;rerender();if(S.tab!=='resumen'){const d=$('.pcd');d&&d.scrollIntoView({behavior:'smooth',block:'start'})}},
+ tab:el=>{S.tab=el.dataset.tab;if(parse().r!=='panel'){go('panel');return}rerender();if(S.tab!=='resumen'){const d=$('.tabs');d&&d.scrollIntoView({behavior:'smooth',block:'start'})}},
  openpc:()=>go('pc'),
- power:()=>{const i=S.pcSel,p=pcs()[i];if(p.state==='on'){p.state='stopping';rerender();setTimeout(()=>{p.state='off';if(parse().r==='panel')rerender();toast('Tu PC se apagó. Tus archivos quedan guardados.')},1400)}else if(p.state==='off'){p.state='starting';rerender();setTimeout(()=>{p.state='on';if(parse().r==='panel')rerender();toast('Tu PC está prendida.')},1800)}},
- restart:()=>{const p=pcs()[S.pcSel];if(p.state!=='on')return;p.state='restarting';rerender();setTimeout(()=>{p.state='on';if(parse().r==='panel')rerender();toast('Listo, tu PC se reinició.')},2000)},
+ 'use-exit':el=>{const p=pcs();p.active=el.dataset.code;rerender();toast(`Listo: ahora te ven en ${C[p.active].city}, ${C[p.active].name}.`)},
+ 'add-exit':()=>{const p=pcs();const opts=COUNTRIES.filter(x=>!x.soon&&!p.exits.includes(x.code));openModal(`<h3>Agregar un país</h3><p>Se suma a tu misma PC, con su propia IP fija. US$ ${EXTRA} por mes. Está listo en un par de minutos.</p><div class="chips" style="margin-top:14px">${opts.map(o=>`<button class="tog" data-act="do-add-exit" data-code="${o.code}">${ico.plus} ${o.name}</button>`).join('')}</div><div class="modal-act"><button class="btn btn-ghost btn-sm" data-act="close-modal">Cancelar</button></div>`)},
+ 'do-add-exit':el=>{const p=pcs();const k=el.dataset.code;p.exits.push(k);S.extras.add(k);closeModal();if(parse().r!=='panel'){S.tab='paises';go('panel')}else{S.tab='paises';rerender()}toast(`Sumamos ${C[k].name} con su IP fija. Ya lo podés usar.`)},
+ 'conexion-on':()=>{S.conexion=true;rerender();toast('Listo: ya podés conectar tu tele y tu celular.')},
+ 'connect-dev':()=>{const c=C[pcs().active];openModal(`<h3>Conectá tu tele o tu celular</h3><ol class="steps-ol"><li>En tu tele o celular, instalá la app de Localía.</li><li>Escaneá este código.</li><li>Listo: sale por ${c.name} con tu IP fija.</li></ol>${qrSVG()}<p class="fine" style="text-align:center">Código de ejemplo del mockup.</p><div class="modal-act"><button class="btn btn-primary btn-sm" data-act="close-modal">Listo</button></div>`)},
+ 'to-devices':()=>{S.tab='paises';go('panel')},
+ power:()=>{const p=pcs();if(p.state==='on'){p.state='stopping';rerender();setTimeout(()=>{p.state='off';if(parse().r==='panel')rerender();toast('Tu PC se apagó. Tus archivos quedan guardados.')},1400)}else if(p.state==='off'){p.state='starting';rerender();setTimeout(()=>{p.state='on';if(parse().r==='panel')rerender();toast('Tu PC está prendida.')},1800)}},
+ restart:()=>{const p=pcs();if(p.state!=='on')return;p.state='restarting';rerender();setTimeout(()=>{p.state='on';if(parse().r==='panel')rerender();toast('Listo, tu PC se reinició.')},2000)},
  broken:()=>openModal(`<h3>¿Qué le pasa a tu PC?</h3><p>Probá en este orden. El primero arregla casi todo.</p>
   <button class="fix" data-act="fix-restart"><span class="n">1</span><span><b>Reiniciarla</b><small>Tarda un minuto. No se pierde nada.</small></span></button>
   <button class="fix" data-act="fix-restore"><span class="n">2</span><span><b>Volver a como estaba anoche</b><small>Usa la copia de hoy a las 03:00.</small></span></button>
   <button class="fix" data-act="fix-support"><span class="n">3</span><span><b>Hablar con una persona</b><small>Por WhatsApp, en español, de 8 a 22 h.</small></span></button>
   <div class="modal-act"><button class="btn btn-ghost btn-sm" data-act="close-modal">Cerrar</button></div>`),
- 'fix-restart':()=>{closeModal();if(pcs()[S.pcSel].state==='on')A.restart();else toast('Tu PC está apagada: prendela y listo.')},
+ 'fix-restart':()=>{closeModal();if(pcs().state==='on')A.restart();else toast('Tu PC está apagada: prendela y listo.')},
  'fix-restore':()=>A.restore({dataset:{i:'0'}}),
  'fix-support':()=>{closeModal();S.tab='soporte';rerender()},
  restore:el=>{const i=+el.dataset.i;const d=backupDates()[i];openModal(`<h3>Volver al ${d.long}</h3><p>Tu PC va a quedar exactamente como estaba el <b>${d.long} a las 03:00</b>. Lo que hiciste después se pierde, pero antes guardamos una copia de ahora, por las dudas.</p><div class="bar" id="rBar" hidden><span></span></div><div class="modal-act" id="rAct"><button class="btn btn-ghost" data-act="close-modal">Cancelar</button><button class="btn btn-primary" data-act="do-restore" data-i="${i}">Sí, volver a ese día</button></div>`)},
  'do-restore':el=>{const d=backupDates()[+el.dataset.i];$('#rAct').hidden=true;const b=$('#rBar');b.hidden=false;const s=b.firstElementChild;s.style.transition='width 2.2s ease';requestAnimationFrame(()=>requestAnimationFrame(()=>{s.style.width='100%'}));setTimeout(()=>{closeModal();toast(`Listo: tu PC volvió al ${d.long}.`)},2400)},
  'file-restore':()=>toast('Elegís el archivo y el día, y aparece de nuevo en tu escritorio.'),
- 'plan-change':el=>{const p=pcs()[S.pcSel];const to=el.dataset.tier;if(to===p.tier)return;const c=C[p.code];const from=planPrice(p.tier,p.code,p.os),nw=planPrice(to,p.code,p.os);const diff=Math.round((nw-from)*28/30);const up=nw>from;const T=TIERS[to];
-  openModal(`<h3>Pasar a ${T.name}</h3><p>Tu PC en ${c.name} pasa a <b>${T.cpu} vCPU · ${T.ram} GB de RAM</b> y queda en <b>US$ ${nw} por mes</b>.</p><p style="margin-top:8px">${up?`Hoy pagás la diferencia por lo que queda del mes: <b>US$ ${diff}</b>.`:`Te descontamos la diferencia en la próxima factura: <b>US$ ${-diff}</b>.`} Se aplica con un reinicio de un minuto y tus archivos quedan igual.</p><div class="modal-act"><button class="btn btn-ghost" data-act="close-modal">Cancelar</button><button class="btn btn-primary" data-act="do-plan" data-tier="${to}">Confirmar</button></div>`)},
- 'do-plan':el=>{const p=pcs()[S.pcSel];p.tier=el.dataset.tier;if(S.pcSel===0)S.tier=p.tier;closeModal();rerender();toast(`Listo: tu PC ahora es ${TIERS[p.tier].name}. Se aplica en el próximo reinicio.`)},
- move:()=>{const p=pcs()[S.pcSel];const opts=COUNTRIES.filter(x=>!x.soon&&x.code!==p.code);S.moveTo=opts[0].code;
-  openModal(`<h3>Mudar tu PC a otro país</h3><p>Copiamos tu PC completa (archivos, programas y ajustes) al país nuevo. Tarda unos 20 minutos.</p><label class="field-l" for="mv">País nuevo</label><select id="mv" class="sel" data-chg="move">${opts.map(o=>`<option value="${o.code}">${o.name} · ${o.city}</option>`).join('')}</select><p class="note">${ico.info}<span>Vas a tener una IP nueva de ese país. La primera vez que entres, tu banco te va a pedir un código: es normal.</span></p><div class="modal-act"><button class="btn btn-ghost" data-act="close-modal">Cancelar</button><button class="btn btn-primary" data-act="do-move">Mudar mi PC</button></div>`)},
- 'do-move':()=>{const p=pcs()[S.pcSel];p.code=S.moveTo;if(S.pcSel===0)S.country=p.code;closeModal();rerender();toast(`Mudando tu PC a ${C[p.code].name}. Te avisamos por WhatsApp cuando esté lista.`)},
- pause:()=>toast('Tu PC queda pausada hasta que vuelvas. Pagás solo el disco.'),
- quick:el=>{const k=el.dataset.k;const c=C[pcs()[S.pcSel].code];S.chat.push({me:true,t:QUICK.find(x=>x[0]===k)[1]});S.typing=true;rerender();
+ 'plan-change':el=>{const to=el.dataset.tier;if(to===S.tier)return;const from=pcPrice(S.tier,S.origin,S.os),nw=pcPrice(to,S.origin,S.os);const diff=Math.round((nw-from)*28/30);const up=nw>from;const T=TIERS[to];
+  openModal(`<h3>Pasar a ${T.name}</h3><p>Tu PC pasa a <b>${T.cpu} vCPU · ${T.ram} GB de RAM</b> y la PC queda en <b>US$ ${nw} por mes</b> (más tus países y extras).</p><p style="margin-top:8px">${up?`Hoy pagás la diferencia por lo que queda del mes: <b>US$ ${diff}</b>.`:`Te descontamos la diferencia en la próxima factura: <b>US$ ${-diff}</b>.`} Se aplica con un reinicio de un minuto y tus archivos quedan igual.</p><div class="modal-act"><button class="btn btn-ghost" data-act="close-modal">Cancelar</button><button class="btn btn-primary" data-act="do-plan" data-tier="${to}">Confirmar</button></div>`)},
+ 'do-plan':el=>{S.tier=el.dataset.tier;closeModal();rerender();toast(`Listo: tu PC ahora es ${TIERS[S.tier].name}. Se aplica en el próximo reinicio.`)},
+ 'move-pc':()=>{const opts=Object.entries(ORIGINS).filter(([k])=>k!==S.origin);S.moveTo=opts[0][0];
+  openModal(`<h3>Mover tu PC cerca tuyo</h3><p>Si te mudaste, movemos tu PC a una zona cerca de tu casa nueva para que siga rápida. Tus países, tus IP fijas y tus archivos no cambian. Tarda unos 20 minutos.</p><label class="field-l" for="mv">Ahora vivo en</label><select id="mv" class="sel" data-chg="move">${opts.map(([k,v])=>`<option value="${k}">${v.label} → PC en ${v.pc}</option>`).join('')}</select><div class="modal-act"><button class="btn btn-ghost" data-act="close-modal">Cancelar</button><button class="btn btn-primary" data-act="do-move-pc">Mover mi PC</button></div>`)},
+ 'do-move-pc':()=>{S.origin=S.moveTo;closeModal();rerender();toast(`Moviendo tu PC a ${zone().pc}. Tus países e IPs quedan igual.`)},
+ pause:()=>toast('Tu PC queda pausada hasta que vuelvas. Pagás solo el disco y tus IPs.'),
+ quick:el=>{const k=el.dataset.k;const c=C[pcs().active];S.chat.push({me:true,t:QUICK.find(x=>x[0]===k)[1]});S.typing=true;rerender();
   setTimeout(()=>{S.typing=false;S.chat.push({me:false,t:REPLY[k](c)});if(parse().r==='panel'&&S.tab==='soporte')rerender()},1100)},
  'close-modal':()=>closeModal(),
- open:el=>{const w=el.dataset.w;const desk=$('#desk');let node=desk.querySelector(`[data-win="${w}"]`);if(!node){desk.insertAdjacentHTML('beforeend',win(w,C[pcs()[S.pcSel].code]));node=desk.querySelector(`[data-win="${w}"]`)}node.style.zIndex=++z},
- 'win-close':el=>{const w=el.closest('.win');w&&w.remove()},
- 'ses-tool':el=>toast(el.dataset.t==='clip'?'Portapapeles compartido: copiás en tu compu y pegás en tu PC de allá.':'Arrastrá archivos a esta ventana y aparecen en Descargas de tu PC.'),
+ open:el=>{const w=el.dataset.w;const desk=$('#desk');let node=desk.querySelector(`[data-win="${w}"]`);if(!node){desk.insertAdjacentHTML('beforeend',win(w,C[pcs().active]));node=desk.querySelector(`[data-win="${w}"]`);if(!S.wins.includes(w))S.wins.push(w)}node.style.zIndex=++z},
+ 'win-close':el=>{const w=el.closest('.win');if(w){S.wins=S.wins.filter(x=>x!==w.dataset.win);w.remove()}},
+ 'ses-tool':el=>toast(el.dataset.t==='clip'?'Portapapeles compartido: copiás en tu compu y pegás en tu PC.':'Arrastrá archivos a esta ventana y aparecen en Descargas de tu PC.'),
  'ses-full':()=>{try{const d=document.documentElement;document.fullscreenElement?document.exitFullscreen():d.requestFullscreen&&d.requestFullscreen()}catch(e){}},
  'ops-act':el=>toast(`Mockup: "${el.dataset.b}" abre el detalle del caso.`),
 };
 let z=10;
 const CH={
- origin:el=>{S.origin=el.value;rerender()},
+ origin:el=>{S.origin=el.value;S.calc.zone=el.value;rerender()},
  rules:el=>{S.rules=el.checked;rerender()},
  move:el=>{S.moveTo=el.value},
- 'calc-code':el=>{S.calc.code=el.value;updateCalc()},
+ exit:el=>switchExit(el.value),
+ 'dev-country':el=>{const p=pcs();const d=p.devices[+el.dataset.i];d.code=el.value;rerender();toast(`${d.name} ahora sale por ${C[d.code].name}.`)},
+ 'calc-zone':el=>{S.calc.zone=el.value;updateCalc()},
  'calc-tier':el=>{S.calc.tier=el.value;updateCalc()},
  'calc-os':el=>{S.calc.os=el.value;updateCalc()},
+ 'calc-n':el=>{S.calc.n=+el.value;updateCalc()},
 };
 const IN={
  user:el=>{S.user[el.name]=el.value},
  hours:el=>{S.calc.h=+el.value;updateCalc()},
+ gb:el=>{S.calc.gb=+el.value;updateCalc()},
 };
 document.addEventListener('click',e=>{if(e.target.matches('[data-bg]')){closeModal();return}const el=e.target.closest('[data-act]');if(!el||el.disabled)return;const f=A[el.dataset.act];if(f){e.preventDefault();f(el,e)}});
 document.addEventListener('change',e=>{const el=e.target.closest('[data-chg]');if(el&&CH[el.dataset.chg])CH[el.dataset.chg](el)});
