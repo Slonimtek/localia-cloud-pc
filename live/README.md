@@ -4,7 +4,7 @@ Demo real de punta a punta, no un mockup. Cada PC es una máquina de AWS con esc
 
 - **Portal:** https://localia.100-57-206-149.sslip.io
 - **Acceso:** con código de invitación. Los usuarios y contraseñas están en `live/.secrets/ACCESOS.md` (no está en git) y en AWS Parameter Store (`/localia/accesos`).
-- **Estado al 30/09/2026:** salidas por **EE.UU. y Brasil** funcionando. **Argentina está apagada** a pedido: no se ofrece en el portal y se vuelve a prender desde Operación. **Uruguay** espera que se conecte una salida "de casa".
+- **Estado al 30/09/2026:** salidas por **EE.UU.** (sale por el propio gateway) y **Brasil** (São Paulo). **Argentina fue dada de baja** a pedido. **Uruguay** espera que se conecte una salida "de casa".
 
 ## Qué se puede mostrar
 
@@ -24,16 +24,16 @@ Demo real de punta a punta, no un mockup. Cada PC es una máquina de AWS con esc
 ## Arquitectura
 
 ```
-Navegador ──HTTPS──▶ Gateway (EC2 t4g.small, EIP 100.57.206.149, Virginia)
+Navegador ──HTTPS──▶ Gateway (EC2 t4g.micro, EIP 100.57.206.149, Virginia) · también es la salida de EE.UU.
                       ├─ Caddy: HTTPS automático (Let's Encrypt, on-demand para pc-<id>.…sslip.io)
                       ├─ Portal Node (API + web + proxy del escritorio KasmVNC con la sesión)
-                      └─ Hub WireGuard: wg-us / wg-br / wg-ar / wg-uy  +  ip rule por PC  +  blackhole
+                      └─ Hub WireGuard: wg-br / wg-uy  +  ip rule por PC  +  blackhole  (EE.UU.: tabla 101 → internet del gateway)
                               │ (las PCs no tienen IP pública: su ruta por defecto es el gateway)
       PCs (EC2 t4g, subred privada 10.60.2.0/24) ──▶ gateway ──túnel──▶ salida del país ──▶ internet
-      Salidas: US t4g.nano (Virginia) · BR t4g.nano + EIP (São Paulo) · AR r5.xlarge (Local Zone Buenos Aires) · UY: compu en casa
+      Salidas: US = el gateway (IP 100.57.206.149, Ashburn) · BR t4g.nano + EIP (São Paulo) · UY: compu en casa
 ```
 
-- **Corte automático:** cada país tiene su tabla de ruteo con el túnel y, detrás, un `blackhole`. Además, el firewall del gateway deja salir a las PCs solo por interfaces `wg-*`. Una PC sin país asignado cae en la tabla 199, que no tiene internet.
+- **Corte automático:** cada país tiene su tabla de ruteo con el túnel y, detrás, un `blackhole`. Además, el firewall del gateway deja salir a las PCs solo por interfaces `wg-*`. Por la placa del gateway solo salen las PCs asignadas a EE.UU. (`ipset localia-direct`, que mantiene el portal). Probado: al cortar Brasil, la PC de Brasil quedó sin internet y no salió por el gateway. Una PC sin país asignado cae en la tabla 199, que no tiene internet.
 - **Sin fugas de DNS:** las PCs usan 1.1.1.1/9.9.9.9 por el túnel (nunca el DNS de AWS). Chromium tiene la política `WebRtcIPHandling=default_public_interface_only`.
 - **Cambio de país:** agrega la nueva `ip rule` antes de borrar la vieja, así nunca queda un hueco. Además ajusta la zona horaria de la PC vía el agente.
 - **Se apaga sola:** a los 120 min sin nadie conectado al escritorio.
@@ -88,28 +88,25 @@ ssh -i live/.secrets/localia-admin.pem admin@100.57.206.149
 
 El SSH solo acepta IPs conocidas, así que hay que agregar la IP de casa al security group `localia-gateway`.
 
-## Costos aproximados (on-demand)
+## Costos (on-demand, AWS Pricing API, 30/09/2026)
 
-| Pieza | US$/hora | Nota |
+| Pieza | US$/mes | Nota |
 |---|---|---|
-| Gateway t4g.small + EIP | ~0,022 | siempre prendido |
-| Salida EE.UU. t4g.nano | ~0,009 | incluye IP pública |
-| Salida Brasil t4g.nano + EIP | ~0,012 | |
-| Salida Argentina r5.xlarge (Local Zone) | **0,462** | **la más cara (~US$ 340/mes)**: Buenos Aires no tenía capacidad para t3.medium (0,0773/h). Apagarla desde Operación cuando no se muestra |
-| Cada PC Mini t4g.medium | ~0,034 | solo prendida; se apaga sola |
-| Discos + imagen | ~US$ 6/mes | |
-
-**Hoy, con Argentina apagada:** ~US$ 1 por día de base (gateway + EE.UU. + Brasil), más ~US$ 0,034 por hora por cada PC Mini prendida. Argentina apagada solo cobra su disco (~US$ 0,8/mes). Si se la vuelve a prender, suma ~US$ 11 por día. Precios on-demand consultados en la AWS Pricing API el 30/09/2026.
+| Gateway t4g.micro + EIP + disco 16 GB | ~11 | siempre prendido; también es la salida de EE.UU. |
+| Salida Brasil t4g.nano + EIP + disco (São Paulo) | ~10 | |
+| Imagen de las PCs (snapshot ~24 GB) | ~1 | |
+| **Base total** | **~22** | ~US$ 0,73 por día (antes ~36) |
+| Cada PC Mini t4g.medium | 0,034/h prendida + ~2,6/mes de disco | se apaga sola a los **30 min** sin uso |
 
 ## Cómo bajar costos (analizado el 30/09/2026)
 
-**Demo (base ~US$ 32/mes):**
-- Usar el gateway como salida de EE.UU.: −US$ 7.
-- Gateway t4g.small → t4g.micro: −US$ 6.
-- Borrar la salida de Argentina apagada: −US$ 1.
-- Apagado automático a los 30 min (hoy 120).
+**Demo: ya aplicado el 30/09/2026.**
+- El gateway hace de salida de EE.UU.
+- Gateway en t4g.micro.
+- Argentina borrada.
+- Apagado automático a los 30 min.
 
-Queda en ~US$ 18/mes.
+La base pasó de ~US$ 36 a ~US$ 22/mes.
 
 **Por cliente (Mini ~US$ 12/mes a 90 h):**
 - IP del país compartida por defecto (−US$ 3,65); la IP fija propia pasa a ser un extra pago.

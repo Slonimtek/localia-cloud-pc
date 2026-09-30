@@ -22,6 +22,9 @@ iptables -A LOCALIA-FWD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 ipset create localia-rdp hash:net,port,net timeout 43200 -exist
 iptables -A LOCALIA-FWD -i $WAN -d $PCNET -p tcp --dport 3389 -m conntrack --ctstate DNAT -m set --match-set localia-rdp src,dst,dst -j ACCEPT
 iptables -A LOCALIA-FWD -s $PCNET -o wg+ -j ACCEPT
+# Salida por el propio gateway (EE.UU.): solo las PCs que el portal puso en este set
+ipset create localia-direct hash:ip -exist
+iptables -A LOCALIA-FWD -s $PCNET -o $WAN -m set --match-set localia-direct src -j ACCEPT
 iptables -A LOCALIA-FWD -s $PCNET -j DROP
 iptables -P FORWARD DROP
 iptables -t mangle -C FORWARD -o wg+ -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu 2>/dev/null || \
@@ -34,4 +37,8 @@ iptables -t nat -C POSTROUTING -o $WAN -d $PCNET -p tcp --dport 3389 -j MASQUERA
 iptables -t mangle -C PREROUTING -i $WAN -p tcp --dport 33000:33254 -j CONNMARK --set-mark 0x10 2>/dev/null || iptables -t mangle -A PREROUTING -i $WAN -p tcp --dport 33000:33254 -j CONNMARK --set-mark 0x10
 iptables -t mangle -C PREROUTING -s $PCNET -j CONNMARK --restore-mark 2>/dev/null || iptables -t mangle -A PREROUTING -s $PCNET -j CONNMARK --restore-mark
 ip rule show | grep -q "fwmark 0x10" || ip rule add fwmark 0x10 lookup main priority 900
+# Tabla 101 (EE.UU.): sale por internet con la IP del gateway (NAT). Detrás, el blackhole de siempre.
+GWV=$(ip route show default | awk '{print $3; exit}')
+ip route replace default via $GWV dev $WAN table 101 metric 100
+iptables -t nat -C POSTROUTING -s $PCNET -o $WAN -m set --match-set localia-direct src -j MASQUERADE 2>/dev/null || iptables -t nat -A POSTROUTING -s $PCNET -o $WAN -m set --match-set localia-direct src -j MASQUERADE
 echo NET_OK

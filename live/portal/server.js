@@ -103,6 +103,9 @@ async function routePc(pc, code) {
   const prio = cur.some(r => r.prio === A) ? B : A;
   if (!cur.some(r => r.table === String(ex.table) && r.prio === prio)) await run('ip', ['rule', 'add', 'from', pc.privateIp, 'lookup', String(ex.table), 'priority', String(prio)]);
   for (const r of await rulesFor(pc.privateIp)) if (!(r.prio === prio && r.table === String(ex.table))) await run('ip', ['rule', 'del', 'from', pc.privateIp, 'lookup', r.table, 'priority', String(r.prio)]);
+  // Salida "gateway" (EE.UU. sale por la IP del propio gateway): solo las PCs de este set pueden salir por su placa
+  if (ex.kind === 'gateway') await run('ipset', ['add', 'localia-direct', pc.privateIp, '-exist']);
+  else await run('ipset', ['del', 'localia-direct', pc.privateIp, '-exist']);
   return true;
 }
 // ---------- Windows App (RDP) con apertura por pedido ----------
@@ -136,7 +139,7 @@ function rdpFile(pc) {
     'negotiate security layer:i:1', 'enablecredsspsupport:i:0', 'redirectclipboard:i:1', 'audiomode:i:2', 'autoreconnection enabled:i:1',
     `alternate shell:s:`, `remoteapplicationmode:i:0`].join('\r\n') + '\r\n';
 }
-async function unroutePc(pc) { if (!pc.privateIp) return; for (const r of await rulesFor(pc.privateIp)) await run('ip', ['rule', 'del', 'from', pc.privateIp, 'lookup', r.table, 'priority', String(r.prio)]); }
+async function unroutePc(pc) { if (!pc.privateIp) return; await run('ipset', ['del', 'localia-direct', pc.privateIp, '-exist']); for (const r of await rulesFor(pc.privateIp)) await run('ip', ['rule', 'del', 'from', pc.privateIp, 'lookup', r.table, 'priority', String(r.prio)]); }
 async function wgStatus() {
   const r = await run('wg', ['show', 'all', 'dump']);
   const out = {};
@@ -146,7 +149,8 @@ async function wgStatus() {
   }
   const links = await run('ip', ['-br', 'link', 'show', 'type', 'wireguard']);
   const up = {}; links.out.split('\n').forEach(l => { const [n, s] = l.split(/\s+/); if (n) up[n] = s; });
-  return EXITS.map(x => { const w = out[x.iface] || {}; const age = w.handshake ? Math.round(Date.now() / 1000 - w.handshake) : null;
+  return EXITS.map(x => { if (x.kind === 'gateway') return { code: x.code, iface: x.iface, link: 'UP', endpoint: null, handshakeAge: null, healthy: true, rx: 0, tx: 0, direct: true };
+    const w = out[x.iface] || {}; const age = w.handshake ? Math.round(Date.now() / 1000 - w.handshake) : null;
     return { code: x.code, iface: x.iface, link: up[x.iface] || 'missing', endpoint: w.endpoint || null, handshakeAge: age, healthy: age !== null && age < 180 && (up[x.iface] || '').match(/UP|UNKNOWN/) !== null, rx: w.rx || 0, tx: w.tx || 0 }; });
 }
 async function syncExitPeers() {  // salidas "de casa" (ej. Uruguay) registradas con el instalador
@@ -346,6 +350,7 @@ async function api(req, res, url) {
   const om = p.match(/^\/api\/ops\/exits\/([A-Z]{2})\/([a-z-]+)$/);
   if (om && m === 'POST') {
     const ex = exitBy(om[1]); if (!ex) return send(res, 404, { error: 'Salida desconocida.' });
+    if (ex.kind === 'gateway' && om[2] !== 'token') return send(res, 400, { error: 'Esta salida es el propio gateway: no se corta ni se apaga por separado.' });
     if (om[2] === 'cut') {   // prueba del corte automático: se corta el túnel y se verifica que la PC NO salga por otro lado
       await run('ip', ['link', 'set', 'dev', ex.iface, 'down']); ev(null, `Prueba de corte: túnel ${ex.name} cortado`, 'warn');
       const victims = db.pcs.filter(x => x.status !== 'deleted' && x.active === ex.code && x.ec2 === 'running');
