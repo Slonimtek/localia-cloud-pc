@@ -1,0 +1,1270 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Localía — tu PC en tu país</title>
+<meta name="description" content="Localía by Slonimtek: una computadora en la nube que vive en el país que elijas. Abrila desde el navegador y los sitios te ven como alguien de ahí. Mockup navegable.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2.5c-6.4 0-11.5 5-11.5 11.2C4.5 21.6 16 29.5 16 29.5s11.5-7.9 11.5-15.8C27.5 7.5 22.4 2.5 16 2.5z' fill='%231c6cb5'/%3E%3Crect x='9.6' y='8.2' width='12.8' height='8.6' rx='1.8' fill='%23fff'/%3E%3Crect x='13.2' y='18.4' width='5.6' height='1.8' rx='.9' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f2f5f9;--surface:#fff;--surface-2:#edf2f8;--surface-3:#e1e9f3;
+  --line:#d8e0eb;--line-2:#c3cfdf;
+  --ink:#0c1a2c;--ink-2:#33455e;--muted:#5f718a;
+  --sky:#1c6cb5;--sky-hi:#2a82d2;--sky-soft:#e2eefa;--sky-ink:#0e4c88;--on-sky:#fff;
+  --sol:#a8740f;--sol-hi:#d19a2c;--sol-soft:#f9eed6;--on-sol:#231600;
+  --mini:#64748b;--on-mini:#fff;
+  --stamp:#5a3ea6;
+  --ok:#137f55;--ok-soft:#ddf2e8;--warn:#a86400;--warn-soft:#fbeed5;--bad:#c2352d;--bad-soft:#fbe3e1;
+  --shadow:0 1px 2px rgba(12,26,44,.05),0 10px 30px -10px rgba(12,26,44,.2);
+  --r:16px;--rib:37px;
+  --font-d:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --font:"Instrument Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#09111e;--surface:#0f1a2b;--surface-2:#142238;--surface-3:#1b2b44;--line:#1f3049;--line-2:#2c4262;
+  --ink:#e6edf6;--ink-2:#b6c5d8;--muted:#8397b1;
+  --sky:#5aa6ec;--sky-hi:#79b8f1;--sky-soft:#14304f;--sky-ink:#a5cff5;--on-sky:#04111f;
+  --sol:#e2b04e;--sol-hi:#e8bd62;--sol-soft:#33280f;--mini:#94a3b8;--on-mini:#0b1220;
+  --stamp:#ab93f3;--ok:#43c690;--ok-soft:#0f3325;--warn:#e9a946;--warn-soft:#3a2a10;--bad:#f07068;--bad-soft:#3d1715;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 12px 32px -12px rgba(0,0,0,.6);color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#09111e;--surface:#0f1a2b;--surface-2:#142238;--surface-3:#1b2b44;--line:#1f3049;--line-2:#2c4262;
+  --ink:#e6edf6;--ink-2:#b6c5d8;--muted:#8397b1;
+  --sky:#5aa6ec;--sky-hi:#79b8f1;--sky-soft:#14304f;--sky-ink:#a5cff5;--on-sky:#04111f;
+  --sol:#e2b04e;--sol-hi:#e8bd62;--sol-soft:#33280f;--mini:#94a3b8;--on-mini:#0b1220;
+  --stamp:#ab93f3;--ok:#43c690;--ok-soft:#0f3325;--warn:#e9a946;--warn-soft:#3a2a10;--bad:#f07068;--bad-soft:#3d1715;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 12px 32px -12px rgba(0,0,0,.6);color-scheme:dark}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 var(--font);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2,h3,h4{font-family:var(--font-d);letter-spacing:-.02em;margin:0;line-height:1.1}
+p{margin:0}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;padding:0}
+a{color:inherit}
+.i{width:18px;height:18px;flex:none}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+@media(max-width:600px){.wrap{padding:0 16px}}
+.muted{color:var(--muted)}.sm{font-size:13.5px}.mono{font-family:var(--mono)}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--sol);font-weight:500}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:var(--surface-2);border:1px solid var(--line);font-size:13px;color:var(--ink-2);white-space:nowrap}
+.chip .i{width:14px;height:14px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid transparent;border-radius:999px;padding:11px 20px;font-weight:600;font-size:15px;text-decoration:none;transition:filter .15s,background .15s,border-color .15s;white-space:nowrap}
+.btn .i{width:17px;height:17px}
+.btn-primary{background:var(--sky);color:var(--on-sky)}
+.btn-primary:hover{filter:brightness(1.08)}
+.btn-ghost{border-color:var(--line-2);color:var(--ink);background:var(--surface)}
+.btn-ghost:hover{background:var(--surface-2)}
+.btn-sm{padding:7px 14px;font-size:14px}
+.btn-lg{padding:14px 24px;font-size:16px}
+.btn[disabled]{opacity:.45;cursor:not-allowed;filter:none}
+:focus-visible{outline:2px solid var(--sky);outline-offset:2px}
+
+/* ribbon */
+.ribbon{background:#0c1a2c;color:#c9d6e6;font:500 12.5px/1 var(--font);border-bottom:1px solid #1d2d45}
+.rib-in{display:flex;gap:2px;align-items:center;overflow-x:auto;white-space:nowrap;padding:6px 16px;scrollbar-width:none;max-width:1400px;margin:0 auto}
+.rib-in::-webkit-scrollbar{display:none}
+.rib-tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;background:#d19a2c;color:#1b1200;padding:5px 7px;border-radius:5px;margin-right:8px}
+.rib-in a{color:inherit;text-decoration:none;padding:6px 9px;border-radius:6px}
+.rib-in a:hover{background:#1a2b44;color:#fff}
+.rib-in a.on{background:#24406a;color:#fff}
+.rib-sep{opacity:.3;padding:0 3px}
+
+/* topbar */
+.top{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:saturate(1.4) blur(10px);-webkit-backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid var(--line)}
+.top-in{display:flex;align-items:center;justify-content:space-between;height:64px;gap:16px}
+.brand{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--ink)}
+.brand svg{width:30px;height:30px;flex:none}
+.brand b{font-family:var(--font-d);font-weight:800;font-size:21px;letter-spacing:-.03em}
+.brand small{font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;border-left:1px solid var(--line-2);padding-left:10px;margin-left:2px;white-space:nowrap}
+.top-nav{display:flex;align-items:center;gap:6px}
+.lnk{color:var(--ink-2);text-decoration:none;padding:8px 12px;border-radius:8px;font-weight:500;font-size:15px}
+.lnk:hover{background:var(--surface-2)}
+.icon-btn{width:38px;height:38px;display:inline-grid;place-items:center;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink-2)}
+@media(max-width:820px){.top-nav .lnk{display:none}}
+@media(max-width:420px){.brand small{display:none}}
+
+/* stamp */
+.stamp{display:block;overflow:visible}
+
+/* hero */
+.hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:
+  repeating-radial-gradient(circle at 88% 18%,transparent 0 9px,color-mix(in srgb,var(--sky) 10%,transparent) 9px 10px),
+  repeating-radial-gradient(circle at 58% 112%,transparent 0 9px,color-mix(in srgb,var(--stamp) 8%,transparent) 9px 10px);
+  -webkit-mask-image:linear-gradient(to left,#000 25%,transparent 80%);mask-image:linear-gradient(to left,#000 25%,transparent 80%)}
+.hero-in{position:relative;display:grid;grid-template-columns:1.02fr 1fr;gap:56px;align-items:center;padding-top:68px;padding-bottom:84px}
+.hero h1{font-size:clamp(38px,5.3vw,66px);font-weight:800;line-height:1.02;letter-spacing:-.035em;margin:14px 0 18px}
+.hero h1 em{font-style:normal;color:var(--sky)}
+.lead{font-size:19px;color:var(--ink-2);max-width:34em}
+.cta-row{display:flex;gap:10px;flex-wrap:wrap;margin:28px 0 22px}
+.proof{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:8px 18px;color:var(--ink-2);font-size:14.5px}
+.proof li{display:flex;align-items:center;gap:6px}
+.proof .i{color:var(--ok);width:17px;height:17px}
+@media(max-width:920px){.hero-in{grid-template-columns:1fr;gap:34px;padding-top:40px;padding-bottom:56px}}
+.hero-vis{position:relative;padding:4px 0 34px;transition:opacity .35s}
+.hero-vis.fade{opacity:0}
+.route{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.rt-end{display:flex;align-items:center;gap:10px}
+.rt-end b{display:block;font-size:13px;line-height:1.25}
+.rt-end small{display:block;color:var(--muted);font-size:12.5px;line-height:1.25;white-space:nowrap}
+.rt-to{text-align:right}
+.rt-code{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-weight:600;font-size:12px;border:1.5px solid var(--line-2);background:var(--surface);flex:none}
+.rt-to .rt-code{border:2px solid var(--stamp);color:var(--stamp)}
+.rt-line{flex:1;height:2px;position:relative;background-image:linear-gradient(90deg,var(--line-2) 50%,transparent 0);background-size:10px 2px;min-width:30px}
+.rt-line span{position:absolute;top:-4px;left:0;width:10px;height:10px;border-radius:50%;background:var(--sky);box-shadow:0 0 0 4px color-mix(in srgb,var(--sky) 22%,transparent);animation:travel 2.6s ease-in-out infinite}
+@keyframes travel{0%{left:0}100%{left:calc(100% - 10px)}}
+.bw{border-radius:14px;overflow:hidden;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow)}
+.bw-bar{display:flex;align-items:center;gap:6px;height:34px;padding:0 12px;background:var(--surface-2);border-bottom:1px solid var(--line)}
+.bw-bar i{width:9px;height:9px;border-radius:50%;background:var(--line-2)}
+.bw-url{margin-left:10px;font-size:11.5px;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:3px 10px;flex:1;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wall{background:radial-gradient(900px 500px at 85% -20%,#2a82d2 0%,transparent 60%),radial-gradient(700px 420px at -10% 120%,#5a3ea6 0%,transparent 58%),linear-gradient(160deg,#0f2747,#0a1629)}
+.bw-desk{position:relative;aspect-ratio:16/10;overflow:hidden}
+.bw-stamp{position:absolute;right:-24px;bottom:-40px;color:#fff;opacity:.15;transform:rotate(-12deg)}
+.mini-win{position:absolute;left:8%;top:11%;width:min(64%,300px);background:#fff;color:#0c1a2c;border-radius:10px;box-shadow:0 12px 30px rgba(0,0,0,.35);padding:12px 14px;font-size:12.5px}
+.mini-tt{font-weight:700;font-size:13px;margin-bottom:6px;padding-bottom:8px;border-bottom:1px solid #e3e9f1}
+.mini-row{display:flex;justify-content:space-between;gap:10px;padding:4px 0;color:#5f718a}
+.mini-row b{color:#0c1a2c;font-weight:600}
+.mini-row b.ok{color:#137f55}
+.mini-task{position:absolute;left:0;right:0;bottom:0;height:30px;background:rgba(8,16,30,.72);display:flex;align-items:center;gap:8px;padding:0 10px}
+.mini-start{width:14px;height:14px;border-radius:3px;background:linear-gradient(135deg,#6db0ee,#2a82d2)}
+.mini-app{width:14px;height:14px;border-radius:3px;background:rgba(255,255,255,.28)}
+.mini-clock{margin-left:auto;color:#fff;font-size:11px}
+.float{position:absolute;display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:9px 12px;font-size:13px;box-shadow:var(--shadow);white-space:nowrap;color:var(--ink)}
+.float .i{width:17px;height:17px;color:var(--sky)}
+.f1{left:-18px;bottom:78px}.f2{right:-16px;top:104px}.f3{right:22px;bottom:4px}
+@media(max-width:600px){.f1{left:-6px;bottom:70px}.f2{right:-6px;top:84px}.float{font-size:12px;padding:7px 10px}.f3{right:8px}}
+
+/* sections */
+.sec{padding:84px 0;border-bottom:1px solid var(--line)}
+.sec.alt{background:var(--surface)}
+@media(max-width:600px){.sec{padding:56px 0}}
+.sec-head{max-width:760px;margin-bottom:34px}
+.sec-head h2{font-size:clamp(30px,3.6vw,44px);font-weight:800;margin:10px 0 12px}
+.sec-head p{color:var(--ink-2);font-size:17.5px}
+.uses{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.use-card{padding:22px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.use-card .ic{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:var(--sky-soft);color:var(--sky-ink);margin-bottom:16px}
+.use-card .ic .i{width:22px;height:22px}
+.use-card h3{font-size:19px;margin-bottom:8px}
+.use-card p{color:var(--ink-2);font-size:15px}
+@media(max-width:980px){.uses{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.uses{grid-template-columns:1fr}}
+.steps3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+@media(max-width:820px){.steps3{grid-template-columns:1fr}}
+.st{padding:24px;border-radius:var(--r);background:var(--bg);border:1px solid var(--line)}
+.st .n{font-family:var(--mono);font-size:13px;color:var(--sol);letter-spacing:.1em}
+.st h3{font-size:22px;margin:10px 0 8px}
+.st p{color:var(--ink-2);font-size:15px}
+.plans{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+@media(max-width:820px){.plans{grid-template-columns:1fr}}
+.plan{position:relative;display:flex;flex-direction:column;gap:10px;padding:24px 22px 20px;border-radius:16px;border:1px solid var(--line);background:var(--surface)}
+.plan::before,.tier::before{content:"";position:absolute;left:22px;top:0;width:44px;height:4px;border-radius:0 0 4px 4px;background:var(--tc)}
+.plan-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.plan .btn{margin-top:auto;align-self:flex-start}
+.cmp-wrap{overflow-x:auto;border-radius:var(--r)}
+.cmp{width:100%;min-width:560px;border-collapse:separate;border-spacing:0;background:var(--bg);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;font-size:15px}
+.cmp th,.cmp td{padding:14px 18px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+.cmp thead th{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--surface-2);font-weight:500}
+.cmp tbody th{font-weight:600;color:var(--ink-2);width:24%}
+.cmp td{color:var(--ink-2)}
+.cmp td:last-child{background:color-mix(in srgb,var(--sky) 7%,var(--surface));color:var(--ink);font-weight:600}
+.cmp tr:last-child td,.cmp tr:last-child th{border-bottom:0}
+.trust{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}
+@media(max-width:1020px){.trust{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.trust{grid-template-columns:1fr}}
+.tr{padding:20px;border-radius:var(--r);border:1px solid var(--line);background:var(--surface)}
+.tr .i{width:24px;height:24px;color:var(--stamp);margin-bottom:12px}
+.tr b{display:block;font-size:16px;margin-bottom:6px}
+.tr p{font-size:14.5px;color:var(--ink-2)}
+.faq{display:grid;gap:0;max-width:820px;border-top:1px solid var(--line)}
+.faq details{border-bottom:1px solid var(--line);padding:4px 0}
+.faq summary{cursor:pointer;list-style:none;padding:16px 36px 16px 0;font-weight:600;font-size:17px;position:relative}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";position:absolute;right:6px;top:12px;font-size:24px;font-weight:400;color:var(--muted);transition:transform .2s}
+.faq details[open] summary::after{transform:rotate(45deg)}
+.faq details p{padding:0 0 18px;color:var(--ink-2);max-width:44em}
+.cta-card{display:flex;align-items:center;gap:26px;padding:30px;border-radius:22px;background:var(--surface);border:1px solid var(--line);flex-wrap:wrap}
+.cta-card .stamp{color:var(--stamp);transform:rotate(-10deg)}
+.cta-card h2{font-size:clamp(26px,3vw,36px);font-weight:800}
+.cta-card p{color:var(--ink-2);margin-top:6px}
+.cta-card .btn{margin-left:auto}
+@media(max-width:700px){.cta-card .btn{margin-left:0}}
+.foot{padding:34px 0 60px}
+.foot-in{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;color:var(--muted);font-size:14px}
+
+/* wizard */
+.wiz{padding-top:26px;padding-bottom:110px}
+.stepper{display:flex;gap:6px;margin:0 0 26px;overflow-x:auto;scrollbar-width:none;padding:2px}
+.stepper::-webkit-scrollbar{display:none}
+.stp{display:flex;align-items:center;gap:8px;padding:6px 14px 6px 6px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--muted);font-weight:500;font-size:14px;white-space:nowrap;text-decoration:none}
+.stp .n{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-family:var(--mono);font-size:12px;background:var(--surface-2)}
+.stp.on{border-color:var(--sky);color:var(--ink)}.stp.on .n{background:var(--sky);color:var(--on-sky)}
+.stp.done{color:var(--ink-2)}.stp.done .n{background:var(--ok-soft);color:var(--ok)}
+.wiz-grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:28px;align-items:start}
+.wiz-main{min-width:0}
+@media(max-width:1060px){.wiz-grid{grid-template-columns:1fr}}
+.step-head h2{font-size:clamp(28px,3.4vw,40px);font-weight:800;margin:8px 0 10px}
+.sub{color:var(--ink-2);font-size:16.5px;max-width:42em}
+.origin{display:flex;align-items:center;flex-wrap:wrap;gap:8px 10px;margin:22px 0 4px;padding:10px 14px;border-radius:12px;background:var(--surface-2);border:1px dashed var(--line-2);font-size:14.5px;color:var(--ink-2)}
+.origin > span{display:inline-flex;align-items:center;gap:6px}
+.origin .i{width:16px;height:16px;color:var(--sky)}
+.sel,.origin select{font:inherit;font-weight:600;color:var(--ink);background:var(--surface);border:1px solid var(--line-2);border-radius:8px;padding:7px 10px;max-width:100%}
+.grp{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:24px 0 10px;font-weight:500}
+.cc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(176px,1fr));gap:10px}
+@media(max-width:560px){.cc-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.cc-grid .cc{grid-template-columns:1fr;padding:12px}.cc-grid .cc-code{grid-row:auto;width:38px;height:38px;font-size:12.5px;margin-bottom:4px}}
+.cc{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr);gap:3px 12px;align-items:center;text-align:left;padding:13px 14px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);transition:transform .15s,border-color .15s}
+.cc:hover:not([disabled]){border-color:var(--line-2);transform:translateY(-1px)}
+.cc.on{border-color:var(--stamp);box-shadow:0 0 0 3px color-mix(in srgb,var(--stamp) 18%,transparent)}
+.cc[disabled]{opacity:.6;cursor:not-allowed}
+.cc-code{grid-row:1/3;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-weight:600;font-size:14px;border:1.5px dashed var(--line-2);color:var(--ink-2)}
+.cc.on .cc-code{border:2px solid var(--stamp);color:var(--stamp);background:color-mix(in srgb,var(--stamp) 9%,transparent)}
+.cc-txt b{display:block;font-size:15.5px;line-height:1.2}
+.cc-txt small{color:var(--muted);font-size:13px}
+.cc-lat{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink-2)}
+.cc-soon{font-size:11.5px;font-family:var(--mono);color:var(--sol)}
+.cc-check{position:absolute;top:8px;right:8px;width:22px;height:22px;border-radius:50%;background:var(--stamp);color:#fff;display:grid;place-items:center}
+.cc-check .i{width:14px;height:14px}
+.qd{width:8px;height:8px;border-radius:50%;flex:none;display:inline-block}
+.q-ok{background:var(--ok)}.q-good{background:var(--sky)}.q-mid{background:var(--warn)}
+.measuring{color:var(--muted);font-family:var(--mono);font-size:12px;animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.35}}
+.linkish{margin-top:14px;color:var(--sky);font-weight:600;font-size:14.5px;text-decoration:underline;text-underline-offset:3px}
+.idc{container-type:inline-size;margin-top:26px;border-radius:18px;border:1px solid var(--line);padding:22px 22px 18px;position:relative;overflow:hidden;background:repeating-linear-gradient(135deg,transparent 0 14px,color-mix(in srgb,var(--stamp) 5%,transparent) 14px 15px),var(--surface)}
+.idc-top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}
+.idc-top h3{font-size:clamp(20px,2.4vw,26px);margin-top:6px}
+.idc-stamp{color:var(--stamp);transform:rotate(-9deg);flex:none;margin:-8px -4px -18px 0}
+.idc-rows{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 26px;margin:14px 0 0}
+.idc-rows > div{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:10px 0;border-bottom:1px dashed var(--line-2);font-size:14.5px}
+.idc-rows dt{color:var(--muted);white-space:nowrap}.idc-rows dd{margin:0;text-align:right;font-weight:500}
+@container (max-width:620px){.idc-rows{grid-template-columns:1fr}}
+.idc-lat{display:flex;gap:10px;align-items:flex-start;margin-top:16px;padding:12px 14px;border-radius:12px;background:var(--surface-2);font-size:14px}
+.idc-lat .qd{margin-top:6px}
+.idc-lat b{display:block;font-weight:600}.idc-lat span{color:var(--ink-2)}
+.idc-uses{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:14px;font-size:13.5px}
+.tag-ok{display:inline-block;font-size:12px;padding:2px 8px;border-radius:999px;background:var(--ok-soft);color:var(--ok);font-weight:600;white-space:nowrap}
+.use{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:22px 0 18px;font-size:14.5px;color:var(--ink-2)}
+.pill{border:1px solid var(--line-2);background:var(--surface);border-radius:999px;padding:7px 14px;font-size:14px;font-weight:500}
+.pill.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.tiers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media(max-width:860px){.tiers{grid-template-columns:1fr}}
+.tier{position:relative;display:flex;flex-direction:column;gap:10px;text-align:left;padding:24px 20px 18px;border-radius:16px;border:1.5px solid var(--line);background:var(--surface)}
+.tier:hover{border-color:var(--line-2)}
+.tier.on{border-color:var(--tc);box-shadow:0 0 0 3px color-mix(in srgb,var(--tc) 20%,transparent)}
+.t-mini{--tc:var(--mini);--tc-on:var(--on-mini)}.t-standard{--tc:var(--sky);--tc-on:var(--on-sky)}.t-gold{--tc:var(--sol-hi);--tc-on:var(--on-sol)}
+.tier-name{font-family:var(--font-d);font-weight:800;font-size:26px;letter-spacing:-.02em}
+.tier-for{color:var(--ink-2);font-size:14.5px}
+.tier-price b{font-size:30px;font-weight:700;letter-spacing:-.02em}.tier-price small{color:var(--muted)}
+.tier-specs{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--ink-2);padding:10px 0;border-top:1px dashed var(--line-2);border-bottom:1px dashed var(--line-2)}
+.tier-long{font-size:14px;color:var(--muted)}
+.tier-sel{margin-top:auto;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px;border-radius:10px;background:var(--tc);color:var(--tc-on);font-weight:600;font-size:14px}
+.tier-sel .i{width:16px;height:16px}
+.tier-sel.ghost{background:transparent;color:var(--ink-2);border:1px solid var(--line-2)}
+.tier-flag{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--sky-ink);background:var(--sky-soft);padding:3px 8px;border-radius:6px;white-space:nowrap}
+.tier .tier-flag{position:absolute;top:16px;right:14px}
+.note{display:flex;gap:8px;align-items:flex-start;margin-top:16px;font-size:14px;color:var(--ink-2)}
+.note .i{width:17px;height:17px;flex:none;margin-top:2px;color:var(--sky)}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:20px}
+@media(max-width:680px){.opts{grid-template-columns:1fr}}
+.opt{display:flex;gap:14px;text-align:left;padding:17px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);align-items:flex-start;width:100%}
+.opt.on{border-color:var(--sky);box-shadow:0 0 0 3px color-mix(in srgb,var(--sky) 16%,transparent)}
+.radio{width:20px;height:20px;border-radius:50%;border:2px solid var(--line-2);flex:none;margin-top:2px;display:grid;place-items:center}
+.opt.on .radio{border-color:var(--sky)}.opt.on .radio::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--sky)}
+.opt b{display:block;font-size:16.5px;margin-bottom:3px}
+.opt .d{color:var(--ink-2);font-size:14px;display:block}
+.opt small{display:block;color:var(--muted);font-size:12.5px;margin-top:6px}
+.opt .px{margin-left:auto;font-family:var(--mono);font-size:13px;white-space:nowrap;color:var(--ink-2);padding-left:6px}
+.field-l{font-weight:600;margin:26px 0 10px;display:block;font-size:15px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.tog{border:1px solid var(--line-2);background:var(--surface);border-radius:999px;padding:7px 13px;font-size:14px;display:inline-flex;align-items:center;gap:6px}
+.tog .i{width:15px;height:15px}
+.tog.on{background:var(--sky-soft);border-color:var(--sky);color:var(--sky-ink);font-weight:600}
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--line-2);border-radius:12px;padding:3px;background:var(--surface);gap:3px}
+.seg button{padding:8px 14px;border-radius:9px;font-size:14px;font-weight:500;color:var(--ink-2)}
+.seg button small{font-family:var(--mono);font-size:11.5px;opacity:.8}
+.seg button.on{background:var(--ink);color:var(--bg)}
+.form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:20px}
+.form label{display:flex;flex-direction:column;gap:6px;font-size:13.5px;color:var(--muted);font-weight:500}
+.form label.full{grid-column:1/-1}
+.form input{font:inherit;font-size:15.5px;color:var(--ink);background:var(--surface);border:1px solid var(--line-2);border-radius:10px;padding:11px 12px;min-width:0}
+@media(max-width:680px){.form{grid-template-columns:1fr}}
+.kyc{margin-top:20px;padding:18px;border-radius:14px;border:1.5px dashed var(--line-2);background:var(--surface)}
+.kyc.done{border-style:solid;border-color:color-mix(in srgb,var(--ok) 45%,var(--line));background:color-mix(in srgb,var(--ok) 6%,var(--surface))}
+.kyc-row{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.kyc-ic{width:48px;height:48px;border-radius:12px;background:var(--sky-soft);color:var(--sky-ink);display:grid;place-items:center}
+.kyc-ic .i{width:24px;height:24px}
+.kyc-doc{width:124px;height:78px;border-radius:9px;background:var(--surface-3);position:relative;flex:none;overflow:hidden;border:1px solid var(--line-2)}
+.kyc-doc::before{content:"";position:absolute;left:10px;top:12px;width:30px;height:38px;border-radius:5px;background:var(--line-2)}
+.kyc-doc::after{content:"";position:absolute;left:50px;top:16px;width:60px;height:5px;border-radius:3px;background:var(--line-2);box-shadow:0 12px 0 var(--line-2),0 24px 0 var(--line-2),-40px 42px 0 var(--line-2)}
+.kyc-doc span{position:absolute;right:6px;bottom:4px;font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--muted)}
+.kyc-doc.scan{box-shadow:inset 0 0 0 2px var(--sky)}
+.kyc-doc.scan i{position:absolute;left:0;right:0;height:2px;background:var(--sky);top:0;animation:scan 1.1s ease-in-out infinite alternate;box-shadow:0 0 12px var(--sky)}
+@keyframes scan{to{top:calc(100% - 2px)}}
+.kyc-list{list-style:none;padding:0;margin:10px 0 0;display:grid;gap:6px;font-size:14px}
+.kyc-list li{display:flex;gap:8px;align-items:center;color:var(--muted)}
+.kyc-list li.ok{color:var(--ink)}
+.okt{color:var(--ok);font-weight:600;display:inline-flex;align-items:center;gap:5px;text-align:right}
+.okt .i{width:16px;height:16px}
+.rules{margin-top:18px;padding:16px 18px;border-radius:14px;background:var(--surface-2);border:1px solid var(--line)}
+.rules ul{margin:10px 0 14px;padding-left:20px;color:var(--ink-2);font-size:14.5px}
+.check{display:flex;gap:10px;align-items:flex-start;font-weight:600;cursor:pointer;font-size:14.5px}
+.check input{width:20px;height:20px;accent-color:var(--sky);flex:none;margin:1px 0 0}
+.pays{display:grid;gap:10px;margin-top:16px}
+.lines{margin-top:22px;border-top:1px solid var(--line)}
+.lines > div{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px dashed var(--line-2);font-size:15px}
+.lines .tot{font-weight:700;font-size:18px;border-bottom:0}
+.wiz-nav{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:30px;padding-top:20px;border-top:1px solid var(--line);flex-wrap:wrap}
+.wiz-hint{font-size:13.5px;color:var(--muted)}
+.sum{position:sticky;top:84px;padding:22px}
+@media(max-width:1060px){.sum{position:static}}
+.sum-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.sum-head h3{font-size:22px;margin-top:6px}
+.sum-head .stamp{color:var(--stamp);transform:rotate(-10deg);margin:-8px -8px -10px 0}
+.sum dl{margin:12px 0 0}
+.sum dl > div{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px dashed var(--line-2);font-size:14px}
+.sum dt{color:var(--muted)}.sum dd{margin:0;text-align:right;font-weight:500}
+.sum-price{display:flex;align-items:baseline;gap:4px;margin:18px 0 4px}
+.sum-price b{font-size:38px;font-weight:700;letter-spacing:-.02em}
+.sum-inc{list-style:none;padding:0;margin:12px 0;display:grid;gap:7px;font-size:14px;color:var(--ink-2)}
+.sum-inc li{display:flex;gap:8px;align-items:center}.sum-inc .i{width:16px;height:16px;color:var(--ok)}
+.fine{font-size:12.5px;color:var(--muted)}
+.wiz-mbar{display:none}
+@media(max-width:1060px){
+  .wiz-mbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:45;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -8px 24px rgba(0,0,0,.08)}
+  .wiz-mbar b{font-size:20px}.wiz-mbar small{display:block;color:var(--muted);font-size:12.5px}
+  .wiz-nav .btn-primary{display:none}
+  #toast-root{bottom:84px}
+}
+
+/* building */
+.build{padding:44px 16px 90px;display:grid;place-items:center}
+.build-card{max-width:660px;width:100%;padding:34px 30px;position:relative;overflow:hidden}
+@media(max-width:600px){.build-card{padding:26px 20px}}
+.build-head{padding-right:130px}
+@media(max-width:600px){.build-head{padding-right:84px}}
+.build-head h2{font-size:clamp(26px,3.4vw,34px);font-weight:800;margin:8px 0 10px}
+.build-stamp{position:absolute;right:22px;top:20px;color:var(--stamp);opacity:.12;filter:grayscale(1);transform:rotate(-12deg)}
+@media(max-width:600px){.build-stamp svg{width:84px;height:84px}.build-stamp{right:12px;top:14px}}
+.build-stamp.stamped{opacity:1;filter:none;animation:stampin .55s cubic-bezier(.2,.8,.3,1.25)}
+@keyframes stampin{0%{transform:rotate(-2deg) scale(1.8);opacity:0}70%{transform:rotate(-13deg) scale(.94);opacity:1}100%{transform:rotate(-12deg) scale(1)}}
+.bar{height:8px;border-radius:99px;background:var(--surface-3);overflow:hidden;margin:22px 0 18px}
+.bar span{display:block;height:100%;width:0;background:var(--sky);border-radius:99px;transition:width .5s}
+.bsteps{list-style:none;padding:0;margin:0;display:grid;gap:10px}
+.bsteps li{display:flex;gap:10px;align-items:center;color:var(--muted);font-size:15px}
+.bi{width:20px;height:20px;border-radius:50%;border:2px solid var(--line-2);flex:none;display:grid;place-items:center}
+.now .bi{border-color:var(--sky);border-top-color:transparent;animation:spin .8s linear infinite}
+li.now,li.done,li.ok{color:var(--ink)}
+.done .bi,.ok .bi{background:var(--ok);border-color:var(--ok)}
+.done .bi::after,.ok .bi::after{content:"";width:8px;height:4px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:translate(0,-1px) rotate(-45deg)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.wa{margin-top:26px;display:flex;gap:10px;align-items:flex-end}
+.wa-av{width:34px;height:34px;border-radius:50%;background:var(--ok);color:#fff;display:grid;place-items:center;flex:none}
+.wa-av .i{width:18px;height:18px}
+.wa-b{background:var(--ok-soft);border:1px solid color-mix(in srgb,var(--ok) 25%,transparent);border-radius:14px 14px 14px 4px;padding:12px 14px;font-size:14.5px;max-width:440px}
+.wa-b small{display:block;color:var(--muted);font-size:12px;margin-top:4px}
+
+/* session */
+.ses{display:flex;flex-direction:column;height:calc(100vh - var(--rib));height:calc(100dvh - var(--rib));min-height:480px;background:#07101d;color:#dfe8f3}
+.ses-bar{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#0b1728;border-bottom:1px solid #1b2b44;font-size:13.5px;overflow-x:auto;scrollbar-width:none}
+.ses-bar::-webkit-scrollbar{display:none}
+.ses-bar .brand{color:#fff}.ses-bar .brand b{font-size:17px}.ses-bar .brand svg{width:24px;height:24px}
+.ses-chip{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;background:#13223a;border:1px solid #213554;white-space:nowrap;font-size:12.5px}
+.ses-chip .i{width:14px;height:14px}
+.ses-sp{flex:1}
+.ses-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:8px;border:1px solid #213554;background:#101e33;color:#dfe8f3;font-size:13px;white-space:nowrap;text-decoration:none}
+.ses-btn:hover{background:#16284a}
+.ses-btn .i{width:16px;height:16px}
+.ses-btn.exit{background:#1c6cb5;border-color:#1c6cb5;color:#fff}
+@media(max-width:1180px){.ses-btn:not(.exit) span{display:none}}
+@media(max-width:760px){.ses-btn span,.hide-m{display:none!important}}
+.desk{position:relative;flex:1;overflow:hidden}
+.desk-stamp{position:absolute;right:4%;bottom:12%;color:#fff;opacity:.07;transform:rotate(-12deg);pointer-events:none}
+.icons{position:absolute;left:12px;top:12px;display:grid;gap:6px}
+.dicon{width:86px;display:flex;flex-direction:column;align-items:center;gap:6px;color:#fff;font-size:12.5px;text-shadow:0 1px 2px rgba(0,0,0,.6);padding:8px 4px;border-radius:8px;text-align:center}
+.dicon:hover{background:rgba(255,255,255,.08)}
+.dicon .tile{width:44px;height:44px;border-radius:11px;display:grid;place-items:center;background:rgba(255,255,255,.14)}
+.dicon .tile .i{width:24px;height:24px}
+.win{--surface:#fff;--surface-2:#eef2f7;--line:#dde4ee;--line-2:#c3cfdf;--ink:#0c1a2c;--ink-2:#33455e;--muted:#5f718a;--sky:#1c6cb5;--on-sky:#fff;--stamp:#5a3ea6;--ok:#137f55;--ok-soft:#ddf2e8;--sol:#a8740f;
+  position:absolute;background:var(--surface);color:var(--ink);border-radius:12px;box-shadow:0 24px 60px rgba(0,0,0,.45);width:min(470px,calc(100% - 130px));overflow:hidden;animation:pop .2s ease-out}
+@keyframes pop{from{transform:scale(.96);opacity:0}}
+.win-t{display:flex;align-items:center;gap:8px;padding:8px 8px 8px 12px;background:var(--surface-2);border-bottom:1px solid var(--line);font-size:13px;font-weight:600}
+.win-t .i{width:16px;height:16px}
+.win-t .x{margin-left:auto;width:28px;height:28px;border-radius:6px;display:grid;place-items:center;color:var(--ink-2)}
+.win-t .x:hover{background:#dfe6f0}
+.win-b{padding:18px}
+.wel-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.wel-top h3{font-size:21px;margin-top:6px}
+.wel-top .stamp{color:var(--stamp);transform:rotate(-10deg);margin:-6px -4px -10px 0}
+.wel-tips{list-style:none;padding:0;margin:14px 0 16px;display:grid;gap:10px;font-size:14px;color:var(--ink-2)}
+.wel-tips li{display:flex;gap:10px}.wel-tips .i{color:var(--sky);margin-top:2px}
+.wel-tips b{color:var(--ink)}
+.addr{display:flex;align-items:center;gap:8px;padding:8px 10px;margin:-18px -18px 14px;background:var(--surface-2);border-bottom:1px solid var(--line);font-size:12.5px;color:var(--muted)}
+.addr span{flex:1;background:#fff;border:1px solid var(--line);border-radius:6px;padding:4px 10px;font-family:var(--mono);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.res{display:grid}
+.res > div{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px dashed var(--line-2);font-size:14px}
+.res dt{color:var(--muted)}.res dd{margin:0;font-weight:600;text-align:right}
+.folders{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.folders div{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px;border-radius:8px;font-size:12.5px;text-align:center}
+.folders div:hover{background:var(--surface-2)}
+.folders .i{width:34px;height:34px;color:#d19a2c}
+.folders small{color:var(--muted);font-size:11px}
+.win-foot{margin-top:12px;padding-top:12px;border-top:1px solid var(--line);font-size:13px;color:var(--ink-2);display:flex;gap:6px;align-items:center}
+.win-foot .i{width:16px;height:16px;color:var(--ok)}
+.task{position:absolute;left:0;right:0;bottom:0;height:46px;background:rgba(6,13,25,.8);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;align-items:center;gap:4px;padding:0 10px;border-top:1px solid rgba(255,255,255,.06);z-index:1000}
+.tbtn{width:38px;height:38px;border-radius:8px;display:grid;place-items:center;color:#dfe8f3}
+.tbtn:hover{background:rgba(255,255,255,.1)}.tbtn .i{width:20px;height:20px}
+.tray{margin-left:auto;display:flex;align-items:center;gap:14px;font-size:12.5px;color:#dfe8f3}
+.tray .i{width:17px;height:17px}
+.clk{display:flex;flex-direction:column;align-items:flex-end;line-height:1.15}
+.clk small{font-size:10.5px;color:#9fb2c9}
+.conn{position:absolute;inset:0;background:#07101d;display:grid;place-items:center;z-index:2000;transition:opacity .45s}
+.conn.gone{opacity:0;pointer-events:none}
+.conn-in{max-width:360px;padding:20px;width:100%}
+.conn-in .stamp{color:#ab93f3;margin:0 auto 16px;transform:rotate(-10deg)}
+.conn-in h3{text-align:center;font-size:20px;color:#fff;margin-bottom:16px}
+.conn .bsteps li{color:#6f839e}.conn .bsteps li.now,.conn .bsteps li.done{color:#e6edf6}
+.conn .bi{border-color:#2c4262}
+@media(max-width:640px){
+  .win{left:10px!important;right:10px;width:auto;top:10px!important;max-height:calc(100% - 70px);overflow:auto}
+  .icons{top:auto;bottom:54px;left:6px;grid-auto-flow:column}
+  .dicon{width:74px;font-size:11.5px}
+  .folders{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+/* app / panel */
+.app-bar{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:40}
+.app-bar .top-in{height:60px}
+.app-nav{display:flex;gap:2px}
+.app-nav button{padding:8px 12px;border-radius:8px;color:var(--ink-2);font-weight:500;font-size:14.5px}
+.app-nav button.on{background:var(--surface-2);color:var(--ink)}
+@media(max-width:760px){.app-nav{display:none}}
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--sky-soft);color:var(--sky-ink);display:grid;place-items:center;font-weight:700;font-size:13px;flex:none}
+.app-bar.dark{background:#0c1a2c;border-color:#1d2d45;color:#e6edf6}
+.app-bar.dark .brand{color:#fff}
+.app-bar.dark .icon-btn{background:#13223a;border-color:#213554;color:#dfe8f3}
+.int-badge{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;padding:4px 8px;border-radius:6px;background:#d19a2c;color:#1b1200;margin-left:4px}
+.app-main{padding-top:28px;padding-bottom:90px}
+.app-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+.app-head h1{font-size:clamp(28px,3.4vw,36px);font-weight:800;margin:6px 0 4px}
+.app-head p{color:var(--ink-2)}
+.pcs{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(360px,100%),1fr));gap:12px;margin-bottom:16px}
+.pcc{display:flex;gap:14px;align-items:center;text-align:left;padding:13px 16px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface)}
+.pcc:hover{border-color:var(--line-2)}
+.pcc.on{border-color:var(--stamp);box-shadow:0 0 0 3px color-mix(in srgb,var(--stamp) 14%,transparent)}
+.pcc .stamp{color:var(--stamp);flex:none;transform:rotate(-8deg)}
+.pcc-t{flex:1;min-width:0}
+.pcc b{display:block;font-size:15.5px}.pcc small{color:var(--muted);font-size:13px}
+.st-pill{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;padding:3px 9px;border-radius:999px;white-space:nowrap;font-family:var(--font);letter-spacing:0}
+.st-pill i{width:7px;height:7px;border-radius:50%;background:currentColor}
+.st-on{background:var(--ok-soft);color:var(--ok)}.st-off{background:var(--surface-3);color:var(--muted)}.st-busy{background:var(--warn-soft);color:var(--warn)}
+.st-busy i{animation:blink .8s infinite}
+.pcd{overflow:hidden}
+.pcd-head{display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;padding:22px 22px 18px;border-bottom:1px solid var(--line)}
+.pcd-head h2{font-size:26px;font-weight:800;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pcd-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.pcd-act{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tabs{display:flex;gap:2px;padding:0 14px;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{padding:13px 12px;font-weight:600;font-size:14.5px;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap;margin-bottom:-1px}
+.tabs button.on{color:var(--ink);border-bottom-color:var(--sky)}
+.tab-body{padding:22px}
+@media(max-width:600px){.tab-body,.pcd-head{padding:18px 16px}}
+.grid2{display:grid;grid-template-columns:1.1fr 1fr;gap:16px}
+@media(max-width:920px){.grid2{grid-template-columns:1fr}}
+.box{border:1px solid var(--line);border-radius:14px;padding:18px;background:var(--surface);min-width:0}
+.box h3{font-size:17px;font-family:var(--font);font-weight:700;letter-spacing:-.01em;display:flex;align-items:center;gap:8px}
+.box h3 .i{color:var(--sky)}
+.box > p.sm{margin-top:4px}
+.chk-rows{margin:10px 0}
+.chk-rows > div{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px dashed var(--line-2);font-size:14.5px}
+.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+.tiles.t4{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media(max-width:760px){.tiles.t4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.tile{padding:14px;border-radius:12px;background:var(--surface-2);min-width:0}
+.tile .l{font-size:13px;color:var(--muted)}
+.tile .v{font-size:22px;font-weight:600;letter-spacing:-.01em;margin-top:2px}
+.tile .s{font-size:12.5px;color:var(--muted)}
+.meter{height:6px;border-radius:99px;background:var(--sky-soft);margin-top:8px;overflow:hidden}
+.meter span{display:block;height:100%;background:var(--sky);border-radius:99px}
+.feed{list-style:none;padding:0;margin:8px 0 0}
+.feed li{display:flex;gap:14px;padding:10px 0;border-bottom:1px dashed var(--line-2);font-size:14.5px}
+.feed li:last-child{border-bottom:0}
+.feed time{font-family:var(--mono);font-size:12px;color:var(--muted);white-space:nowrap;min-width:78px;padding-top:2px}
+.bk{display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px dashed var(--line-2);flex-wrap:wrap}
+.bk .d{font-weight:600;min-width:170px}.bk .d small{display:block;font-weight:400;color:var(--muted);font-size:13px}
+.bk .m{color:var(--muted);font-size:13.5px;flex:1;font-family:var(--mono)}
+.chart{position:relative;margin-top:14px;min-height:200px}
+.chart svg{display:block;overflow:visible}
+.chart .grid{stroke:var(--line);stroke-width:1;shape-rendering:crispEdges}
+.chart .tick{fill:var(--muted);font:11px var(--mono)}
+.chart .bar{fill:var(--sky);transition:opacity .12s}
+.chart.hov .bar{opacity:.35}.chart .bar.hl{opacity:1}
+.tt{position:absolute;pointer-events:none;background:var(--ink);color:var(--bg);padding:6px 9px;border-radius:8px;font-size:12.5px;white-space:nowrap;transform:translate(-50%,-100%);opacity:0;transition:opacity .1s;z-index:2}
+.tt.show{opacity:1}
+details.tbl{margin-top:10px;font-size:13.5px}
+details.tbl summary{cursor:pointer;color:var(--sky);font-weight:600}
+details.tbl table{border-collapse:collapse;margin-top:8px;font-family:var(--mono);font-size:12.5px}
+details.tbl td,details.tbl th{padding:3px 12px 3px 0;text-align:left;font-weight:400}
+.chat{display:flex;flex-direction:column;gap:10px;max-width:680px}
+.msg{max-width:82%;padding:10px 13px;font-size:14.5px}
+.msg.them{background:var(--surface-2);border-radius:14px 14px 14px 4px}
+.msg.me{align-self:flex-end;background:var(--sky);color:var(--on-sky);border-radius:14px 14px 4px 14px}
+.msg small{display:block;font-size:11.5px;opacity:.7;margin-top:3px}
+.typing{display:inline-flex;gap:4px;padding:14px 16px}
+.typing i{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:blink 1s infinite}
+.typing i:nth-child(2){animation-delay:.2s}.typing i:nth-child(3){animation-delay:.4s}
+.quick{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.plan-row{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-top:16px;padding:16px;border-radius:14px;background:var(--surface-2)}
+.plan-row b{display:block}.plan-row span{color:var(--ink-2);font-size:14px}
+
+/* modal + toast */
+.modal-bg{position:fixed;inset:0;background:rgba(6,12,22,.55);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);display:grid;place-items:center;z-index:80;padding:16px;animation:fadein .15s}
+@keyframes fadein{from{opacity:0}}
+.modal{background:var(--surface);color:var(--ink);border-radius:18px;max-width:500px;width:100%;padding:24px;box-shadow:0 30px 80px rgba(0,0,0,.35);border:1px solid var(--line);max-height:calc(100vh - 32px);overflow:auto}
+.modal h3{font-size:22px;margin-bottom:8px}
+.modal p{color:var(--ink-2)}
+.modal .sel{width:100%;margin-top:4px}
+.modal-act{display:flex;justify-content:flex-end;gap:8px;margin-top:20px;flex-wrap:wrap}
+.fix{display:flex;gap:12px;align-items:center;width:100%;text-align:left;padding:14px;border-radius:12px;border:1px solid var(--line);background:var(--surface-2);margin-top:10px;font-size:15px}
+.fix:hover{border-color:var(--sky)}
+.fix b{display:block}.fix small{color:var(--muted);font-size:13.5px}
+.fix .n{width:30px;height:30px;border-radius:50%;background:var(--sky-soft);color:var(--sky-ink);display:grid;place-items:center;font-family:var(--mono);font-weight:600;flex:none}
+#toast-root{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:90;display:grid;gap:8px;width:min(92vw,460px);pointer-events:none}
+.toast{background:var(--ink);color:var(--bg);padding:12px 16px;border-radius:12px;font-size:14.5px;box-shadow:0 12px 30px rgba(0,0,0,.25);display:flex;gap:10px;align-items:center;animation:up .25s}
+.toast .i{color:var(--ok)}
+:root[data-theme="dark"] .toast .i{color:#137f55}
+@keyframes up{from{transform:translateY(10px);opacity:0}}
+
+/* ops */
+.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:16px}
+@media(max-width:1020px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.kpi{padding:16px;border-radius:14px;background:var(--surface);border:1px solid var(--line);min-width:0}
+.kpi .l{font-size:13px;color:var(--muted)}
+.kpi .v{font-size:28px;font-weight:600;letter-spacing:-.02em;margin-top:4px}
+.kpi .s{font-size:12.5px;color:var(--muted)}
+.ops-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin-bottom:16px}
+@media(max-width:1020px){.ops-grid{grid-template-columns:1fr}}
+.alert{display:flex;gap:12px;padding:13px 0;border-bottom:1px dashed var(--line-2)}
+.alert:last-child{border-bottom:0}
+.sev{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:3px 8px;border-radius:6px;white-space:nowrap;height:fit-content;flex:none;min-width:86px}
+.sev .i{width:14px;height:14px}
+.sev-bad{background:var(--bad-soft);color:var(--bad)}.sev-warn{background:var(--warn-soft);color:var(--warn)}.sev-info{background:var(--sky-soft);color:var(--sky-ink)}
+.alert b{display:block;font-size:14.5px}.alert p{font-size:14px;color:var(--ink-2)}
+.alert .done{font-size:13px;color:var(--ok);font-weight:600;margin-top:4px;display:flex;gap:5px;align-items:center}
+.alert .done .i{width:15px;height:15px}
+.alert .acts{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.calc-ctl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:14px 0 12px}
+.calc-ctl .sel{width:100%;font-size:14px;font-weight:500}
+@media(max-width:520px){.calc-ctl{grid-template-columns:1fr}}
+.range-row{display:flex;align-items:center;gap:12px;font-size:14px;flex-wrap:wrap}
+.range-row input{flex:1;min-width:160px;accent-color:var(--sky)}
+.range-row b{min-width:56px;text-align:right}
+.cost{margin-top:14px}
+.cost-l{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1.5fr) 74px;gap:12px;align-items:center;padding:5px 0;font-size:14px}
+.cost-l .lab small{display:block;font-size:11.5px}
+.cost-l .track{height:12px}
+.cost-l .bh{height:12px;border-radius:0 4px 4px 0;background:var(--sky);min-width:2px}
+.cost-l.rev .bh{background:var(--ink-2)}
+.cost-l .val{text-align:right;font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums}
+.cost-l.sep{border-top:1px solid var(--line);margin-top:6px;padding-top:9px}
+.margin-h{display:flex;align-items:baseline;gap:10px;margin:14px 0 2px;flex-wrap:wrap}
+.margin-h b{font-size:32px;font-weight:600;letter-spacing:-.02em}
+.be{position:relative;height:12px;border-radius:99px;margin:36px 0 34px;background:var(--bad-soft)}
+.be .okz{position:absolute;left:0;top:0;bottom:0;background:var(--ok-soft);border-radius:99px 0 0 99px;box-shadow:inset -2px 0 0 var(--ok)}
+.be .mk{position:absolute;top:-7px;width:3px;height:26px;background:var(--ink);border-radius:2px}
+.be .lab{position:absolute;font-size:12.5px;white-space:nowrap;transform:translateX(-50%)}
+.be .lab.l0{transform:none}.be .lab.l1{transform:translateX(-100%)}
+.be .lab.top{top:-30px}.be .lab.bot{top:20px;color:var(--ink-2)}
+.be-leg{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--ink-2)}
+.be-leg span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:12px;height:12px;border-radius:3px;display:inline-block}
+.sw.okc{background:var(--ok-soft);box-shadow:inset 0 0 0 1.5px var(--ok)}.sw.badc{background:var(--bad-soft);box-shadow:inset 0 0 0 1.5px var(--bad)}
+.tbl-wrap{overflow-x:auto;margin-top:12px}
+table.ops-t{width:100%;border-collapse:collapse;font-size:14px;min-width:760px}
+.ops-t th{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:left;padding:10px;border-bottom:1px solid var(--line);font-weight:500;white-space:nowrap}
+.ops-t td{padding:11px 10px;border-bottom:1px dashed var(--line-2);vertical-align:middle}
+.ops-t tr:last-child td{border-bottom:0}
+.ops-t .num{text-align:right;font-variant-numeric:tabular-nums;font-family:var(--mono);font-size:13px;white-space:nowrap}
+.ops-t th.num{text-align:right}
+.cty{display:flex;align-items:center;gap:10px;white-space:nowrap}
+.cty .c{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--stamp);color:var(--stamp);display:grid;place-items:center;font-family:var(--mono);font-size:11px;font-weight:600}
+.ibar{display:flex;align-items:center;gap:8px;justify-content:flex-end}
+.ibar i{height:10px;border-radius:0 4px 4px 0;background:var(--sky);display:block}
+.arch{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-top:12px}
+@media(max-width:1020px){.arch{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:480px){.arch{grid-template-columns:1fr}}
+.arch > div{padding:14px;border-radius:12px;background:var(--surface-2);border:1px solid var(--line);font-size:13.5px;color:var(--ink-2)}
+.arch b{display:block;font-size:14.5px;margin:4px 0;color:var(--ink)}
+.arch .k{font-family:var(--mono);font-size:11px;color:var(--sol);letter-spacing:.08em;text-transform:uppercase}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="ink" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="1.8" xChannelSelector="R" yChannelSelector="G"/></filter></svg>
+<nav class="ribbon" aria-label="Navegación del mockup"><div class="rib-in" id="rib">
+  <span class="rib-tag">Mockup</span>
+  <a href="#inicio" data-r="inicio">Inicio</a><span class="rib-sep">/</span>
+  <a href="#armar/1" data-r="armar/1">1 · País</a>
+  <a href="#armar/2" data-r="armar/2">2 · Tamaño</a>
+  <a href="#armar/3" data-r="armar/3">3 · Sistema</a>
+  <a href="#armar/4" data-r="armar/4">4 · Datos</a>
+  <a href="#armar/5" data-r="armar/5">5 · Pago</a><span class="rib-sep">/</span>
+  <a href="#armando" data-r="armando">Armando</a>
+  <a href="#pc" data-r="pc">Mi PC</a>
+  <a href="#panel" data-r="panel">Panel</a><span class="rib-sep">/</span>
+  <a href="#operacion" data-r="operacion">Operación Slonimtek</a>
+</div></nav>
+<div id="app"></div>
+<div id="modal-root"></div>
+<div id="toast-root" aria-live="polite"></div>
+<noscript><p style="padding:20px">Este mockup necesita JavaScript.</p></noscript>
+<script>
+(function(){
+'use strict';
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+
+/* ---------- datos ---------- */
+const COUNTRIES=[
+ {code:'UY',name:'Uruguay',city:'Montevideo',tz:'America/Montevideo',lang:'Español (Uruguay) · teclado latino',cur:'Pesos uruguayos',mult:1.4,region:'latam',infra:'Antel Data Center · Pando'},
+ {code:'AR',name:'Argentina',city:'Buenos Aires',tz:'America/Argentina/Buenos_Aires',lang:'Español (Argentina) · teclado latino',cur:'Pesos argentinos',mult:1.3,region:'latam',infra:'AWS Local Zone · Buenos Aires'},
+ {code:'CL',name:'Chile',city:'Santiago',tz:'America/Santiago',lang:'Español (Chile) · teclado latino',cur:'Pesos chilenos',mult:1.3,region:'latam',infra:'AWS Local Zone · Santiago'},
+ {code:'PE',name:'Perú',city:'Lima',tz:'America/Lima',lang:'Español (Perú) · teclado latino',cur:'Soles',mult:1.3,region:'latam',infra:'AWS Local Zone · Lima'},
+ {code:'MX',name:'México',city:'Querétaro',tz:'America/Mexico_City',lang:'Español (México) · teclado latino',cur:'Pesos mexicanos',mult:1.15,region:'latam',infra:'AWS · Región México'},
+ {code:'BR',name:'Brasil',city:'São Paulo',tz:'America/Sao_Paulo',lang:'Português (Brasil) · teclado ABNT2',cur:'Reales',mult:1.5,region:'latam',infra:'AWS · Región São Paulo'},
+ {code:'CO',name:'Colombia',city:'Bogotá',tz:'America/Bogota',lang:'Español (Colombia)',cur:'Pesos colombianos',mult:1.3,region:'latam',soon:true,infra:'AWS Local Zone · Bogotá (anunciada)'},
+ {code:'US',name:'Estados Unidos',city:'Virginia',tz:'America/New_York',lang:'Inglés (EE.UU.) · teclado US',cur:'Dólares',mult:1.0,region:'world',infra:'AWS · Región N. Virginia'},
+ {code:'ES',name:'España',city:'Aragón',tz:'Europe/Madrid',lang:'Español (España) · teclado ES',cur:'Euros',mult:1.1,region:'world',infra:'AWS · Región España'},
+ {code:'IL',name:'Israel',city:'Tel Aviv',tz:'Asia/Jerusalem',lang:'Hebreo e inglés · teclado HE',cur:'Shekels',mult:1.15,region:'world',infra:'AWS · Región Tel Aviv'},
+];
+const C=Object.fromEntries(COUNTRIES.map(c=>[c.code,c]));
+const ORIGINS={
+ TLV:{label:'Tel Aviv, Israel',city:'Tel Aviv',lat:{UY:250,AR:255,CL:275,PE:230,MX:190,BR:220,CO:200,US:135,ES:70,IL:4}},
+ MAD:{label:'Madrid, España',city:'Madrid',lat:{UY:185,AR:190,CL:205,PE:165,MX:125,BR:160,CO:140,US:80,ES:6,IL:70}},
+ MIA:{label:'Miami, EE.UU.',city:'Miami',lat:{UY:125,AR:125,CL:110,PE:75,MX:45,BR:110,CO:50,US:30,ES:100,IL:145}},
+ NYC:{label:'Nueva York, EE.UU.',city:'Nueva York',lat:{UY:140,AR:140,CL:125,PE:90,MX:60,BR:120,CO:70,US:10,ES:85,IL:135}},
+ MVD:{label:'Montevideo, Uruguay',city:'Montevideo',lat:{UY:4,AR:12,CL:40,PE:75,MX:140,BR:34,CO:95,US:125,ES:190,IL:255}},
+};
+const TIERS={
+ mini:{name:'Mini',cpu:2,ram:4,disk:64,base:29,win:10,rate:0.042,winRate:0.018,for:'Bancos, trámites, compras y mails',long:'Para entrar a tu banco, hacer trámites y comprar como si estuvieras allá.'},
+ standard:{name:'Standard',cpu:4,ram:16,disk:128,base:59,win:20,rate:0.166,winRate:0.074,for:'Trabajar todo el día',long:'Office, videollamadas, muchas pestañas y varias apps a la vez.'},
+ gold:{name:'Gold',cpu:8,ram:32,disk:256,base:119,win:40,rate:0.384,winRate:0.368,for:'Diseño, edición y programación',long:'Para programas pesados: diseño, edición de fotos y video, desarrollo.'},
+};
+const APPS=[['chrome','Chrome'],['firefox','Firefox'],['libreoffice','LibreOffice'],['m365','Microsoft 365 (con tu cuenta)'],['zoom','Zoom'],['whatsapp','WhatsApp Desktop'],['vscode','VS Code'],['gimp','GIMP']];
+const IDLE=[['15','15 min'],['30','30 min'],['60','1 hora'],['always','Siempre prendida']];
+const IDLE_L={'15':'tras 15 min sin uso','30':'tras 30 min sin uso','60':'tras 1 hora sin uso',always:'nunca (siempre prendida)'};
+const PAYS=[['mp','MercadoPago','Pagás en tu moneda: pesos, reales o soles.'],['card','Tarjeta de crédito o débito','Visa, Mastercard o Amex.'],['paypal','PayPal','Desde cualquier país.']];
+const STEPS=['País','Tamaño','Sistema','Tus datos','Pago'];
+const USES=['Home banking','Trámites del Estado','Tiendas y apps del país','Medios locales','Clientes de allá'];
+const HERO_PAIRS=[{from:'Madrid',code:'MAD',to:'UY'},{from:'Tel Aviv',code:'TLV',to:'AR'},{from:'Miami',code:'MIA',to:'MX'},{from:'Nueva York',code:'NYC',to:'CL'}];
+const FAQ=[
+ ['¿Tengo que instalar algo?','No. Abrís tu PC desde Chrome, Safari o Edge, en la compu, la tablet o el celular.'],
+ ['¿Qué pasa si cierro la pestaña?','Tu PC sigue ahí. Si no la usás por 30 minutos hiberna sola (así no pagás de más) y cuando la volvés a abrir está como la dejaste.'],
+ ['¿Por qué me piden la cédula?','Porque una IP del país vale mientras esté limpia. Verificamos a cada persona para que nadie la use para fraudes, y así los bancos no la bloquean.'],
+ ['¿Puedo tener PCs en varios países?','Sí. Cada una con su IP, su hora y su idioma. Las manejás todas desde tu panel.'],
+ ['¿Qué no se puede hacer?','Minar criptomonedas, mandar spam, abrir cuentas a nombre de otras personas o esquivar sanciones internacionales. Si lo detectamos, pausamos la PC.'],
+];
+const OPS_ROWS=[
+ {code:'UY',ip:'local',pcs:46,hrs:88,flag:1,margin:.37},
+ {code:'AR',ip:'dc',pcs:31,hrs:97,flag:12,margin:.34},
+ {code:'US',ip:'dc',pcs:18,hrs:121,flag:21,margin:.44},
+ {code:'BR',ip:'dc',pcs:12,hrs:104,flag:17,margin:.29},
+ {code:'MX',ip:'dc',pcs:9,hrs:80,flag:14,margin:.41},
+ {code:'ES',ip:'dc',pcs:7,hrs:72,flag:13,margin:.42},
+ {code:'CL',ip:'dc',pcs:5,hrs:90,flag:10,margin:.33},
+ {code:'IL',ip:'dc',pcs:4,hrs:61,flag:9,margin:.45},
+ {code:'PE',ip:'dc',pcs:2,hrs:66,flag:8,margin:.31},
+];
+const ALERTS=[
+ {sev:'bad',lab:'Grave',t:'PC-0412 · Argentina',d:'CPU al 100% hace 6 horas y conexiones a pools de minería.',r:'Pausada automáticamente',b:['Ver detalle','Reactivar']},
+ {sev:'warn',lab:'Atención',t:'PC-0388 · Estados Unidos',d:'1.200 intentos de mandar mail por el puerto 25 en 10 minutos.',r:'Puerto bloqueado · cliente avisado',b:['Ver detalle']},
+ {sev:'warn',lab:'Atención',t:'Alta nueva · Uruguay',d:'El nombre de la cédula no coincide con el de la tarjeta.',r:'En revisión manual',b:['Revisar']},
+ {sev:'info',lab:'Info',t:'IP 0071 · Brasil',d:'Apareció en una lista pública de VPN.',r:'Rotando la IP y pidiendo la baja',b:['Ver detalle']},
+ {sev:'bad',lab:'Grave',t:'Registro bloqueado',d:'Intento de alta desde un país con sanciones internacionales.',r:'Rechazado en el registro',b:[]},
+];
+const QUICK=[['banco','Mi banco me pide un código nuevo'],['lenta','Mi PC está lenta'],['disco','Quiero más disco'],['viaje','Me voy de viaje, ¿la pauso?']];
+const REPLY={
+ banco:c=>`Es normal la primera vez: tu banco ve una computadora nueva. Poné el código una vez y marcá "recordar este dispositivo". Como tu IP de ${c.name} es fija, no te lo vuelve a pedir.`,
+ lenta:()=>'Miré tu PC: la memoria está al 91% y tenés 38 pestañas abiertas en el navegador 😅. Cerrá algunas o, si la usás así todos los días, te conviene Gold (lo ves en la pestaña Plan).',
+ disco:()=>'Te sumo 64 GB por US$ 6 al mes. Se aplica en el próximo reinicio y no perdés nada. ¿Lo agrego?',
+ viaje:()=>'Si no la usás, se apaga sola y queda guardada. Si te vas más de un mes, desde Plan la podés pausar y pagás solo el disco.',
+};
+
+/* ---------- estado ---------- */
+const S={origin:'TLV',country:'UY',tier:'standard',os:'windows',apps:new Set(['chrome','libreoffice','zoom','whatsapp']),idle:'30',
+ kyc:'none',rules:false,pay:'mp',cycle:'m',measured:false,step:1,pcSel:0,tab:'resumen',pcsData:null,moveTo:null,typing:false,
+ user:{name:'Lucía Fernández',email:'lucia.fernandez@ejemplo.com',wa:'+972 50 000 0000'},
+ chat:[{me:false,t:'¡Hola Lucía! 👋 Soy Sofi, de soporte de Localía. Te contesto por acá o por WhatsApp. ¿En qué te ayudo?'}],
+ calc:{code:'UY',tier:'standard',os:'windows',h:0}};
+
+/* ---------- helpers ---------- */
+const TODAY=new Date();
+const STAMP_DATE=[TODAY.getDate(),TODAY.getMonth()+1,TODAY.getFullYear()%100].map(n=>String(n).padStart(2,'0')).join('·');
+const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+const n0=v=>Math.round(v).toLocaleString('es-UY');
+const n1=v=>(Math.round(v*10)/10).toLocaleString('es-UY',{minimumFractionDigits:1,maximumFractionDigits:1});
+function clock(tz){try{return new Intl.DateTimeFormat('es-UY',{timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date())}catch(e){return '--:--'}}
+function utc(tz){try{const p=new Intl.DateTimeFormat('en-US',{timeZone:tz,timeZoneName:'shortOffset'}).formatToParts(new Date()).find(x=>x.type==='timeZoneName');return p?p.value.replace('GMT','UTC').replace('-','−'):''}catch(e){return ''}}
+const country=()=>C[S.country];
+function planPrice(tier,code,os){const t=TIERS[tier];return Math.round(t.base*C[code].mult)+(os==='windows'?t.win:0)}
+function hourRate(tier,code,os){const t=TIERS[tier];return (t.rate+(os==='windows'?t.winRate:0))*C[code].mult}
+function alwaysOnExtra(tier,code,os){return Math.round(hourRate(tier,code,os)*580*1.2/5)*5}
+function monthly(){return planPrice(S.tier,S.country,S.os)+(S.idle==='always'?alwaysOnExtra(S.tier,S.country,S.os):0)}
+function monthlyTotal(){const m=monthly();return S.cycle==='a'?Math.round(m*.85):m}
+function q(ms){
+ if(ms<60)return{k:'ok',t:'como estar ahí',d:'Sirve para todo, hasta para juegos.'};
+ if(ms<150)return{k:'good',t:'muy fluida',d:'Para todo, menos juegos online.'};
+ return{k:'mid',t:'fluida para lo de todos los días',d:'Bancos, trámites, compras, mails y videollamadas. Para juegos, no.'};
+}
+function econ(code,tier,os,h){
+ const t=TIERS[tier],c=C[code];const price=planPrice(tier,code,os);const rate=hourRate(tier,code,os);
+ const compute=rate*h;const disk=t.disk*.08*c.mult*1.25;const ip=3.65;const access=7;const fees=price*.05;
+ const fixed=disk+ip+access+fees;const cost=compute+fixed;const margin=price-cost;
+ return{price,rate,compute,disk,ip,access,fees,cost,margin,pct:margin/price,be:Math.max(0,(price-fixed)/rate)};
+}
+function usage(){const out=[];let seed=11;const rnd=()=>{seed=(seed*9301+49297)%233280;return seed/233280};
+ for(let d=1;d<=30;d++){const dt=new Date(2026,8,d);const wd=dt.getDay();let h;
+  if(wd===0||wd===6)h=rnd()<.55?0:Math.round(rnd()*16)/10;else h=Math.round((2+rnd()*3.6)*10)/10;
+  out.push({d,dt,h})}return out}
+const USAGE=usage();const USAGE_TOTAL=Math.round(USAGE.reduce((a,b)=>a+b.h,0));
+S.calc.h=USAGE_TOTAL;
+function backupDates(){const out=[];for(let i=0;i<7;i++){const d=new Date(TODAY);d.setDate(d.getDate()-i);
+ const wd=d.toLocaleDateString('es-UY',{weekday:'long'});const dm=d.toLocaleDateString('es-UY',{day:'numeric',month:'long'});
+ out.push({label:i===0?'Hoy':i===1?'Ayer':cap(wd),long:`${wd} ${dm}`,dm,size:n1(46-i*.3)})}return out}
+function syncPcs(){const second=S.country==='AR'?'ES':'AR';
+ S.pcsData=[{code:S.country,tier:S.tier,os:S.os,state:'on',disk:46,hrs:USAGE_TOTAL},{code:second,tier:'mini',os:'linux',state:'off',disk:12,hrs:11}]}
+function pcs(){if(!S.pcsData)syncPcs();return S.pcsData}
+const pcName=p=>`Mi PC en ${C[p.code].name}`;
+
+/* ---------- íconos ---------- */
+const P=d=>`<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const ico={
+ check:P('<path d="M5 12.5l4.2 4.2L19 7"/>'),
+ shield:P('<path d="M12 3l7 3v5.5c0 4.4-3 8.1-7 9.5-4-1.4-7-5.1-7-9.5V6z"/><path d="M9 12l2.2 2.2L15.5 10"/>'),
+ clock:P('<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>'),
+ save:P('<path d="M4 7a3 3 0 013-3h8l5 5v8a3 3 0 01-3 3H7a3 3 0 01-3-3z"/><path d="M8 4v5h7M8 20v-5h8v5"/>'),
+ bank:P('<path d="M3 9.5L12 4l9 5.5"/><path d="M5 10v7M9.5 10v7M14.5 10v7M19 10v7M3.5 20h17"/>'),
+ doc:P('<path d="M7 3h7l5 5v11a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2z"/><path d="M14 3v5h5M9 13h6M9 17h4"/>'),
+ cart:P('<path d="M3 4h2l2.2 11h10.6L20 8H6.2"/><circle cx="9" cy="19" r="1.4"/><circle cx="17" cy="19" r="1.4"/>'),
+ brief:P('<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2M3 12.5h18"/>'),
+ monitor:P('<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M9 20h6M12 16v4"/>'),
+ lock:P('<rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V8a4 4 0 018 0v2.5"/>'),
+ chat:P('<path d="M20 12a8 8 0 01-11.6 7.1L4 20l1-4.1A8 8 0 1120 12z"/>'),
+ globe:P('<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.5 2.6 3.6 5.4 3.6 8.5s-1.1 5.9-3.6 8.5c-2.5-2.6-3.6-5.4-3.6-8.5S9.5 6.1 12 3.5z"/>'),
+ arrow:P('<path d="M5 12h14M13 6l6 6-6 6"/>'),
+ back:P('<path d="M19 12H5M11 6l-6 6 6 6"/>'),
+ power:P('<path d="M12 3v8"/><path d="M6.3 7.2a7.5 7.5 0 1011.4 0"/>'),
+ restart:P('<path d="M4.5 12a7.5 7.5 0 102.2-5.3"/><path d="M4 4.5v4h4"/>'),
+ wrench:P('<path d="M14.5 5.5a4 4 0 00-5 5L4 16l4 4 5.5-5.5a4 4 0 005-5l-2.6 2.6-2.8-.6-.6-2.8z"/>'),
+ plus:P('<path d="M12 5v14M5 12h14"/>'),
+ clip:P('<rect x="6" y="4.5" width="12" height="16" rx="2"/><path d="M9 4.5v-1h6v1"/>'),
+ upload:P('<path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2"/>'),
+ full:P('<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>'),
+ exit:P('<path d="M15 4h3a2 2 0 012 2v12a2 2 0 01-2 2h-3"/><path d="M10 8l-4 4 4 4M6 12h10"/>'),
+ folder:P('<path d="M3.5 7a2 2 0 012-2h4l2 2.5h7a2 2 0 012 2V17a2 2 0 01-2 2h-13a2 2 0 01-2-2z"/>'),
+ browser:P('<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/>'),
+ alert:P('<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17.2v.1"/>'),
+ stop:P('<circle cx="12" cy="12" r="8.5"/><path d="M8.5 8.5l7 7M15.5 8.5l-7 7"/>'),
+ info:P('<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8v.1"/>'),
+ x:P('<path d="M6 6l12 12M18 6L6 18"/>'),
+ pin:P('<path d="M12 21s7-6.2 7-11.5A7 7 0 005 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>'),
+ cpu:P('<rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9.5 3v3M14.5 3v3M9.5 18v3M14.5 18v3M3 9.5h3M3 14.5h3M18 9.5h3M18 14.5h3"/>'),
+ moon:P('<path d="M20 14.5A8 8 0 019.5 4 8 8 0 1020 14.5z"/>'),
+ grid:P('<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>'),
+ wifi:P('<path d="M4 9.5a12 12 0 0116 0M7 13a7.5 7.5 0 0110 0M10 16.5a3 3 0 014 0"/>'),
+ id:P('<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2.2"/><path d="M5.8 16c.6-1.6 1.8-2.4 3.2-2.4s2.6.8 3.2 2.4M14.5 10h4M14.5 13.5h3"/>'),
+ move:P('<path d="M4 8h13l-3-3M20 16H7l3 3"/>'),
+ pause:P('<circle cx="12" cy="12" r="8.5"/><path d="M10 9v6M14 9v6"/>'),
+};
+const logo=()=>`<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2.5c-6.4 0-11.5 5-11.5 11.2C4.5 21.6 16 29.5 16 29.5s11.5-7.9 11.5-15.8C27.5 7.5 22.4 2.5 16 2.5z" fill="var(--sky)"/><rect x="9.6" y="8.2" width="12.8" height="8.6" rx="1.8" fill="#fff"/><rect x="13.2" y="18.4" width="5.6" height="1.8" rx=".9" fill="#fff"/></svg>`;
+let sid=0;
+function stamp(c,size){const id='sp'+(++sid);const txt=`LOCALÍA · ${c.name.toUpperCase()} · ${c.city.toUpperCase()} · `;
+ return `<svg class="stamp" viewBox="0 0 120 120" width="${size}" height="${size}" aria-hidden="true"><g filter="url(#ink)">
+ <defs><path id="${id}" d="M60,60 m-44,0 a44,44 0 1,1 88,0 a44,44 0 1,1 -88,0"/></defs>
+ <circle cx="60" cy="60" r="56" fill="none" stroke="currentColor" stroke-width="2.6"/>
+ <circle cx="60" cy="60" r="33" fill="none" stroke="currentColor" stroke-width="1.4"/>
+ <text font-family="JetBrains Mono,monospace" font-size="8.6" font-weight="600" letter-spacing=".8" fill="currentColor"><textPath href="#${id}" xlink:href="#${id}" textLength="268" lengthAdjust="spacing">${txt}</textPath></text>
+ <text x="60" y="67" text-anchor="middle" font-family="Bricolage Grotesque,sans-serif" font-weight="800" font-size="25" fill="currentColor">${c.code}</text>
+ <text x="60" y="80" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="6.8" fill="currentColor">${STAMP_DATE}</text></g></svg>`}
+
+/* ---------- shells ---------- */
+function topbar(){const home=parse().r==='inicio';
+ return `<header class="top"><div class="wrap top-in"><a class="brand" href="#inicio">${logo()}<b>Localía</b><small>by Slonimtek</small></a>
+ <nav class="top-nav">${home?`<button class="lnk" data-act="scroll" data-target="para-que">Para qué sirve</button><button class="lnk" data-act="scroll" data-target="como">Cómo funciona</button><button class="lnk" data-act="scroll" data-target="precios">Precios</button>`:''}
+ <a class="lnk" href="#panel">Mi panel</a><button class="icon-btn" data-act="theme" aria-label="Cambiar tema claro u oscuro">${ico.moon}</button>
+ ${home?'<a class="btn btn-primary btn-sm" href="#armar/1">Elegir mi país</a>':''}</nav></div></header>`}
+function appBar(ops){
+ return `<header class="app-bar${ops?' dark':''}"><div class="wrap top-in"><a class="brand" href="#inicio">${logo()}<b>Localía</b>${ops?'<span class="int-badge">Operación</span>':'<small>by Slonimtek</small>'}</a>
+ ${ops?'':`<nav class="app-nav"><button class="${['plan','soporte'].includes(S.tab)?'':'on'}" data-act="tab" data-tab="resumen">Mis PCs</button><button class="${S.tab==='plan'?'on':''}" data-act="tab" data-tab="plan">Facturación</button><button class="${S.tab==='soporte'?'on':''}" data-act="tab" data-tab="soporte">Soporte</button></nav>`}
+ <div class="top-nav"><button class="icon-btn" data-act="theme" aria-label="Cambiar tema claro u oscuro">${ico.moon}</button><span class="avatar" title="${ops?'Equipo Slonimtek':'Lucía Fernández'}">${ops?'ST':'LF'}</span></div></div></header>`}
+const footer=()=>`<footer class="foot"><div class="wrap foot-in"><div class="brand">${logo()}<b>Localía</b><small>by Slonimtek</small></div><p>Mockup navegable. Precios, demoras y datos son ilustrativos.</p></div></footer>`;
+
+/* ---------- inicio ---------- */
+function heroVis(p){const c=C[p.to];return `
+ <div class="route"><div class="rt-end"><span class="rt-code mono">${p.code}</span><div><b>Vos</b><small>${p.from}</small></div></div>
+ <div class="rt-line"><span></span></div>
+ <div class="rt-end rt-to"><div><b>Tu PC</b><small>${c.city}, ${c.name}</small></div><span class="rt-code mono">${c.code}</span></div></div>
+ <div class="bw"><div class="bw-bar"><i></i><i></i><i></i><span class="bw-url mono">localía · mi PC en ${c.name}</span></div>
+ <div class="bw-desk wall"><div class="bw-stamp">${stamp(c,220)}</div>
+  <div class="mini-win"><div class="mini-tt">¿Desde dónde te ven?</div>
+   <div class="mini-row"><span>País</span><b class="ok">${c.name} ✓</b></div>
+   <div class="mini-row"><span>Ciudad</span><b>${c.city}</b></div>
+   <div class="mini-row"><span>IP</span><b class="mono">fija · •••.142</b></div>
+   <div class="mini-row"><span>¿VPN o proxy?</span><b class="ok">No ✓</b></div></div>
+  <div class="mini-task"><span class="mini-start"></span><span class="mini-app"></span><span class="mini-app"></span><span class="mini-clock mono" data-clock="${c.tz}">${clock(c.tz)}</span></div></div></div>
+ <div class="float f1">${ico.shield} IP de ${c.name}, fija y solo tuya</div>
+ <div class="float f2">${ico.clock} Hora de ${c.city}: <b class="mono" data-clock="${c.tz}">${clock(c.tz)}</b></div>
+ <div class="float f3">${ico.save} Copia de seguridad: anoche ✓</div>`}
+const useCard=(i,t,d)=>`<div class="use-card"><div class="ic">${i}</div><h3>${t}</h3><p>${d}</p></div>`;
+const trust=(i,t,d)=>`<div class="tr">${i}<b>${t}</b><p>${d}</p></div>`;
+function planPreview(k,t){return `<div class="plan t-${k}"><div class="plan-top"><span class="tier-name">${t.name}</span>${k==='standard'?'<span class="tier-flag">La más elegida</span>':''}</div>
+ <p class="tier-for">${t.for}</p><div class="tier-price"><small>desde</small> <b>US$ ${t.base}</b><small>/mes</small></div>
+ <div class="tier-specs mono"><span>${t.cpu} vCPU</span><span>${t.ram} GB RAM</span><span>${t.disk} GB SSD</span></div>
+ <button class="btn btn-ghost btn-sm" data-act="pick-tier" data-tier="${k}">Elegir ${t.name} ${ico.arrow}</button></div>`}
+function vHome(){return `${topbar()}
+<section class="hero"><div class="wrap hero-in">
+ <div class="hero-copy">
+  <div class="eyebrow">Slonimtek presenta · Localía</div>
+  <h1>Tu computadora en tu país, <em>estés donde estés.</em></h1>
+  <p class="lead">Una PC en la nube que vive en Uruguay, Argentina, México o el país que elijas. La abrís desde el navegador y los sitios te ven como alguien de ahí: tu banco, tus trámites, las tiendas y las apps locales.</p>
+  <div class="cta-row"><a class="btn btn-primary btn-lg" href="#armar/1">Elegir mi país ${ico.arrow}</a><button class="btn btn-ghost btn-lg" data-act="scroll" data-target="como">Cómo funciona</button></div>
+  <ul class="proof"><li>${ico.check} Sin instalar nada</li><li>${ico.check} IP fija del país, solo tuya</li><li>${ico.check} Desde US$ 29 por mes</li></ul>
+ </div>
+ <div class="hero-vis" id="heroVis">${heroVis(HERO_PAIRS[0])}</div>
+</div></section>
+<section class="sec" id="para-que"><div class="wrap">
+ <div class="sec-head"><div class="eyebrow">Para qué sirve</div><h2>Jugá de local, aunque estés lejos.</h2><p>Muchos sitios solo funcionan bien, o directamente solo funcionan, si entrás desde el país. Con Localía tenés una compu allá, siempre lista.</p></div>
+ <div class="uses">
+  ${useCard(ico.bank,'Tu banco, sin bloqueos','Entrá a tu home banking como si estuvieras en casa. Tu banco ve siempre la misma compu, del país.')}
+  ${useCard(ico.doc,'Trámites del Estado','Portales de impuestos, registros y turnos que no abren desde el exterior.')}
+  ${useCard(ico.cart,'Tiendas y apps locales','Precios en moneda local, compras para tu familia y apps que solo existen allá.')}
+  ${useCard(ico.brief,'Clientes de allá','Sistemas y portales de clientes que solo aceptan conexiones desde el país.')}
+ </div></div></section>
+<section class="sec alt" id="como"><div class="wrap">
+ <div class="sec-head"><div class="eyebrow">Cómo funciona</div><h2>Tres pasos y estás.</h2></div>
+ <div class="steps3">
+  <div class="st"><span class="n">01</span><h3>Elegí el país</h3><p>Uruguay, Argentina, Chile, Perú, México, Brasil, Estados Unidos, España o Israel. Te decimos cómo se va a sentir desde donde estás.</p></div>
+  <div class="st"><span class="n">02</span><h3>Elegí el tamaño</h3><p>Mini para bancos y trámites, Standard para trabajar todo el día, Gold para programas pesados.</p></div>
+  <div class="st"><span class="n">03</span><h3>Abrila en el navegador</h3><p>En unos minutos está lista. Tocás "Abrir mi PC" y aparece en una pestaña, en la compu, la tablet o el celular.</p></div>
+ </div></div></section>
+<section class="sec" id="precios"><div class="wrap">
+ <div class="sec-head"><div class="eyebrow">Tamaños</div><h2>Mini, Standard o Gold.</h2><p>El precio depende del país. Cambiás de tamaño cuando quieras, sin perder nada.</p></div>
+ <div class="plans">${Object.entries(TIERS).map(([k,t])=>planPreview(k,t)).join('')}</div>
+ <p class="fine" style="margin-top:14px">Precios ilustrativos en dólares, con Linux, en Estados Unidos. Windows suma su licencia.</p>
+</div></section>
+<section class="sec alt"><div class="wrap">
+ <div class="sec-head"><div class="eyebrow">¿No es lo mismo que una VPN?</div><h2>No. Una VPN te presta una dirección. Localía te da una compu entera allá.</h2></div>
+ <div class="cmp-wrap"><table class="cmp"><thead><tr><th></th><th>VPN</th><th>Localía</th></tr></thead><tbody>
+  <tr><th>Qué te da</th><td>Otra dirección de internet</td><td>Una computadora entera en el país</td></tr>
+  <tr><th>La IP</th><td>Compartida con miles; muchos sitios la bloquean</td><td>Fija, solo tuya y verificada</td></tr>
+  <tr><th>Hora, idioma y teclado</th><td>Los de tu compu</td><td>Los del país</td></tr>
+  <tr><th>Tus archivos</th><td>En tu compu</td><td>En tu PC de allá, con copia cada noche</td></tr>
+  <tr><th>Tu banco</th><td>Suele desconfiar</td><td>Ve siempre la misma compu</td></tr>
+ </tbody></table></div></div></section>
+<section class="sec"><div class="wrap">
+ <div class="sec-head"><div class="eyebrow">Tranquilidad</div><h2>La cuidamos por vos.</h2></div>
+ <div class="trust">
+  ${trust(ico.shield,'IP limpia, todos los días','Revisamos a diario que tu IP no aparezca como VPN. Si pasa, la cambiamos y te avisamos.')}
+  ${trust(ico.save,'Copia cada noche','Guardamos 7 días. Si algo se rompe, volvés a ayer con un botón.')}
+  ${trust(ico.lock,'Cerrada a internet','Tu PC no tiene puertas abiertas: solo entrás vos, desde tu cuenta.')}
+  ${trust(ico.id,'Clientes verificados','Verificamos a cada persona. Por eso nuestras IPs no quedan quemadas.')}
+  ${trust(ico.chat,'Soporte por WhatsApp','En español, con personas, de 8 a 22 h.')}
+ </div></div></section>
+<section class="sec alt"><div class="wrap">
+ <div class="sec-head"><div class="eyebrow">Preguntas</div><h2>Lo que todos preguntan.</h2></div>
+ <div class="faq">${FAQ.map(([a,b])=>`<details><summary>${a}</summary><p>${b}</p></details>`).join('')}</div>
+</div></section>
+<section class="sec"><div class="wrap"><div class="cta-card">${stamp(C.UY,112)}
+ <div><h2>¿Desde qué país necesitás estar?</h2><p>Armá tu PC en tres minutos.</p></div>
+ <a class="btn btn-primary btn-lg" href="#armar/1">Elegir mi país ${ico.arrow}</a></div></div></section>
+${footer()}`}
+
+/* ---------- wizard ---------- */
+function ccCard(x){const o=ORIGINS[S.origin];const ms=o.lat[x.code];const qq=q(ms);const on=x.code===S.country;
+ return `<button class="cc${on?' on':''}" data-act="country" data-code="${x.code}" ${x.soon?'disabled':''} aria-pressed="${on}">
+ <span class="cc-code mono">${x.code}</span><span class="cc-txt"><b>${x.name}</b><small>${x.city}</small></span>
+ ${x.soon?'<span class="cc-soon">Próximamente</span>':`<span class="cc-lat">${S.measured?`<i class="qd q-${qq.k}"></i><span class="mono">~${ms} ms</span>`:'<span class="measuring">midiendo…</span>'}</span>`}
+ ${on?`<span class="cc-check">${ico.check}</span>`:''}</button>`}
+function idCard(c){const o=ORIGINS[S.origin];const ms=o.lat[c.code];const qq=q(ms);
+ return `<div class="idc"><div class="idc-top"><div><div class="eyebrow">Así te van a ver los sitios</div><h3>Una compu en ${c.city}, ${c.name}</h3></div><div class="idc-stamp">${stamp(c,104)}</div></div>
+ <dl class="idc-rows">
+  <div><dt>Ubicación</dt><dd>${c.city}, ${c.name}</dd></div>
+  <div><dt>Dirección IP</dt><dd><span class="mono">•••.•••.•••.142</span> <span class="tag-ok">fija · solo tuya</span></dd></div>
+  <div><dt>Hora local</dt><dd><span class="mono" data-clock="${c.tz}">${clock(c.tz)}</span> <span class="muted">${utc(c.tz)}</span></dd></div>
+  <div><dt>Idioma y teclado</dt><dd>${c.lang}</dd></div>
+  <div><dt>Precios en tiendas</dt><dd>${c.cur}</dd></div>
+  <div><dt>¿Parece una VPN?</dt><dd class="okt">${ico.check} No</dd></div>
+ </dl>
+ <div class="idc-lat"><i class="qd q-${qq.k}"></i><div>${S.measured?`<b>Desde ${o.city}: ~${ms} ms · ${qq.t}</b><span>${qq.d}</span>`:`<b>Midiendo la demora desde ${o.city}…</b><span>Esto nos dice qué tan fluida se va a sentir.</span>`}</div></div>
+ <div class="idc-uses"><span class="muted">Ideal para</span> ${USES.map(u=>`<span class="chip">${u}</span>`).join('')}</div></div>`}
+function vStep1(){const latam=COUNTRIES.filter(x=>x.region==='latam'),world=COUNTRIES.filter(x=>x.region!=='latam');
+ return `<div class="step-head"><div class="eyebrow">Paso 1 de 5 · El país</div><h2>¿En qué país necesitás estar?</h2>
+ <p class="sub">Tu PC vive en ese país, con IP fija de ahí, hora local e idioma. Tu banco, los trámites y las tiendas te ven como alguien de ahí.</p></div>
+ <div class="origin"><span>${ico.pin} Estás en</span><select data-chg="origin" aria-label="Tu ubicación actual">${Object.entries(ORIGINS).map(([k,v])=>`<option value="${k}" ${k===S.origin?'selected':''}>${v.label}</option>`).join('')}</select><small class="muted">detectado por tu navegador</small></div>
+ <h4 class="grp">Latinoamérica</h4><div class="cc-grid">${latam.map(ccCard).join('')}</div>
+ <h4 class="grp">Resto del mundo</h4><div class="cc-grid">${world.map(ccCard).join('')}</div>
+ <button class="linkish" data-act="ask-country">¿Tu país no está? Pedilo y te avisamos cuando llegue.</button>
+ ${idCard(country())}`}
+function tierCard(k,t,code,os,cur,act){const on=cur===k;const p=planPrice(k,code,os);
+ return `<button class="tier t-${k}${on?' on':''}" data-act="${act}" data-tier="${k}">${k==='standard'?'<span class="tier-flag">La más elegida</span>':''}
+ <span class="tier-name">${t.name}</span><span class="tier-for">${t.for}</span>
+ <span class="tier-price"><b>US$ ${p}</b><small>/mes</small></span>
+ <span class="tier-specs mono"><span>${t.cpu} vCPU</span><span>${t.ram} GB RAM</span><span>${t.disk} GB SSD</span></span>
+ <span class="tier-long">${t.long}</span>
+ ${on?`<span class="tier-sel">${ico.check} ${act==='tier'?'Elegida':'Tu plan'}</span>`:`<span class="tier-sel ghost">${act==='tier'?'Elegir':'Cambiar a '+t.name}</span>`}</button>`}
+function vStep2(){const c=country();
+ return `<div class="step-head"><div class="eyebrow">Paso 2 de 5 · El tamaño</div><h2>¿Qué tan potente la querés?</h2><p class="sub">Podés cambiar de tamaño cuando quieras, sin perder nada.</p></div>
+ <div class="use"><span>¿Para qué la vas a usar?</span>${[['mini','Bancos y trámites'],['standard','Trabajar todo el día'],['gold','Diseño y edición']].map(([t,l])=>`<button class="pill ${S.tier===t?'on':''}" data-act="tier" data-tier="${t}">${l}</button>`).join('')}</div>
+ <div class="tiers">${Object.entries(TIERS).map(([k,t])=>tierCard(k,t,S.country,S.os,S.tier,'tier')).join('')}</div>
+ <p class="note">${ico.info}<span>Precios para ${c.name}${S.os==='windows'?', con Windows':''}. Una PC en ${c.name} ${c.mult>1?'cuesta un poco más que en Estados Unidos, porque la nube allá es más cara':'tiene el precio base'}. Todas incluyen IP fija, copia de seguridad diaria y soporte.</span></p>`}
+function vStep3(){const t=TIERS[S.tier];const c=country();const extra=alwaysOnExtra(S.tier,S.country,S.os);
+ return `<div class="step-head"><div class="eyebrow">Paso 3 de 5 · Sistema y ajustes</div><h2>¿Con qué sistema?</h2><p class="sub">Viene configurada con la hora, el idioma y el teclado de ${c.name}.</p></div>
+ <div class="opts">
+  <button class="opt ${S.os==='windows'?'on':''}" data-act="os" data-os="windows"><span class="radio"></span><span><b>Windows</b><span class="d">El de siempre, con licencia legal incluida.</span><small>Basado en Windows Server con escritorio.</small></span><span class="px">+US$ ${t.win}/mes</span></button>
+  <button class="opt ${S.os==='linux'?'on':''}" data-act="os" data-os="linux"><span class="radio"></span><span><b>Linux (Ubuntu)</b><span class="d">Rápido y liviano. Ideal para navegar y programar.</span><small>Sin costo de licencia.</small></span><span class="px">incluido</span></button>
+ </div>
+ <span class="field-l">Apps que querés tener listas</span>
+ <div class="chips">${APPS.map(([k,l])=>`<button class="tog ${S.apps.has(k)?'on':''}" data-act="app" data-app="${k}" aria-pressed="${S.apps.has(k)}">${S.apps.has(k)?ico.check:ico.plus} ${l}</button>`).join('')}</div>
+ <span class="field-l">Que se apague sola después de</span>
+ <div class="seg">${IDLE.map(([v,l])=>`<button class="${S.idle===v?'on':''}" data-act="idle" data-v="${v}">${l}${v==='always'?` <small>+US$ ${extra}</small>`:''}</button>`).join('')}</div>
+ <p class="note">${ico.info}<span>Apagarse sola no cierra nada: tu PC hiberna y, cuando la volvés a abrir, está como la dejaste en menos de un minuto. "Siempre prendida" cuesta más porque la nube cobra cada hora.</span></p>`}
+function kycBox(c){
+ if(S.kyc==='done')return `<div class="kyc done"><div class="kyc-row"><div class="kyc-doc"><span>MUESTRA</span></div><div><b class="okt">${ico.check} Identidad verificada</b><div class="sm muted">Documento de ${c.name} · coincide con tu nombre · lo guardamos cifrado</div></div></div></div>`;
+ const items=['Leyendo el documento',`Detectando el país: ${c.name}`,'Validando el número','Comparando con tu nombre'];
+ if(S.kyc==='run')return `<div class="kyc"><div class="kyc-row"><div class="kyc-doc scan"><i></i><span>MUESTRA</span></div><div><b>Verificando…</b><ul class="kyc-list" id="kycList">${items.map(i=>`<li><span class="bi"></span>${i}</li>`).join('')}</ul></div></div></div>`;
+ return `<div class="kyc"><div class="kyc-row"><div class="kyc-ic">${ico.id}</div><div style="flex:1;min-width:200px"><b>Verificá tu identidad</b><div class="sm muted">Una foto de tu cédula o pasaporte. Tarda segundos y se hace una sola vez.</div></div><button class="btn btn-ghost btn-sm" data-act="kyc">${ico.upload} Subir foto</button></div></div>`}
+function vStep4(){const c=country();const u=S.user;
+ return `<div class="step-head"><div class="eyebrow">Paso 4 de 5 · Tus datos</div><h2>Contanos quién sos</h2><p class="sub">Una IP de ${c.name} sirve mientras esté limpia. Por eso verificamos a cada persona: nadie usa Localía para fraudes y tu banco no la bloquea.</p></div>
+ <div class="form">
+  <label>Nombre y apellido<input data-inp="user" name="name" value="${u.name}" autocomplete="off"></label>
+  <label>Email<input data-inp="user" name="email" value="${u.email}" autocomplete="off"></label>
+  <label class="full">WhatsApp (te avisamos ahí cuando tu PC esté lista)<input data-inp="user" name="wa" value="${u.wa}" autocomplete="off"></label>
+ </div>
+ ${kycBox(c)}
+ <div class="rules"><b>Reglas de uso</b><ul><li>No minar criptomonedas.</li><li>No mandar spam ni atacar otros sistemas.</li><li>No abrir cuentas a nombre de otras personas.</li><li>No usarla para esquivar sanciones internacionales.</li></ul>
+ <label class="check"><input type="checkbox" data-chg="rules" ${S.rules?'checked':''}> <span>Acepto las reglas. Si detectan algo de esto, pausan la PC y me avisan.</span></label></div>`}
+function vStep5(){const c=country(),t=TIERS[S.tier];const plan=Math.round(t.base*c.mult);const win=S.os==='windows'?t.win:0;const extra=S.idle==='always'?alwaysOnExtra(S.tier,S.country,S.os):0;const m=plan+win+extra;const tot=monthlyTotal();
+ return `<div class="step-head"><div class="eyebrow">Paso 5 de 5 · Pago</div><h2>Último paso</h2><p class="sub">Pagás por adelantado, en tu moneda. Cancelás cuando quieras.</p></div>
+ <div class="seg" style="margin-top:20px"><button class="${S.cycle==='m'?'on':''}" data-act="cycle" data-v="m">Mensual</button><button class="${S.cycle==='a'?'on':''}" data-act="cycle" data-v="a">Anual · 15% menos</button></div>
+ <div class="pays">${PAYS.map(([k,l,d])=>`<button class="opt ${S.pay===k?'on':''}" data-act="pay" data-v="${k}"><span class="radio"></span><span><b>${l}</b><span class="d">${d}</span></span></button>`).join('')}</div>
+ <div class="lines">
+  <div><span>PC ${t.name} en ${c.name}</span><span class="mono">US$ ${plan}</span></div>
+  ${win?`<div><span>Licencia de Windows</span><span class="mono">US$ ${win}</span></div>`:''}
+  ${extra?`<div><span>Siempre prendida</span><span class="mono">US$ ${extra}</span></div>`:''}
+  <div><span>IP fija de ${c.name} · copias diarias · soporte</span><span class="mono">incluido</span></div>
+  ${S.cycle==='a'?`<div><span>Descuento anual (15%)</span><span class="mono">−US$ ${m-tot}</span></div>`:''}
+  <div class="tot"><span>Total por mes</span><span>US$ ${tot}</span></div>
+ </div>
+ <div class="cta-row" style="margin:22px 0 8px"><button class="btn btn-primary btn-lg" data-act="checkout" id="payBtn">${ico.lock} Pagar US$ ${S.cycle==='a'?tot*12:tot}${S.cycle==='a'?' por el año':''} y armar mi PC</button></div>
+ <p class="fine">Mockup: no se cobra nada.${S.pay==='mp'?' Con MercadoPago pagás en tu moneda, al cambio del día.':''}</p>`}
+function summary(){const c=country(),t=TIERS[S.tier];
+ return `<aside class="card sum"><div class="sum-head"><div><div class="eyebrow">Tu PC</div><h3>${t.name} en ${c.name}</h3></div>${stamp(c,80)}</div>
+ <dl><div><dt>País</dt><dd>${c.city}, ${c.name}</dd></div><div><dt>Tamaño</dt><dd>${t.name} · ${t.cpu} vCPU · ${t.ram} GB</dd></div><div><dt>Sistema</dt><dd>${S.os==='windows'?'Windows':'Linux'}</dd></div><div><dt>Se apaga sola</dt><dd>${IDLE_L[S.idle]}</dd></div></dl>
+ <div class="sum-price"><b>US$ ${monthlyTotal()}</b><span class="muted">/mes${S.cycle==='a'?' · plan anual':''}</span></div>
+ <ul class="sum-inc"><li>${ico.check} IP fija de ${c.name}, solo tuya</li><li>${ico.check} Copia de seguridad cada noche</li><li>${ico.check} Se abre desde el navegador</li><li>${ico.check} Soporte por WhatsApp</li></ul>
+ <p class="fine">Precios ilustrativos del mockup.</p></aside>`}
+function vWizard(n){const c=country(),t=TIERS[S.tier];const body=[vStep1,vStep2,vStep3,vStep4,vStep5][n-1]();
+ const canNext=n!==4||(S.kyc==='done'&&S.rules);
+ return `${topbar()}<main class="wrap wiz">
+ <nav class="stepper" aria-label="Pasos">${STEPS.map((s,i)=>`<a class="stp${i+1===n?' on':''}${i+1<n?' done':''}" href="#armar/${i+1}"><span class="n">${i+1<n?'✓':i+1}</span>${s}</a>`).join('')}</nav>
+ <div class="wiz-grid"><section class="wiz-main">${body}
+  <div class="wiz-nav"><button class="btn btn-ghost" data-act="prev">${ico.back} ${n>1?'Atrás':'Inicio'}</button>
+  ${n===4&&!canNext?'<span class="wiz-hint">Verificá tu identidad y aceptá las reglas para seguir.</span>':''}
+  ${n<5?`<button class="btn btn-primary" data-act="next" ${canNext?'':'disabled'}>Siguiente: ${STEPS[n]} ${ico.arrow}</button>`:''}</div>
+ </section>${summary()}</div></main>
+ ${n<5?`<div class="wiz-mbar"><div><b>US$ ${monthlyTotal()}</b><span class="muted">/mes</span><small>${c.name} · ${t.name}</small></div><button class="btn btn-primary" data-act="next" ${canNext?'':'disabled'}>Siguiente ${ico.arrow}</button></div>`:''}`}
+
+/* ---------- armando ---------- */
+function vBuilding(){const c=country(),t=TIERS[S.tier];const os=S.os==='windows'?'Windows':'Linux';
+ const steps=['Pago confirmado',`Reservando tu PC ${t.name} en ${c.city}`,`Asignando tu IP fija de ${c.name}`,`Instalando ${os} y tus apps`,`Poniendo hora, idioma y teclado de ${c.name}`,'Activando la copia de seguridad de cada noche','Cerrando la PC a internet y abriendo tu acceso seguro',`Chequeo final: ¿los sitios te ven en ${c.name}?`];
+ return `${topbar()}<main class="build"><div class="card build-card">
+ <div class="build-stamp" id="bStamp">${stamp(c,130)}</div>
+ <div class="build-head"><div class="eyebrow" id="bEye">Armando tu PC</div><h2 id="bTitle">Estamos armando tu PC en ${c.city}</h2><p class="sub" id="bSub">Tarda unos minutos. Podés cerrar esta pestaña: te avisamos por WhatsApp.</p></div>
+ <div class="bar"><span id="bBar"></span></div>
+ <ol class="bsteps" id="bSteps">${steps.map(s=>`<li><span class="bi"></span><span>${s}</span></li>`).join('')}</ol>
+ <div id="bDone" hidden>
+  <div class="wa"><div class="wa-av">${ico.chat}</div><div class="wa-b"><b>Localía</b><br>¡Hola ${S.user.name.split(' ')[0]||''}! Tu PC ${t.name} en ${c.city} está lista. Los sitios ya te ven en ${c.name} ✓<small>WhatsApp · recién</small></div></div>
+  <div class="cta-row" style="margin:22px 0 0"><a class="btn btn-primary" href="#pc">${ico.monitor} Abrir mi PC</a><a class="btn btn-ghost" href="#panel">Ir a mi panel</a></div>
+ </div></div></main>`}
+function runBuild(){S.pcSel=0;syncPcs();const lis=$$('#bSteps li');const bar=$('#bBar');let i=0;
+ const f=()=>{if(i>0)lis[i-1].className='done';
+  if(i<lis.length){lis[i].className='now';bar.style.width=(i/lis.length*100)+'%';i++;later(f,i===1?450:650)}
+  else{bar.style.width='100%';const c=country();$('#bStamp').classList.add('stamped');$('#bEye').textContent='Lista';$('#bTitle').textContent=`¡Tu PC en ${c.name} está lista!`;$('#bSub').textContent=`La armamos en ${c.city}. Abrila desde acá o desde el mensaje que te mandamos.`;$('#bDone').hidden=false}};
+ later(f,300)}
+
+/* ---------- sesión ---------- */
+function win(id,c){
+ if(id==='bienvenida')return `<div class="win" data-win="bienvenida" style="left:calc(50% - 215px);top:7%"><div class="win-t">${ico.info} Bienvenida<button class="x" data-act="win-close" aria-label="Cerrar">${ico.x}</button></div>
+ <div class="win-b"><div class="wel-top"><div><div class="eyebrow">Estás de local</div><h3>Tu PC en ${c.name} está lista</h3></div>${stamp(c,80)}</div>
+ <ul class="wel-tips"><li>${ico.globe}<div><b>Los sitios te ven en ${c.city}.</b> Entrá a tu banco o a tus trámites como siempre.</div></li>
+ <li>${ico.save}<div><b>Tus archivos se guardan solos</b> todas las noches a las 03:00.</div></li>
+ <li>${ico.power}<div><b>Si cerrás la pestaña, tu PC sigue ahí.</b> Tras 30 minutos sin uso hiberna y, al volver, está como la dejaste.</div></li></ul>
+ <button class="btn btn-primary btn-sm" data-act="win-close">Entendido</button></div></div>`;
+ if(id==='navegador')return `<div class="win" data-win="navegador" style="left:18%;top:12%"><div class="win-t">${ico.browser} Navegador<button class="x" data-act="win-close" aria-label="Cerrar">${ico.x}</button></div>
+ <div class="win-b"><div class="addr">${ico.lock}<span>página de prueba · ¿desde dónde me ven?</span></div>
+ <h3 style="font-size:19px;margin-bottom:8px">Te vemos en ${c.city}, ${c.name}</h3>
+ <dl class="res"><div><dt>País</dt><dd class="okt">${ico.check} ${c.name}</dd></div><div><dt>Ciudad</dt><dd>${c.city}</dd></div><div><dt>IP</dt><dd class="mono">•••.•••.•••.142 (fija)</dd></div><div><dt>¿VPN o proxy?</dt><dd class="okt">${ico.check} No detectado</dd></div><div><dt>Hora del sistema</dt><dd><span class="mono" data-clock="${c.tz}">${clock(c.tz)}</span> ${utc(c.tz)}</dd></div><div><dt>Idioma</dt><dd>${c.lang.split(' · ')[0]}</dd></div></dl></div></div>`;
+ return `<div class="win" data-win="archivos" style="left:30%;top:20%"><div class="win-t">${ico.folder} Mis archivos<button class="x" data-act="win-close" aria-label="Cerrar">${ico.x}</button></div>
+ <div class="win-b"><div class="folders">${[['Documentos','1.240 archivos'],['Descargas','86 archivos'],['Escritorio','12 archivos'],['Fotos','3.912 archivos']].map(([a,b])=>`<div>${ico.folder}<span>${a}</span><small>${b}</small></div>`).join('')}</div>
+ <div class="win-foot">${ico.check} Copia de seguridad: hoy 03:00 · 46 GB de ${TIERS[pcs()[S.pcSel].tier].disk} GB</div></div></div>`}
+const dicon=(w,i,l)=>`<button class="dicon" data-act="open" data-w="${w}"><span class="tile">${i}</span>${l}</button>`;
+function vSession(){const pc=pcs()[S.pcSel];const c=C[pc.code];const o=ORIGINS[S.origin];const ms=o.lat[c.code];const qq=q(ms);
+ return `<div class="ses"><div class="ses-bar">
+ <a class="brand" href="#panel">${logo()}<b>Localía</b></a>
+ <span class="ses-chip"><b>${pcName(pc)}</b></span>
+ <span class="ses-chip hide-m">${ico.pin} ${c.city}</span>
+ <span class="ses-chip"><i class="qd q-ok"></i> IP de ${c.name}</span>
+ <span class="ses-chip hide-m"><i class="qd q-${qq.k}"></i> ~${ms} ms</span>
+ <span class="ses-sp"></span>
+ <button class="ses-btn" data-act="ses-tool" data-t="clip">${ico.clip}<span>Portapapeles</span></button>
+ <button class="ses-btn" data-act="ses-tool" data-t="up">${ico.upload}<span>Subir archivo</span></button>
+ <button class="ses-btn" data-act="ses-full">${ico.full}<span>Pantalla completa</span></button>
+ <a class="ses-btn exit" href="#panel">${ico.exit}<span>Salir</span></a></div>
+ <div class="desk wall" id="desk"><div class="desk-stamp">${stamp(c,360)}</div>
+ <div class="icons">${dicon('archivos',ico.folder,'Mis archivos')}${dicon('navegador',ico.browser,'Navegador')}${dicon('bienvenida',ico.info,'Bienvenida')}</div>
+ ${win('bienvenida',c)}
+ <div class="task"><button class="tbtn" data-act="open" data-w="bienvenida" aria-label="Inicio">${ico.grid}</button><button class="tbtn" data-act="open" data-w="navegador" aria-label="Navegador">${ico.browser}</button><button class="tbtn" data-act="open" data-w="archivos" aria-label="Mis archivos">${ico.folder}</button>
+ <div class="tray"><span class="hide-m">${ico.wifi}</span><span class="mono hide-m">ES</span><div class="clk"><b class="mono" data-clock="${c.tz}">${clock(c.tz)}</b><small>hora de ${c.city}</small></div></div></div>
+ <div class="conn" id="conn"><div class="conn-in">${stamp(c,104)}<h3>Conectando con tu PC en ${c.city}</h3><ul class="bsteps" id="connSteps"></ul></div></div>
+ </div></div>`}
+function runConnect(){const pc=pcs()[S.pcSel];const c=C[pc.code];const st=[];if(pc.state!=='on')st.push('Prendiendo tu PC (menos de un minuto)');
+ st.push('Verificando que sos vos','Abriendo la conexión cifrada',`Llegando a ${c.city}`);
+ const ul=$('#connSteps');ul.innerHTML=st.map(s=>`<li><span class="bi"></span>${s}</li>`).join('');const lis=[...ul.children];let i=0;
+ const f=()=>{if(i>0)lis[i-1].className='done';if(i<lis.length){lis[i].className='now';i++;later(f,560)}else{pc.state='on';later(()=>$('#conn')&&$('#conn').classList.add('gone'),200)}};f()}
+
+/* ---------- panel ---------- */
+function stPill(st){const m={on:['st-on','Prendida'],off:['st-off','Apagada'],starting:['st-busy','Prendiendo…'],stopping:['st-busy','Apagando…'],restarting:['st-busy','Reiniciando…']}[st];return `<span class="st-pill ${m[0]}"><i></i>${m[1]}</span>`}
+function pcCard(p,i){const c=C[p.code],t=TIERS[p.tier];
+ return `<button class="pcc${i===S.pcSel?' on':''}" data-act="pcsel" data-i="${i}">${stamp(c,52)}<span class="pcc-t"><b>${pcName(p)}</b><small>${t.name} · ${p.os==='windows'?'Windows':'Linux'} · ${c.city}</small></span>${stPill(p.state)}</button>`}
+function tabResumen(p){const c=C[p.code],t=TIERS[p.tier];const o=ORIGINS[S.origin];
+ return `<div class="grid2">
+ <div class="box"><h3>${ico.shield} Chequeo de identidad</h3><p class="sm muted">Lo revisamos todos los días a las 09:00, hora de ${c.city}.</p>
+  <div class="chk-rows">
+   <div><span>Los sitios te ven en</span><span class="okt">${ico.check} ${c.city}, ${c.name}</span></div>
+   <div><span>Tu IP fija</span><span class="okt">${ico.check} •••.142, sin cambios</span></div>
+   <div><span>¿Aparece como VPN o proxy?</span><span class="okt">${ico.check} No</span></div>
+   <div><span>Hora, idioma y teclado</span><span class="okt">${ico.check} De ${c.name}</span></div>
+  </div>
+  <p class="sm muted">Si algo cambia, te avisamos por WhatsApp y lo arreglamos antes de que tu banco lo note.</p></div>
+ <div class="box"><h3>${ico.monitor} Tu PC este mes</h3>
+  <div class="tiles">
+   <div class="tile"><div class="l">Horas prendida</div><div class="v">${p.hrs} h</div><div class="s">el resto, apagada y sin gastar</div></div>
+   <div class="tile"><div class="l">Disco usado</div><div class="v">${p.disk} GB</div><div class="s">de ${t.disk} GB</div><div class="meter"><span style="width:${Math.round(p.disk/t.disk*100)}%"></span></div></div>
+   <div class="tile"><div class="l">Última copia</div><div class="v">Hoy 03:00</div><div class="s">guardamos 7 días</div></div>
+   <div class="tile"><div class="l">Próximo cobro</div><div class="v">US$ ${planPrice(p.tier,p.code,p.os)}</div><div class="s">30 de octubre</div></div>
+  </div></div></div>
+ <div class="box" style="margin-top:16px"><h3>Actividad reciente</h3><ul class="feed">
+  <li><time>hoy 12:41</time><span>Hibernó sola tras 30 minutos sin uso.</span></li>
+  <li><time>hoy 09:02</time><span>La abriste desde Chrome, en ${o.city}.</span></li>
+  <li><time>hoy 03:00</time><span>Copia de seguridad completa (${p.disk} GB).</span></li>
+  <li><time>ayer 22:10</time><span>Se instalaron actualizaciones de seguridad.</span></li>
+  <li><time>ayer 09:00</time><span>Chequeo de identidad: todo en orden en ${c.name}.</span></li></ul></div>`}
+function tabCopias(){const d=backupDates();
+ return `<div class="box"><h3>${ico.save} Copias de seguridad</h3><p class="sm muted">Una por noche, a las 03:00. Guardamos los últimos 7 días.</p>
+ ${d.map((b,i)=>`<div class="bk"><div class="d">${b.label}<small>${b.long} · 03:00</small></div><div class="m">${b.size} GB</div><button class="btn btn-ghost btn-sm" data-act="restore" data-i="${i}">${ico.restart} Volver a este día</button></div>`).join('')}
+ <div class="cta-row" style="margin:16px 0 0"><button class="btn btn-ghost btn-sm" data-act="file-restore">${ico.folder} Recuperar un solo archivo</button></div></div>`}
+function tabUso(p){const off=720-p.hrs;
+ return `<div class="box"><h3>Horas prendida por día · septiembre</h3><p class="sm muted">Cuando no la usás, hiberna sola: ${off} horas apagada este mes, sin gastar.</p>
+ <div class="chart" id="uchart"></div>
+ <details class="tbl"><summary>Ver los datos</summary><table><thead><tr><th>Día</th><th>Horas</th></tr></thead><tbody>${USAGE.map(u=>`<tr><td>${u.dt.toLocaleDateString('es-UY',{weekday:'short',day:'numeric'})}</td><td>${n1(u.h)} h</td></tr>`).join('')}</tbody></table></details></div>
+ <div class="tiles t4"><div class="tile"><div class="l">Prendida</div><div class="v">${p.hrs} h</div><div class="s">de 720 h del mes</div></div><div class="tile"><div class="l">Promedio por día hábil</div><div class="v">${n1(USAGE.filter(u=>u.dt.getDay()%6!==0).reduce((a,b)=>a+b.h,0)/USAGE.filter(u=>u.dt.getDay()%6!==0).length)} h</div><div class="s">lunes a viernes</div></div><div class="tile"><div class="l">Hibernó sola</div><div class="v">41 veces</div><div class="s">tras 30 min sin uso</div></div><div class="tile"><div class="l">Te ahorraste</div><div class="v">US$ ${alwaysOnExtra(p.tier,p.code,p.os)}</div><div class="s">vs. tenerla siempre prendida</div></div></div>`}
+function tabPlan(p){const c=C[p.code];
+ return `<div class="tiers">${Object.entries(TIERS).map(([k,t])=>tierCard(k,t,p.code,p.os,p.tier,'plan-change')).join('')}</div>
+ <div class="plan-row"><div><b>${ico.move} Mudar mi PC a otro país</b><span>Copiamos todo al país nuevo. Tu IP cambia a la de ese país.</span></div><button class="btn btn-ghost btn-sm" data-act="move">Mudar</button></div>
+ <div class="plan-row"><div><b>${ico.pause} Pausar por un mes</b><span>Para viajes largos: queda guardada y pagás solo el disco (US$ ${Math.round(TIERS[p.tier].disk*.08*c.mult*1.25+3.65)}).</span></div><button class="btn btn-ghost btn-sm" data-act="pause">Pausar</button></div>
+ <p class="fine" style="margin-top:12px">Próximo cobro: 30 de octubre · US$ ${planPrice(p.tier,p.code,p.os)} con MercadoPago. Precios ilustrativos.</p>`}
+function tabSoporte(){const avail=QUICK;
+ return `<div class="chat">${S.chat.map(m=>`<div class="msg ${m.me?'me':'them'}">${m.t}<small>${m.me?'Vos':'Sofi · Soporte Localía'}</small></div>`).join('')}${S.typing?'<div class="msg them typing"><i></i><i></i><i></i></div>':''}</div>
+ <div class="quick">${avail.map(([k,l])=>`<button class="tog" data-act="quick" data-k="${k}">${l}</button>`).join('')}</div>
+ <p class="fine" style="margin-top:12px">También por WhatsApp, en español, de 8 a 22 h.</p>`}
+function vPanel(){const list=pcs();if(S.pcSel>=list.length)S.pcSel=0;const p=list[S.pcSel];const c=C[p.code],t=TIERS[p.tier];const st=p.state;const busy=['starting','stopping','restarting'].includes(st);
+ const tabs=[['resumen','Resumen'],['copias','Copias de seguridad'],['uso','Uso'],['plan','Plan'],['soporte','Soporte']];
+ const body={resumen:tabResumen,copias:tabCopias,uso:tabUso,plan:tabPlan,soporte:tabSoporte}[S.tab](p);
+ return `${appBar(false)}<main class="wrap app-main">
+ <div class="app-head"><div><div class="eyebrow">Mi panel</div><h1>Hola, ${S.user.name.split(' ')[0]||'Lucía'}</h1><p>Tenés ${list.length} PCs en ${new Set(list.map(x=>x.code)).size} países.</p></div><a class="btn btn-ghost btn-sm" href="#armar/1">${ico.plus} Otra PC en otro país</a></div>
+ <div class="pcs">${list.map(pcCard).join('')}</div>
+ <section class="card pcd"><div class="pcd-head"><div><h2>${pcName(p)} ${stPill(st)}</h2>
+  <div class="pcd-meta"><span class="chip">${ico.pin} ${c.city}, ${c.name}</span><span class="chip">${ico.globe} IP fija <span class="mono">•••.142</span></span><span class="chip">${ico.cpu} ${t.name} · ${t.cpu} vCPU · ${t.ram} GB</span><span class="chip">${p.os==='windows'?'Windows':'Linux'}</span></div></div>
+  <div class="pcd-act"><button class="btn btn-primary" data-act="openpc" ${busy?'disabled':''}>${ico.monitor} ${st==='off'?'Prender y abrir':'Abrir mi PC'}</button>
+  <button class="btn btn-ghost btn-sm" data-act="power" ${busy?'disabled':''}>${ico.power} ${st==='off'?'Prender':'Apagar'}</button>
+  <button class="btn btn-ghost btn-sm" data-act="restart" ${st!=='on'?'disabled':''}>${ico.restart} Reiniciar</button>
+  <button class="btn btn-ghost btn-sm" data-act="broken">${ico.wrench} Mi PC no anda</button></div></div>
+ <nav class="tabs" role="tablist">${tabs.map(([k,l])=>`<button role="tab" aria-selected="${S.tab===k}" class="${S.tab===k?'on':''}" data-act="tab" data-tab="${k}">${l}</button>`).join('')}</nav>
+ <div class="tab-body">${body}</div></section></main>`}
+function barPath(x,y,w,h,r){r=Math.min(r,h,w/2);return `M${x},${y+h}V${y+r}Q${x},${y} ${x+r},${y}H${x+w-r}Q${x+w},${y} ${x+w},${y+r}V${y+h}Z`}
+function drawUsage(el){if(!el)return;const W=Math.max(280,el.clientWidth),H=210,m={l:36,r:6,t:14,b:26};const iw=W-m.l-m.r,ih=H-m.t-m.b,max=6;const slot=iw/USAGE.length;const bw=Math.max(4,Math.min(18,slot-4));
+ const y=v=>m.t+ih-(v/max)*ih;let s=`<svg width="${W}" height="${H}" role="img" aria-label="Horas prendida por día en septiembre; total ${USAGE_TOTAL} horas">`;
+ [0,2,4,6].forEach(v=>{s+=`<line class="grid" x1="${m.l}" x2="${W-m.r}" y1="${y(v)}" y2="${y(v)}"/><text class="tick" x="${m.l-8}" y="${y(v)+4}" text-anchor="end">${v} h</text>`});
+ USAGE.forEach((u,i)=>{const x=m.l+i*slot+(slot-bw)/2;if(u.h>0)s+=`<path class="bar" data-i="${i}" d="${barPath(x,y(u.h),bw,(u.h/max)*ih,4)}"/>`;
+  if(u.d===1||u.d%5===0)s+=`<text class="tick" x="${x+bw/2}" y="${H-6}" text-anchor="middle">${u.d}</text>`});
+ s+=`<rect x="${m.l}" y="${m.t}" width="${iw}" height="${ih}" fill="transparent" id="uhit"/></svg><div class="tt" id="utt"></div>`;el.innerHTML=s;
+ const hit=$('#uhit',el),tt=$('#utt',el);
+ const move=e=>{const r=el.getBoundingClientRect();const px=e.clientX-r.left;const i=Math.max(0,Math.min(USAGE.length-1,Math.floor((px-m.l)/slot)));const u=USAGE[i];
+  el.classList.add('hov');$$('.bar',el).forEach(b=>b.classList.toggle('hl',+b.dataset.i===i));
+  tt.innerHTML=`<b>${cap(u.dt.toLocaleDateString('es-UY',{weekday:'short',day:'numeric',month:'short'}))}</b> · ${u.h?n1(u.h)+' h prendida':'apagada todo el día'}`;
+  tt.style.left=Math.max(70,Math.min(W-70,m.l+i*slot+slot/2))+'px';tt.style.top=(u.h?y(u.h):y(0))-8+'px';tt.classList.add('show')};
+ const leave=()=>{el.classList.remove('hov');$$('.bar',el).forEach(b=>b.classList.remove('hl'));tt.classList.remove('show')};
+ hit.addEventListener('pointermove',move);hit.addEventListener('pointerdown',move);hit.addEventListener('pointerleave',leave)}
+
+/* ---------- operación ---------- */
+function calcHTML(){const k=S.calc;const e=econ(k.code,k.tier,k.os,k.h);const max=Math.max(e.price,e.cost);
+ const rows=[['Cómputo',e.compute,`US$ ${e.rate.toFixed(3).replace('.',',')}/h × ${k.h} h`],['Disco + copias',e.disk,`${TIERS[k.tier].disk} GB`],['IP fija',e.ip,''],['Acceso seguro',e.access,'Cloudflare, por usuario'],['Cobro',e.fees,'5% del precio']];
+ const be=Math.min(730,e.be);const hp=k.h/730*100,bp=be/730*100;const cls=p=>p<12?'l0':p>88?'l1':'';
+ return `<div class="cost">
+ <div class="cost-l rev"><span class="lab">Cobrás al cliente</span><span class="track"><span class="bh" style="width:${e.price/max*100}%;display:block"></span></span><span class="val">US$ ${n0(e.price)}</span></div>
+ ${rows.map(([l,v,s],i)=>`<div class="cost-l${i===0?' sep':''}"><span class="lab">${l}${s?`<small class="muted mono">${s}</small>`:''}</span><span class="track"><span class="bh" style="width:${Math.max(.6,v/max*100)}%;display:block"></span></span><span class="val">US$ ${n0(v)}</span></div>`).join('')}</div>
+ <div class="margin-h"><b style="color:${e.margin>=0?'var(--ok)':'var(--bad)'}">${e.margin>=0?'+':'−'}US$ ${n0(Math.abs(e.margin))}</b><span>${e.margin>=0?'de margen':'de pérdida'} por mes · ${Math.round(e.pct*100)}%</span></div>
+ <div class="be" role="img" aria-label="Punto de equilibrio en ${Math.round(be)} horas por mes; hoy ${k.h} horas">
+  <div class="okz" style="width:${bp}%"></div><div class="mk" style="left:calc(${hp}% - 1.5px)"></div>
+  <span class="lab top ${cls(hp)}" style="left:${hp}%"><b>Hoy: ${k.h} h</b></span>
+  <span class="lab bot ${cls(bp)}" style="left:${bp}%">${e.be>=730?'Gana aun prendida 24/7':'Equilibrio: '+Math.round(be)+' h'}</span></div>
+ <div class="be-leg"><span><i class="sw okc"></i> gana plata</span><span><i class="sw badc"></i> pierde plata</span><span class="muted">24/7 = 730 h al mes</span></div>
+ <p class="fine" style="margin-top:12px">Estimación ilustrativa: validar con la calculadora de AWS y la cotización de Antel (Antel podría facturar por mes y no por hora).</p>`}
+function updateCalc(){const o=$('#calcOut');if(o)o.innerHTML=calcHTML();const v=$('#hrsV');if(v)v.textContent=S.calc.h+' h'}
+function vOps(){const k=S.calc;const maxP=Math.max(...OPS_ROWS.map(r=>r.pcs));
+ return `${appBar(true)}<main class="wrap app-main">
+ <div class="app-head"><div><div class="eyebrow">Vista interna · Slonimtek</div><h1>Operación Localía</h1><p>Cómo cuidamos las PCs, las IPs y el margen. <span class="muted">Datos ilustrativos.</span></p></div></div>
+ <div class="kpis">
+  <div class="kpi"><div class="l">PCs activas</div><div class="v">134</div><div class="s">en 9 países</div></div>
+  <div class="kpi"><div class="l">Ingreso mensual</div><div class="v">US$ 11,2k</div><div class="s">+18% vs. agosto</div></div>
+  <div class="kpi"><div class="l">Costo total</div><div class="v">US$ 6,9k</div><div class="s">nube + acceso + cobros</div></div>
+  <div class="kpi"><div class="l">Margen bruto</div><div class="v">38%</div><div class="s">gracias al apagado automático</div></div>
+  <div class="kpi"><div class="l">Pausadas por abuso</div><div class="v">3</div><div class="s">en septiembre</div></div>
+ </div>
+ <div class="ops-grid">
+  <section class="box"><h3>${ico.alert} Alertas de uso indebido</h3><p class="sm muted">Reglas automáticas: minería, spam, fraude y sanciones. La mayoría se resuelve sola.</p>
+   ${ALERTS.map(a=>`<div class="alert"><span class="sev sev-${a.sev}">${a.sev==='info'?ico.info:a.sev==='bad'?ico.stop:ico.alert} ${a.lab}</span><div><b>${a.t}</b><p>${a.d}</p><div class="done">${ico.check} ${a.r}</div>${a.b.length?`<div class="acts">${a.b.map(b=>`<button class="btn btn-ghost btn-sm" data-act="ops-act" data-b="${b}">${b}</button>`).join('')}</div>`:''}</div></div>`).join('')}</section>
+  <section class="box"><h3>${ico.cpu} Calculadora de margen por PC</h3><p class="sm muted">El negocio está en el apagado automático: cobrás un mes fijo y la nube te cobra solo las horas prendida.</p>
+   <div class="calc-ctl">
+    <select class="sel" data-chg="calc-code" aria-label="País">${COUNTRIES.filter(x=>!x.soon).map(x=>`<option value="${x.code}" ${x.code===k.code?'selected':''}>${x.name}</option>`).join('')}</select>
+    <select class="sel" data-chg="calc-tier" aria-label="Tamaño">${Object.entries(TIERS).map(([t,v])=>`<option value="${t}" ${t===k.tier?'selected':''}>${v.name}</option>`).join('')}</select>
+    <select class="sel" data-chg="calc-os" aria-label="Sistema"><option value="windows" ${k.os==='windows'?'selected':''}>Windows</option><option value="linux" ${k.os==='linux'?'selected':''}>Linux</option></select></div>
+   <div class="range-row"><label for="hrs">Horas prendida al mes</label><input id="hrs" type="range" min="0" max="730" step="1" value="${k.h}" data-inp="hours"><b class="mono" id="hrsV">${k.h} h</b></div>
+   <div id="calcOut">${calcHTML()}</div></section>
+ </div>
+ <section class="box"><h3>${ico.globe} Por país</h3><p class="sm muted">Hipótesis a validar en el piloto: las IPs de un proveedor local (Antel) se marcan mucho menos como VPN que las de datacenter.</p>
+ <div class="tbl-wrap"><table class="ops-t"><thead><tr><th>País</th><th>Dónde está la PC</th><th>Tipo de IP</th><th class="num">PCs</th><th class="num">Horas prom.</th><th class="num">IPs marcadas VPN</th><th class="num">Margen</th></tr></thead><tbody>
+ ${OPS_ROWS.map(r=>{const c=C[r.code];return `<tr><td><span class="cty"><span class="c">${c.code}</span>${c.name}</span></td><td>${c.infra}</td><td>${r.ip==='local'?'<span class="tag-ok">Proveedor local</span>':'Datacenter'}</td>
+ <td class="num"><span class="ibar"><i style="width:${Math.round(r.pcs/maxP*80)}px"></i>${r.pcs}</span></td><td class="num">${r.hrs} h</td>
+ <td class="num">${r.flag}% ${r.flag>=15?`<span class="sev sev-warn" style="min-width:0;margin-left:6px">${ico.alert} alto</span>`:''}</td><td class="num">${Math.round(r.margin*100)}%</td></tr>`}).join('')}
+ </tbody></table></div></section>
+ <section class="box" style="margin-top:16px"><h3>Cómo está armado</h3><div class="arch">
+  <div><span class="k">Vidriera y panel</span><b>Cloudflare Workers + D1</b>Esta web, el panel del cliente y las cuentas.</div>
+  <div><span class="k">Acceso</span><b>Cloudflare Access + Tunnel</b>Escritorio remoto en el navegador. Las PCs no exponen ningún puerto.</div>
+  <div><span class="k">Las PCs</span><b>AWS + Antel</b>Regiones y Local Zones (Buenos Aires, Santiago, Lima, Querétaro); Antel en Uruguay.</div>
+  <div><span class="k">Identidad</span><b>KYC con cedula-ocr</b>Cédula o pasaporte verificados antes de prender la primera PC.</div>
+  <div><span class="k">Cobros</span><b>MercadoPago · Stripe</b>En moneda local y por adelantado.</div>
+  <div><span class="k">Avisos y soporte</span><b>WhatsApp</b>PC lista, alertas de IP y soporte con personas.</div>
+ </div></section></main>`}
+
+/* ---------- modal / toast ---------- */
+function openModal(html){$('#modal-root').innerHTML=`<div class="modal-bg" data-bg><div class="modal" role="dialog" aria-modal="true">${html}</div></div>`;const f=$('#modal-root .modal button');f&&f.focus()}
+function closeModal(){$('#modal-root').innerHTML=''}
+function toast(msg){const t=document.createElement('div');t.className='toast';t.innerHTML=`${ico.check}<span>${msg}</span>`;$('#toast-root').appendChild(t);setTimeout(()=>t.remove(),3600)}
+
+/* ---------- router ---------- */
+let timers=[];
+const later=(fn,ms)=>{const t=setTimeout(fn,ms);timers.push(t);return t};
+function parse(){const h=(location.hash||'#inicio').slice(1);const [r,a]=h.split('/');return{r:r||'inicio',a}}
+function go(h){if(location.hash==='#'+h)route();else location.hash=h}
+let lastHash=null;
+function route(){timers.forEach(t=>{clearTimeout(t);clearInterval(t)});timers=[];closeModal();
+ const {r,a}=parse();let html;
+ if(r==='armar'){S.step=Math.min(5,Math.max(1,+a||1));html=vWizard(S.step)}
+ else if(r==='armando')html=vBuilding();else if(r==='pc')html=vSession();else if(r==='panel')html=vPanel();else if(r==='operacion')html=vOps();else html=vHome();
+ $('#app').innerHTML=html;
+ const key=r==='armar'?'armar/'+S.step:r;$$('#rib a').forEach(x=>x.classList.toggle('on',x.dataset.r===key));
+ if(lastHash!==location.hash){window.scrollTo(0,0);lastHash=location.hash}
+ if(r==='inicio'){let i=0;const t=setInterval(()=>{const v=$('#heroVis');if(!v)return;v.classList.add('fade');setTimeout(()=>{i=(i+1)%HERO_PAIRS.length;v.innerHTML=heroVis(HERO_PAIRS[i]);v.classList.remove('fade')},350)},4200);timers.push(t)}
+ if(r==='armar'&&S.step===1&&!S.measured)later(()=>{S.measured=true;rerender()},1300);
+ if(r==='armando')runBuild();
+ if(r==='pc')runConnect();
+ if(r==='panel'&&S.tab==='uso')drawUsage($('#uchart'));
+}
+function rerender(){const y=window.scrollY;route();window.scrollTo(0,y)}
+window.addEventListener('hashchange',route);
+
+/* ---------- acciones ---------- */
+const A={
+ scroll:el=>{const t=document.getElementById(el.dataset.target);t&&t.scrollIntoView({behavior:'smooth',block:'start'})},
+ theme:()=>{const cur=document.documentElement.dataset.theme||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');const nx=cur==='dark'?'light':'dark';document.documentElement.dataset.theme=nx;try{localStorage.setItem('localia-theme',nx)}catch(e){}},
+ 'pick-tier':el=>{S.tier=el.dataset.tier;go('armar/1')},
+ country:el=>{S.country=el.dataset.code;rerender()},
+ 'ask-country':()=>openModal(`<h3>¿Qué país necesitás?</h3><p>Sumamos países según lo que nos piden. Elegí uno y te avisamos cuando llegue.</p><div class="chips" style="margin-top:14px">${['Colombia','Paraguay','Bolivia','Ecuador','Canadá','Italia','Alemania','Reino Unido'].map(n=>`<button class="tog" data-act="notify" data-n="${n}">${n}</button>`).join('')}</div><div class="modal-act"><button class="btn btn-ghost btn-sm" data-act="close-modal">Cerrar</button></div>`),
+ notify:el=>{closeModal();toast(`Listo: te avisamos por WhatsApp cuando llegue ${el.dataset.n}.`)},
+ tier:el=>{S.tier=el.dataset.tier;rerender()},
+ os:el=>{S.os=el.dataset.os;rerender()},
+ app:el=>{const k=el.dataset.app;S.apps.has(k)?S.apps.delete(k):S.apps.add(k);rerender()},
+ idle:el=>{S.idle=el.dataset.v;rerender()},
+ kyc:()=>{if(S.kyc!=='none')return;S.kyc='run';rerender();const lis=$$('#kycList li');lis.forEach((li,i)=>later(()=>li.classList.add('ok'),450*(i+1)));later(()=>{S.kyc='done';rerender()},450*(lis.length+1)+200)},
+ cycle:el=>{S.cycle=el.dataset.v;rerender()},
+ pay:el=>{S.pay=el.dataset.v;rerender()},
+ next:()=>go('armar/'+(S.step+1)),
+ prev:()=>go(S.step>1?'armar/'+(S.step-1):'inicio'),
+ checkout:el=>{el.disabled=true;el.innerHTML=`${ico.clock} ${S.pay==='mp'?'Conectando con MercadoPago…':'Procesando el pago…'}`;later(()=>go('armando'),1100)},
+ pcsel:el=>{S.pcSel=+el.dataset.i;rerender()},
+ tab:el=>{S.tab=el.dataset.tab;rerender();if(S.tab!=='resumen'){const d=$('.pcd');d&&d.scrollIntoView({behavior:'smooth',block:'start'})}},
+ openpc:()=>go('pc'),
+ power:()=>{const i=S.pcSel,p=pcs()[i];if(p.state==='on'){p.state='stopping';rerender();setTimeout(()=>{p.state='off';if(parse().r==='panel')rerender();toast('Tu PC se apagó. Tus archivos quedan guardados.')},1400)}else if(p.state==='off'){p.state='starting';rerender();setTimeout(()=>{p.state='on';if(parse().r==='panel')rerender();toast('Tu PC está prendida.')},1800)}},
+ restart:()=>{const p=pcs()[S.pcSel];if(p.state!=='on')return;p.state='restarting';rerender();setTimeout(()=>{p.state='on';if(parse().r==='panel')rerender();toast('Listo, tu PC se reinició.')},2000)},
+ broken:()=>openModal(`<h3>¿Qué le pasa a tu PC?</h3><p>Probá en este orden. El primero arregla casi todo.</p>
+  <button class="fix" data-act="fix-restart"><span class="n">1</span><span><b>Reiniciarla</b><small>Tarda un minuto. No se pierde nada.</small></span></button>
+  <button class="fix" data-act="fix-restore"><span class="n">2</span><span><b>Volver a como estaba anoche</b><small>Usa la copia de hoy a las 03:00.</small></span></button>
+  <button class="fix" data-act="fix-support"><span class="n">3</span><span><b>Hablar con una persona</b><small>Por WhatsApp, en español, de 8 a 22 h.</small></span></button>
+  <div class="modal-act"><button class="btn btn-ghost btn-sm" data-act="close-modal">Cerrar</button></div>`),
+ 'fix-restart':()=>{closeModal();if(pcs()[S.pcSel].state==='on')A.restart();else toast('Tu PC está apagada: prendela y listo.')},
+ 'fix-restore':()=>A.restore({dataset:{i:'0'}}),
+ 'fix-support':()=>{closeModal();S.tab='soporte';rerender()},
+ restore:el=>{const i=+el.dataset.i;const d=backupDates()[i];openModal(`<h3>Volver al ${d.long}</h3><p>Tu PC va a quedar exactamente como estaba el <b>${d.long} a las 03:00</b>. Lo que hiciste después se pierde, pero antes guardamos una copia de ahora, por las dudas.</p><div class="bar" id="rBar" hidden><span></span></div><div class="modal-act" id="rAct"><button class="btn btn-ghost" data-act="close-modal">Cancelar</button><button class="btn btn-primary" data-act="do-restore" data-i="${i}">Sí, volver a ese día</button></div>`)},
+ 'do-restore':el=>{const d=backupDates()[+el.dataset.i];$('#rAct').hidden=true;const b=$('#rBar');b.hidden=false;const s=b.firstElementChild;s.style.transition='width 2.2s ease';requestAnimationFrame(()=>requestAnimationFrame(()=>{s.style.width='100%'}));setTimeout(()=>{closeModal();toast(`Listo: tu PC volvió al ${d.long}.`)},2400)},
+ 'file-restore':()=>toast('Elegís el archivo y el día, y aparece de nuevo en tu escritorio.'),
+ 'plan-change':el=>{const p=pcs()[S.pcSel];const to=el.dataset.tier;if(to===p.tier)return;const c=C[p.code];const from=planPrice(p.tier,p.code,p.os),nw=planPrice(to,p.code,p.os);const diff=Math.round((nw-from)*28/30);const up=nw>from;const T=TIERS[to];
+  openModal(`<h3>Pasar a ${T.name}</h3><p>Tu PC en ${c.name} pasa a <b>${T.cpu} vCPU · ${T.ram} GB de RAM</b> y queda en <b>US$ ${nw} por mes</b>.</p><p style="margin-top:8px">${up?`Hoy pagás la diferencia por lo que queda del mes: <b>US$ ${diff}</b>.`:`Te descontamos la diferencia en la próxima factura: <b>US$ ${-diff}</b>.`} Se aplica con un reinicio de un minuto y tus archivos quedan igual.</p><div class="modal-act"><button class="btn btn-ghost" data-act="close-modal">Cancelar</button><button class="btn btn-primary" data-act="do-plan" data-tier="${to}">Confirmar</button></div>`)},
+ 'do-plan':el=>{const p=pcs()[S.pcSel];p.tier=el.dataset.tier;if(S.pcSel===0)S.tier=p.tier;closeModal();rerender();toast(`Listo: tu PC ahora es ${TIERS[p.tier].name}. Se aplica en el próximo reinicio.`)},
+ move:()=>{const p=pcs()[S.pcSel];const opts=COUNTRIES.filter(x=>!x.soon&&x.code!==p.code);S.moveTo=opts[0].code;
+  openModal(`<h3>Mudar tu PC a otro país</h3><p>Copiamos tu PC completa (archivos, programas y ajustes) al país nuevo. Tarda unos 20 minutos.</p><label class="field-l" for="mv">País nuevo</label><select id="mv" class="sel" data-chg="move">${opts.map(o=>`<option value="${o.code}">${o.name} · ${o.city}</option>`).join('')}</select><p class="note">${ico.info}<span>Vas a tener una IP nueva de ese país. La primera vez que entres, tu banco te va a pedir un código: es normal.</span></p><div class="modal-act"><button class="btn btn-ghost" data-act="close-modal">Cancelar</button><button class="btn btn-primary" data-act="do-move">Mudar mi PC</button></div>`)},
+ 'do-move':()=>{const p=pcs()[S.pcSel];p.code=S.moveTo;if(S.pcSel===0)S.country=p.code;closeModal();rerender();toast(`Mudando tu PC a ${C[p.code].name}. Te avisamos por WhatsApp cuando esté lista.`)},
+ pause:()=>toast('Tu PC queda pausada hasta que vuelvas. Pagás solo el disco.'),
+ quick:el=>{const k=el.dataset.k;const c=C[pcs()[S.pcSel].code];S.chat.push({me:true,t:QUICK.find(x=>x[0]===k)[1]});S.typing=true;rerender();
+  setTimeout(()=>{S.typing=false;S.chat.push({me:false,t:REPLY[k](c)});if(parse().r==='panel'&&S.tab==='soporte')rerender()},1100)},
+ 'close-modal':()=>closeModal(),
+ open:el=>{const w=el.dataset.w;const desk=$('#desk');let node=desk.querySelector(`[data-win="${w}"]`);if(!node){desk.insertAdjacentHTML('beforeend',win(w,C[pcs()[S.pcSel].code]));node=desk.querySelector(`[data-win="${w}"]`)}node.style.zIndex=++z},
+ 'win-close':el=>{const w=el.closest('.win');w&&w.remove()},
+ 'ses-tool':el=>toast(el.dataset.t==='clip'?'Portapapeles compartido: copiás en tu compu y pegás en tu PC de allá.':'Arrastrá archivos a esta ventana y aparecen en Descargas de tu PC.'),
+ 'ses-full':()=>{try{const d=document.documentElement;document.fullscreenElement?document.exitFullscreen():d.requestFullscreen&&d.requestFullscreen()}catch(e){}},
+ 'ops-act':el=>toast(`Mockup: "${el.dataset.b}" abre el detalle del caso.`),
+};
+let z=10;
+const CH={
+ origin:el=>{S.origin=el.value;rerender()},
+ rules:el=>{S.rules=el.checked;rerender()},
+ move:el=>{S.moveTo=el.value},
+ 'calc-code':el=>{S.calc.code=el.value;updateCalc()},
+ 'calc-tier':el=>{S.calc.tier=el.value;updateCalc()},
+ 'calc-os':el=>{S.calc.os=el.value;updateCalc()},
+};
+const IN={
+ user:el=>{S.user[el.name]=el.value},
+ hours:el=>{S.calc.h=+el.value;updateCalc()},
+};
+document.addEventListener('click',e=>{if(e.target.matches('[data-bg]')){closeModal();return}const el=e.target.closest('[data-act]');if(!el||el.disabled)return;const f=A[el.dataset.act];if(f){e.preventDefault();f(el,e)}});
+document.addEventListener('change',e=>{const el=e.target.closest('[data-chg]');if(el&&CH[el.dataset.chg])CH[el.dataset.chg](el)});
+document.addEventListener('input',e=>{const el=e.target.closest('[data-inp]');if(el&&IN[el.dataset.inp])IN[el.dataset.inp](el)});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+document.addEventListener('pointerdown',e=>{const w=e.target.closest('.win');if(w)w.style.zIndex=++z});
+let rz;window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>{const el=$('#uchart');if(el)drawUsage(el);setRib()},150)});
+function setRib(){const r=$('.ribbon');if(r)document.documentElement.style.setProperty('--rib',r.offsetHeight+'px')}
+setInterval(()=>$$('[data-clock]').forEach(el=>el.textContent=clock(el.dataset.clock)),15000);
+try{const t=localStorage.getItem('localia-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}
+setRib();route();
+})();
+</script>
+</body>
+</html>
