@@ -5,8 +5,11 @@ GET  /identity  cómo ven los sitios a esta PC (IP y ubicación, a través del t
 POST /tz        {"tz": "America/Montevideo"} cambia la zona horaria del sistema
 POST /restart-desktop  reinicia el escritorio
 POST /rdp-password     {"password": "..."} contraseña para Windows App (máx. 8, letras y números)
+
+Además, en 127.0.0.1:8082 sirve la app "Cambiar país" para el usuario de la PC:
+le pide el cambio al gateway por la red privada (10.60.1.10:3001) con el token de esta PC.
 """
-import json, os, re, subprocess, time, urllib.request
+import json, os, re, subprocess, threading, time, urllib.request, urllib.error
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 def env():
@@ -81,5 +84,47 @@ class H(BaseHTTPRequestHandler):
             return self._send(200, {'ok': True})
         self._send(404, {'error': 'not found'})
 
+def gateway(path, body=None):
+    e = env()
+    req = urllib.request.Request(e.get('GATEWAY_INTERNAL', 'http://10.60.1.10:3001') + path,
+        data=json.dumps(body).encode() if body is not None else None, method='POST' if body is not None else 'GET',
+        headers={'X-Localia-Pc': e.get('PC_ID', ''), 'X-Localia-Token': e.get('TOKEN', ''), 'Content-Type': 'application/json'})
+    try:
+        with urllib.request.urlopen(req, timeout=10) as r:
+            return 200, json.loads(r.read().decode())
+    except urllib.error.HTTPError as err:
+        try: return err.code, json.loads(err.read().decode())
+        except Exception: return err.code, {'error': 'gateway'}
+    except Exception:
+        return 502, {'error': 'No pudimos hablar con Localía. Probá de nuevo.'}
+
+APP_HTML = open('/usr/share/localia/cambiar-pais.html', encoding='utf-8').read() if os.path.exists('/usr/share/localia/cambiar-pais.html') else '<h1>Localía</h1>'
+
+class Local(BaseHTTPRequestHandler):
+    """App local "Cambiar país". Solo 127.0.0.1; Host fijo (anti DNS-rebinding) y header propio en los POST (anti CSRF)."""
+    def log_message(self, *a): pass
+    def _send(self, code, obj, ctype='application/json'):
+        b = obj.encode() if isinstance(obj, str) else json.dumps(obj).encode()
+        self.send_response(code); self.send_header('Content-Type', ctype); self.send_header('Content-Length', str(len(b)))
+        self.send_header('Cache-Control', 'no-store'); self.end_headers(); self.wfile.write(b)
+    def _host_ok(self):
+        return self.headers.get('Host') in ('127.0.0.1:8082', 'localhost:8082')
+    def do_GET(self):
+        if not self._host_ok(): return self._send(403, {'error': 'forbidden'})
+        if self.path in ('/', '/index.html'): return self._send(200, APP_HTML, 'text/html; charset=utf-8')
+        if self.path == '/api/state':
+            code, j = gateway('/internal/state'); return self._send(code, j)
+        if self.path == '/api/identity': return self._send(200, identity())
+        self._send(404, {'error': 'not found'})
+    def do_POST(self):
+        if not self._host_ok() or self.headers.get('X-Localia') != '1': return self._send(403, {'error': 'forbidden'})
+        n = int(self.headers.get('Content-Length') or 0)
+        try: body = json.loads(self.rfile.read(n) or b'{}')
+        except Exception: body = {}
+        if self.path == '/api/exit':
+            code, j = gateway('/internal/exit', {'code': str(body.get('code', ''))}); return self._send(code, j)
+        self._send(404, {'error': 'not found'})
+
 if __name__ == '__main__':
+    threading.Thread(target=lambda: ThreadingHTTPServer(('127.0.0.1', 8082), Local).serve_forever(), daemon=True).start()
     ThreadingHTTPServer(('0.0.0.0', 8081), H).serve_forever()

@@ -33,6 +33,7 @@ small{color:var(--muted)}
  <div class="ip" id="ip"></div>
  <dl id="d"></dl>
  <p style="margin:0 0 14px;color:var(--ink-2)">Para confirmarlo con otros, abrí estos sitios. Te van a ver en el mismo lugar:</p>
+ <div class="btns" id="switchRow" style="display:none;margin-bottom:14px"><a class="b p" href="http://127.0.0.1:8082/" style="background:#5a3ea6;border-color:#5a3ea6">🌎 Cambiar país</a></div>
  <div class="btns">
   <a class="b p" href="https://ipinfo.io" target="_blank">ipinfo.io</a>
   <a class="b" href="https://browserleaks.com/ip" target="_blank">browserleaks: IP</a>
@@ -52,6 +53,7 @@ async function go(){
   document.getElementById('d').innerHTML=`<dt>País</dt><dd>${esc(N[g.country]||g.country||'?')}</dd><dt>Ciudad</dt><dd>${esc(g.city||'?')}${g.region?', '+esc(g.region):''}</dd><dt>Proveedor</dt><dd>${esc((g.org||'').replace(/^AS\d+\s*/,'')||'?')}</dd><dt>Hora de esta PC</dt><dd>${new Date().toLocaleTimeString('es-UY',{hour:'2-digit',minute:'2-digit'})} · ${esc(tz)}</dd><dt>Idioma del navegador</dt><dd>${esc(navigator.language)}</dd>`;
  }catch(e){document.getElementById('t').innerHTML='<span class="off">Sin internet ahora</span>';document.getElementById('ip').textContent='Si el túnel se corta, esta PC no sale por ningún otro lado.';}
 }
+if(/[?&]pc=/.test(location.search))document.getElementById('switchRow').style.display='flex';
 go();setInterval(go,8000);
 </script>
 </body>

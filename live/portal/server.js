@@ -79,6 +79,9 @@ function send(res, code, obj, headers = {}) { const b = JSON.stringify(obj); res
 function body(req) { return new Promise(r => { let d = ''; req.on('data', c => { d += c; if (d.length > 1e5) req.destroy(); }); req.on('end', () => { try { r(JSON.parse(d || '{}')); } catch (e) { r({}); } }); }); }
 const exitBy = code => EXITS.find(x => x.code === code);
 const exitOff = code => !!(db.exitOff || {})[code];   // salida apagada desde Operación: no se ofrece
+const availableExits = () => EXITS.filter(x => (x.kind !== 'home' || !!(db.exitPeers || {})[x.code]) && !exitOff(x.code)).map(x => x.code);
+// La PC arranca con un país por defecto; el usuario lo elige/cambia después, desde adentro de la PC.
+const defaultExit = () => { const av = availableExits(); return av.includes(ENV.DEFAULT_EXIT) ? ENV.DEFAULT_EXIT : av[0]; };
 async function fetchJSON(url, opts = {}, ms = 7000) {
   const ac = new AbortController(); const t = setTimeout(() => ac.abort(), ms);
   try { const r = await fetch(url, { ...opts, signal: ac.signal }); const j = await r.json().catch(() => ({})); return { status: r.status, json: j }; }
@@ -208,7 +211,7 @@ const agentUrl = (pc, p) => `http://${pc.privateIp}:8081${p}`;
 const agent = (pc, p, opts = {}, ms = 7000) => fetchJSON(agentUrl(pc, p), { ...opts, headers: { 'X-Localia-Token': pc.token, 'Content-Type': 'application/json', ...(opts.headers || {}) } }, ms);
 function pubPc(pc, live) {
   const t = TIERS[pc.tier]; const ex = exitBy(pc.active);
-  return { id: pc.id, name: pc.name, tier: pc.tier, tierName: t.name, specs: t, state: pc.ec2 || 'unknown', desktop: pc.desktop || null, exits: pc.exits.filter(c => c === pc.active || !exitOff(c)), active: pc.active,
+  return { id: pc.id, name: pc.name, tier: pc.tier, tierName: t.name, specs: t, state: pc.ec2 || 'unknown', desktop: pc.desktop || null, exits: [...new Set([...availableExits(), pc.active])], active: pc.active,
     activeCity: ex && ex.city, activeName: ex && ex.name, host: `pc-${pc.id}.${BASE}`, identity: pc.identity || null, createdAt: pc.createdAt, lastActivity: pc.lastActivity || null,
     events: (pc.events || []).slice(0, 15), provision: pc.provision || null, ...(live || {}) };
 }
@@ -224,7 +227,7 @@ async function checkIdentity(pc) {
   pc.identity = { ...(r.json || {}), at: now(), expected: pc.active }; save(); return pc.identity;
 }
 async function switchExit(pc, code) {
-  if (!pc.exits.includes(code)) pc.exits.push(code);
+  if (!pc.exits.includes(code)) pc.exits.push(code);   // histórico; hoy toda PC puede usar cualquier salida disponible
   const from = pc.active; await routePc(pc, code); pc.active = code; pc.identity = null; save();
   if (pc.ec2 === 'running') agent(pc, '/tz', { method: 'POST', body: JSON.stringify({ tz: exitBy(code).tz }) });
   ev(pc, `Cambiaste la salida de ${exitBy(from).name} a ${exitBy(code).name}`);
@@ -286,13 +289,13 @@ async function api(req, res, url) {
   }
   if (p === '/api/pcs' && m === 'POST') {
     const b = await body(req); const tier = TIERS[b.tier] ? b.tier : 'mini';
-    const exits = [...new Set((b.exits || []).filter(c => exitBy(c) && !exitOff(c)))]; const active = exits.includes(b.active) ? b.active : exits[0];
-    if (!active) return send(res, 400, { error: 'Elegí al menos un país.' });
+    const active = defaultExit(); const exits = availableExits();   // no se pregunta el país al crear
+    if (!active) return send(res, 503, { error: 'No hay salidas disponibles ahora.' });
     const live = db.pcs.filter(x => x.status !== 'deleted');
     if (!u.admin && live.filter(x => x.userId === u.id).length >= MAX_PCS_PER_USER) return send(res, 429, { error: `En el demo cada cuenta puede tener hasta ${MAX_PCS_PER_USER} PCs.` });
     if (live.length >= MAX_PCS_TOTAL) return send(res, 429, { error: 'El demo llegó al máximo de PCs. Borrá una para crear otra.' });
     const pc = { id: rid(6), userId: u.id, name: String(b.name || '').slice(0, 40) || 'Mi PC', tier, exits, active, token: crypto.randomBytes(24).toString('hex'), rdpPassword: newRdpPassword(), rdpSet: true, status: 'active', createdAt: now(), lastActivity: now() };
-    db.pcs.push(pc); ev(pc, `PC creada: ${TIERS[tier].name}, te ven en ${exitBy(active).name}`); save();
+    db.pcs.push(pc); ev(pc, `PC creada: ${TIERS[tier].name}. Arranca saliendo por ${exitBy(active).name}; el país se elige desde adentro de la PC`); save();
     provision(pc); return send(res, 200, { pc: pubPc(pc) });
   }
   const mm = p.match(/^\/api\/pcs\/([a-z0-9]+)(?:\/([a-z-]+))?$/);
@@ -322,7 +325,7 @@ async function api(req, res, url) {
     if (act === 'exit' && m === 'POST') {
       const b = await body(req); const code = String(b.code || '');
       if (!exitBy(code)) return send(res, 400, { error: 'País desconocido.' });
-      if (exitOff(code)) return send(res, 409, { error: `La salida de ${exitBy(code).name} está apagada.` });
+      if (!availableExits().includes(code)) return send(res, 409, { error: `La salida de ${exitBy(code).name} no está disponible.` });
       await switchExit(pc, code);
       return send(res, 200, { pc: pubPc(pc) });
     }
@@ -421,9 +424,9 @@ async function directApi(req, res, url, pc) {
   }
   if (p === 'icon.svg') { res.writeHead(200, { 'Content-Type': 'image/svg+xml', 'Cache-Control': 'max-age=86400' }); return res.end(ICON_SVG); }
   if (p === 'overlay.js') { res.writeHead(200, { 'Content-Type': 'text/javascript; charset=utf-8', 'Cache-Control': 'no-cache' }); return fs.createReadStream(path.join(__dirname, 'overlay.js')).pipe(res); }
-  if (p === 'state') return send(res, 200, { name: pc.name, active: pc.active, portal: `https://${PORTAL_HOST}/#panel`, exits: pc.exits.filter(c => c === pc.active || !exitOff(c)).map(c => { const e = exitBy(c); return { code: c, name: e.name, city: e.city }; }), identity: pc.identity || null });
+  if (p === 'state') return send(res, 200, { name: pc.name, active: pc.active, portal: `https://${PORTAL_HOST}/#panel`, exits: [...new Set([...availableExits(), pc.active])].map(c => { const e = exitBy(c); return { code: c, name: e.name, city: e.city }; }), identity: pc.identity || null });
   if (p === 'identity') { await refreshPc(pc); return send(res, 200, { identity: await checkIdentity(pc) }); }
-  if (p === 'exit' && req.method === 'POST') { const b = await body(req); if (!exitBy(b.code) || !pc.exits.includes(b.code) || exitOff(b.code)) return send(res, 400, { error: 'País no disponible.' }); await switchExit(pc, b.code); return send(res, 200, { active: pc.active }); }
+  if (p === 'exit' && req.method === 'POST') { const b = await body(req); if (!availableExits().includes(b.code)) return send(res, 400, { error: 'País no disponible.' }); await switchExit(pc, b.code); return send(res, 200, { active: pc.active }); }
   return send(res, 404, { error: 'No existe.' });
 }
 
@@ -477,11 +480,34 @@ server.on('upgrade', (req, socket, head) => {
   proxy.ws(req, socket, head, { target: `ws://${pc.privateIp}:6901` });
 });
 
+// ---------- API interna para las PCs (red privada, token de la PC) ----------
+// La app "Cambiar país" que corre ADENTRO de la PC habla con el gateway por 10.60.1.10:3001 (nunca por internet).
+const INTERNAL_HOST = ENV.INTERNAL_HOST || '10.60.1.10', INTERNAL_PORT = +(ENV.INTERNAL_PORT || 3001);
+const internal = http.createServer(async (req, res) => {
+  try {
+    const pc = db.pcs.find(x => x.id === req.headers['x-localia-pc'] && x.status !== 'deleted');
+    if (!pc || !pc.token || req.headers['x-localia-token'] !== pc.token) return send(res, 403, { error: 'forbidden' });
+    const peer = String(req.socket.remoteAddress || '').replace('::ffff:', '');
+    if (pc.privateIp && peer !== pc.privateIp) return send(res, 403, { error: 'forbidden' });   // solo desde la propia PC
+    const url = new URL(req.url, 'http://internal');
+    const opts = () => availableExits().map(c => { const x = exitBy(c); return { code: c, name: x.name, city: x.city }; });
+    if (url.pathname === '/internal/state') return send(res, 200, { name: pc.name, active: pc.active, activeName: exitBy(pc.active).name, exits: opts(), identity: pc.identity || null });
+    if (url.pathname === '/internal/exit' && req.method === 'POST') {
+      const b = await body(req); const code = String(b.code || '');
+      if (!availableExits().includes(code)) return send(res, 400, { error: 'Ese país no está disponible.' });
+      await switchExit(pc, code);
+      return send(res, 200, { active: pc.active, activeName: exitBy(pc.active).name });
+    }
+    send(res, 404, { error: 'not found' });
+  } catch (e) { console.error(e); try { send(res, 500, { error: 'internal' }); } catch (x) {} }
+});
+
 // ---------- tareas de fondo ----------
 async function boot() {
   await syncExitPeers();
   for (const pc of db.pcs.filter(x => x.status !== 'deleted' && x.privateIp)) { await routePc(pc, pc.active); await ensureRdpDnat(pc); }  // reglas perdidas si se reinició el gateway
   server.listen(PORT, '127.0.0.1', () => console.log(`Localía portal en :${PORT} · https://${PORTAL_HOST}`));
+  internal.listen(INTERNAL_PORT, INTERNAL_HOST, () => console.log(`API interna para PCs en ${INTERNAL_HOST}:${INTERNAL_PORT}`));
 }
 setInterval(async () => {   // se apaga sola si nadie la usa (cuida la plata)
   for (const pc of db.pcs.filter(x => x.status !== 'deleted' && x.ec2 === 'running' && x.provision && x.provision.done)) {

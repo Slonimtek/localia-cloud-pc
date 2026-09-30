@@ -8,9 +8,9 @@ Demo real de punta a punta, no un mockup. Cada PC es una máquina de AWS con esc
 
 ## Qué se puede mostrar
 
-1. **Crear una PC** (`#armar/1`): elegís países y tamaño, y se prende una máquina real en AWS (~3 min). La pantalla "Armando" muestra cada paso real.
+1. **Crear una PC** (`#armar/1`): elegís el tamaño y confirmás; **no se pregunta el país**. Se prende una máquina real en AWS (~3 min). Arranca saliendo por `DEFAULT_EXIT` (EE.UU.) y la pantalla "Armando" muestra cada paso real.
 2. **Abrir la PC** (`#pc/<id>`): el escritorio aparece en la página, con la barra "Te ven en". Adentro, Chromium abre "¿Desde dónde me ven?", que se actualiza sola cada 8 s.
-3. **Cambiar de país:** en unos 3 s la PC sale por otro país, y cambian la IP, la ciudad y la hora del sistema. Se puede confirmar con ipinfo.io, browserleaks o dnsleaktest desde adentro.
+3. **Cambiar de país desde adentro de la PC:** ícono **"Cambiar país (Localía)"** en el escritorio y en Aplicaciones, o el botón en "¿Desde dónde me ven?". Abre una ventanita con la identidad actual y los países disponibles. En unos 3 s la PC sale por otro país, y cambian la IP, la ciudad y la hora. Funciona igual desde Windows App. También se puede cambiar desde la barra del portal o el botón flotante.
 4. **Acceso directo, sin el portal:** cada PC tiene su dirección, `https://pc-<id>.100-57-206-149.sslip.io/`. Está en el panel con botón de copiar y QR para el celular.
    - Si no hay sesión, pide entrar y vuelve directo al escritorio.
    - Se ve a pantalla completa, con un **botón flotante** para cambiar de país, verificar la IP o ir al panel.
@@ -38,6 +38,8 @@ Navegador ──HTTPS──▶ Gateway (EC2 t4g.small, EIP 100.57.206.149, Virgi
 - **Cambio de país:** agrega la nueva `ip rule` antes de borrar la vieja, así nunca queda un hueco. Además ajusta la zona horaria de la PC vía el agente.
 - **Se apaga sola:** a los 120 min sin nadie conectado al escritorio.
 - **El escritorio siempre toma el tamaño de la ventana.** KasmVNC recibe `resize=remote`, se reconecta solo y hay botón de pantalla completa. El recuadro ocupa toda la pantalla (`position:absolute; inset:0`).
+- **"Cambiar país" adentro de la PC:** el agente sirve una app local en `127.0.0.1:8082`. Pide el cambio al gateway por la **red privada** (`10.60.1.10:3001`), con el token de la PC, y el gateway además verifica que venga de la IP de esa PC. Protecciones: Host fijo (anti DNS-rebinding) y header `X-Localia` obligatorio en los POST, para que una web cualquiera no pueda cambiarte de país.
+- **Salidas disponibles para todas las PCs:** son las prendidas y conectadas. Las que se apagan desde Operación dejan de ofrecerse.
 - **HTTP/3 desactivado en Caddy.** Con QUIC la conexión sobrevive al cambio de IP, y el portal seguiría viendo la IP vieja.
 
 ## Estructura
@@ -47,7 +49,7 @@ Navegador ──HTTPS──▶ Gateway (EC2 t4g.small, EIP 100.57.206.149, Virgi
 | `portal/` | `server.js` (API, EC2, ruteo, proxy, acceso directo), `overlay.js` (botón flotante de la PC), `public/` (web: `index.html`, `app.js`, `app.css`, `donde.html`), `dev/overlay-test.html` (prueba local del botón) |
 | `gateway/` | `net-setup.sh` (tablas + firewall), `hub-iface.sh` (interfaz por país), `Caddyfile`, unidades systemd |
 | `exit/exit-install.sh` | Instalador de una salida (AWS, VPS o compu en casa). La salida "llama" al gateway, así que no hace falta abrir puertos |
-| `pc-image/` | `bake.sh` (XFCE + Chromium + KasmVNC), `rdp-setup.sh` (Windows App: xrdp + x11vnc), `localia-agent.py` (IP, zona horaria, contraseña, reinicio) y `finalize.sh`. La imagen actual es `ami-0c50b1369d4a51c4f` (v4) |
+| `pc-image/` | `bake.sh` (XFCE + Chromium + KasmVNC), `rdp-setup.sh` (Windows App: xrdp + x11vnc), `localia-apps.sh` + `cambiar-pais.html` (app "Cambiar país" y accesos del escritorio), `localia-agent.py` (IP, zona horaria, contraseña, app local) y `finalize.sh`. Imagen actual: ver `AMI_PC` en `portal.env` |
 | `.secrets/` | **No va a git**: llave SSH, `portal.env`, `state.env` (IDs de AWS), `ACCESOS.md` |
 
 ## Windows App (RDP) con apertura por pedido
@@ -98,6 +100,26 @@ El SSH solo acepta IPs conocidas, así que hay que agregar la IP de casa al secu
 | Discos + imagen | ~US$ 6/mes | |
 
 **Hoy, con Argentina apagada:** ~US$ 1 por día de base (gateway + EE.UU. + Brasil), más ~US$ 0,034 por hora por cada PC Mini prendida. Argentina apagada solo cobra su disco (~US$ 0,8/mes). Si se la vuelve a prender, suma ~US$ 11 por día. Precios on-demand consultados en la AWS Pricing API el 30/09/2026.
+
+## Cómo bajar costos (analizado el 30/09/2026)
+
+**Demo (base ~US$ 32/mes):**
+- Usar el gateway como salida de EE.UU.: −US$ 7.
+- Gateway t4g.small → t4g.micro: −US$ 6.
+- Borrar la salida de Argentina apagada: −US$ 1.
+- Apagado automático a los 30 min (hoy 120).
+
+Queda en ~US$ 18/mes.
+
+**Por cliente (Mini ~US$ 12/mes a 90 h):**
+- IP del país compartida por defecto (−US$ 3,65); la IP fija propia pasa a ser un extra pago.
+- Varias PCs por máquina, en contenedores: −40–50% de cómputo.
+- Savings Plan de 1 año: −30–35%.
+- CloudFront delante del escritorio: el tráfico EC2→CloudFront es gratis y hay 1 TB/mes incluido.
+- Salidas fuera de AWS donde el tráfico es caro (São Paulo ~US$ 0,14–0,15/GB): VPS local con tráfico incluido o compu en casa.
+- Disco 20 GB y snapshot para PCs inactivas.
+
+Con todo eso, la Mini queda en ~US$ 5–6/mes.
 
 ## Pendientes conocidos
 

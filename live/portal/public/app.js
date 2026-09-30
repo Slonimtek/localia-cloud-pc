@@ -93,9 +93,9 @@ function vHome(){const e=S.cfg?S.cfg.exits.filter(x=>x.available):[];
  </div></section>
  <section class="sec"><div class="wrap"><div class="sec-head"><div class="eyebrow">Cómo se prueba</div><h2>Tres pasos, de punta a punta.</h2></div>
   <div class="steps3">
-   <div class="st"><span class="n">01</span><h3>Creá tu PC</h3><p>Elegí dónde querés que te vean y el tamaño. En unos minutos está prendida, de verdad.</p></div>
+   <div class="st"><span class="n">01</span><h3>Creá tu PC</h3><p>Elegí el tamaño y confirmá. En unos minutos está prendida, de verdad.</p></div>
    <div class="st"><span class="n">02</span><h3>Abrila y mirá tu IP</h3><p>Se abre sola en "¿Desde dónde me ven?". Probá ipinfo.io o browserleaks: te ven en el país elegido.</p></div>
-   <div class="st"><span class="n">03</span><h3>Cambiá de país</h3><p>Desde la barra de arriba. En segundos la PC sale por otro país, sin reiniciar nada.</p></div>
+   <div class="st"><span class="n">03</span><h3>Elegí tu país desde adentro</h3><p>Con el ícono "Cambiar país" de tu PC. En segundos sale por otro país, sin reiniciar nada.</p></div>
   </div></div></section>
  <footer class="foot"><div class="wrap foot-in"><div class="brand">${logo()}<b>Localía</b><small>by Slonimtek</small></div><p>Demo en vivo por invitación. Precios y pagos: modo demo, no se cobra nada.</p></div></footer>`}
 
@@ -115,25 +115,20 @@ function vAuth(){const mode=S.authMode||'login';
  </div></main>`}
 
 /* ---------- crear PC ---------- */
-const WSTEPS=['Dónde te ven','Tamaño','Confirmar'];
+const WSTEPS=['Tamaño','Confirmar'];
 function vWizard(n){const w=S.wiz;const exits=S.cfg.exits;
  let body='';
- if(n===1){body=`<div class="step-head"><div class="eyebrow">Paso 1 de 3 · Dónde te ven</div><h2>¿Desde qué país querés que te vean?</h2><p class="sub">Tu PC vive en Virginia (EE.UU.). Todo lo que hagas en internet sale por el país que elijas. Podés sumar varios y cambiar en un clic.</p></div>
-  <div class="cc-grid" style="margin-top:22px">${exits.map(x=>{const on=w.exits.includes(x.code);const act=w.active===x.code;return `<button class="cc${on?' on':''}" data-act="w-exit" data-code="${x.code}" ${x.available?'':'disabled'} aria-pressed="${on}">
-   <span class="cc-code mono">${x.code}</span><span class="cc-txt"><b>${esc(x.name)}</b><small>${esc(x.city)}</small></span>
-   <span class="cc-lat">${x.available?(act?'<span class="tag-f">Arranca por acá</span>':on?'<span class="cc-ip">sumado</span>':'<span class="cc-ip">disponible</span>'):'<span class="cc-soon">Esperando salida en casa</span>'}</span>${on?`<span class="cc-check">${ico.check}</span>`:''}</button>`}).join('')}</div>
-  ${w.exits.length>1?`<div class="exit-switch" style="margin-top:16px"><span>Arranca saliendo por</span><div class="seg">${w.exits.map(c=>`<button class="${c===w.active?'on':''}" data-act="w-active" data-code="${c}">${esc(ex(c).name)}</button>`).join('')}</div></div>`:''}`}
- if(n===2){body=`<div class="step-head"><div class="eyebrow">Paso 2 de 3 · Tamaño</div><h2>¿Qué tan potente la querés?</h2><p class="sub">Son máquinas reales de AWS (Graviton). Para el demo alcanza con Mini.</p></div>
+ if(n===1){body=`<div class="step-head"><div class="eyebrow">Paso 1 de 2 · Tamaño</div><h2>¿Qué tan potente la querés?</h2><p class="sub">Son máquinas reales de AWS (Graviton). Para el demo alcanza con Mini.</p></div>
   <div class="tiers" style="margin-top:20px">${Object.entries(S.cfg.tiers).map(([k,t])=>`<button class="tier t-${k}${w.tier===k?' on':''}" data-act="w-tier" data-tier="${k}"><span class="tier-name">${t.name}</span><span class="tier-for mono">${t.type}</span>
    <span class="tier-specs mono"><span>${t.cpu} vCPU</span><span>${t.ram} GB RAM</span><span>${t.disk} GB SSD</span></span>${w.tier===k?`<span class="tier-sel">${ico.check} Elegida</span>`:'<span class="tier-sel ghost">Elegir</span>'}</button>`).join('')}</div>`}
- if(n===3){const t=S.cfg.tiers[w.tier];body=`<div class="step-head"><div class="eyebrow">Paso 3 de 3 · Confirmar</div><h2>Todo listo para crearla</h2><p class="sub">Al confirmar se prende una máquina real en AWS. Tarda unos 3 minutos.</p></div>
+ if(n===2){const t=S.cfg.tiers[w.tier];body=`<div class="step-head"><div class="eyebrow">Paso 2 de 2 · Confirmar</div><h2>Todo listo para crearla</h2><p class="sub">Al confirmar se prende una máquina real en AWS. Tarda unos 3 minutos. El país desde donde te ven lo elegís después, adentro de tu PC, con el ícono "Cambiar país".</p></div>
   <div class="form" style="grid-template-columns:1fr;max-width:420px"><label>Nombre de tu PC<input id="pcName" value="${esc(w.name)}" maxlength="40"></label></div>
-  <div class="lines"><div><span>PC ${t.name} (${t.type})</span><span class="mono">${t.cpu} vCPU · ${t.ram} GB</span></div><div><span>Te ven en</span><span>${w.exits.map(c=>esc(ex(c).name)).join(' · ')}</span></div><div><span>Arranca saliendo por</span><span>${esc(ex(w.active).name)}</span></div><div><span>Verificación de identidad y pago</span><span class="mono">modo demo</span></div><div><span>Se apaga sola si no la usás</span><span class="mono">${S.cfg.idleStopMin} min</span></div></div>
+  <div class="lines"><div><span>PC ${t.name} (${t.type})</span><span class="mono">${t.cpu} vCPU · ${t.ram} GB</span></div><div><span>País de identidad</span><span>lo elegís adentro de tu PC</span></div><div><span>Verificación de identidad y pago</span><span class="mono">modo demo</span></div><div><span>Se apaga sola si no la usás</span><span class="mono">${S.cfg.idleStopMin} min</span></div></div>
   <div class="cta-row" style="margin:22px 0 8px"><button class="btn btn-primary btn-lg" data-act="create" id="createBtn">${ico.power} Crear mi PC</button></div><div id="createErr"></div>`}
  return `${topbar()}<main class="wrap wiz"><nav class="stepper">${WSTEPS.map((s,i)=>`<a class="stp${i+1===n?' on':''}${i+1<n?' done':''}" href="#armar/${i+1}"><span class="n">${i+1<n?'✓':i+1}</span>${s}</a>`).join('')}</nav>
-  <div class="wiz-grid"><section class="wiz-main">${body}<div class="wiz-nav"><a class="btn btn-ghost" href="${n>1?'#armar/'+(n-1):'#inicio'}">${ico.back} ${n>1?'Atrás':'Inicio'}</a>${n<3?`<a class="btn btn-primary" href="#armar/${n+1}" style="display:inline-flex">Siguiente: ${WSTEPS[n]} ${ico.arrow}</a>`:''}</div></section>
-  <aside class="card sum"><div class="sum-head"><div><div class="eyebrow">Tu PC</div><h3>Te ven en ${esc(ex(w.active).name)}</h3></div>${exStamp(w.active,80)}</div>
-   <dl><div><dt>Países</dt><dd>${w.exits.map(c=>esc(ex(c).name)).join(' · ')}</dd></div><div><dt>Tu PC está en</dt><dd>AWS Virginia</dd></div><div><dt>Tamaño</dt><dd>${S.cfg.tiers[w.tier].name}</dd></div></dl>
+  <div class="wiz-grid"><section class="wiz-main">${body}<div class="wiz-nav"><a class="btn btn-ghost" href="${n>1?'#armar/'+(n-1):'#inicio'}">${ico.back} ${n>1?'Atrás':'Inicio'}</a>${n<2?`<a class="btn btn-primary" href="#armar/${n+1}" style="display:inline-flex">Siguiente: ${WSTEPS[n]} ${ico.arrow}</a>`:''}</div></section>
+  <aside class="card sum"><div class="sum-head"><div><div class="eyebrow">Tu PC</div><h3>${esc(S.cfg.tiers[w.tier].name)}</h3></div></div>
+   <dl><div><dt>Tu PC está en</dt><dd>AWS Virginia</dd></div><div><dt>Tamaño</dt><dd>${S.cfg.tiers[w.tier].name}</dd></div><div><dt>País de identidad</dt><dd>lo elegís adentro</dd></div><div><dt>Disponibles hoy</dt><dd>${S.cfg.exits.filter(x=>x.available).map(x=>esc(x.name)).join(' · ')}</dd></div></dl>
    <ul class="sum-inc"><li>${ico.check} Corte automático: nunca sale por otro país</li><li>${ico.check} DNS por el túnel</li><li>${ico.check} Escritorio en el navegador</li></ul></aside></div></main>`}
 
 /* ---------- armando ---------- */
@@ -173,7 +168,7 @@ function pcCardFull(pc){const e=ex(pc.active);const busy=['pending','stopping','
  return `<section class="pcrow"><div class="pcd-head"><div><h2>${esc(pc.name)} ${stPill(pc.state)}</h2>
   <div class="pcd-meta"><span class="chip">${ico.monitor} AWS Virginia · ${esc(pc.tierName)} (${pc.specs.type})</span><span class="chip">${ico.link} Túnel con corte automático</span></div>
   <div class="exit-switch"><span>Te ven en</span><div class="seg">${pc.exits.map(c=>`<button class="${c===pc.active?'on':''}" data-act="set-exit" data-id="${pc.id}" data-code="${c}">${esc(ex(c).name)}</button>`).join('')}</div>
-   ${S.cfg.exits.filter(x=>x.available&&!pc.exits.includes(x.code)).map(x=>`<button class="tog" data-act="add-exit" data-id="${pc.id}" data-code="${x.code}">${ico.plus} ${esc(x.name)}</button>`).join('')}</div>
+</div>
   <p style="margin-top:12px;font-size:14.5px">${ico.globe} <b>Así te ven ahora:</b> ${idLine(pc)}</p></div>
   <div class="pcd-act">${provisioning?`<a class="btn btn-primary" href="#armando/${pc.id}">Ver cómo se arma</a>`:`<a class="btn btn-primary" href="#pc/${pc.id}" ${pc.state!=='running'?'':''}>${ico.monitor} Abrir mi PC</a>`}
    ${pc.state==='stopped'?`<button class="btn btn-ghost btn-sm" data-act="pc-start" data-id="${pc.id}">${ico.power} Prender</button>`:`<button class="btn btn-ghost btn-sm" data-act="pc-stop" data-id="${pc.id}" ${pc.state!=='running'||busy?'disabled':''}>${ico.power} Apagar</button>`}
@@ -232,7 +227,7 @@ async function route(){clearTimers();closeModal();const {r,a}=parse();const app=
  const needAuth=['armar','armando','pc','panel','operacion'].includes(r);
  if(needAuth&&!S.user){S.authMode='login';S.after=location.hash;app.innerHTML=vAuth();bindAuth();return}
  if(r==='entrar'){if(a)S.back=a;app.innerHTML=vAuth();bindAuth();return}
- if(r==='armar'){const n=Math.min(3,Math.max(1,+a||1));app.innerHTML=vWizard(n);window.scrollTo(0,0);return}
+ if(r==='armar'){const n=Math.min(2,Math.max(1,+a||1));app.innerHTML=vWizard(n);window.scrollTo(0,0);return}
  if(r==='armando'){S.pc=null;app.innerHTML=vBuilding();await loadPc(a);app.innerHTML=vBuilding();every(async()=>{await loadPc(a);if(parse().r==='armando')app.innerHTML=vBuilding();if(S.pc&&S.pc.provision&&(S.pc.provision.done||S.pc.provision.error))clearTimers()},3000);return}
  if(r==='pc'){S.pc=null;app.innerHTML=vSession();await loadPc(a);app.innerHTML=vSession();checkIdentity(false);
   every(async()=>{const was=S.pc&&S.pc.state+'/'+S.pc.desktop;await loadPc(a);const is=S.pc&&S.pc.state+'/'+S.pc.desktop;if(was!==is&&parse().r==='pc')app.innerHTML=vSession()},6000);return}
