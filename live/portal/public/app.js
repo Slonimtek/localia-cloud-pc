@@ -6,6 +6,8 @@ const $$=(s,r=document)=>[...r.querySelectorAll(s)];
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const COUNTRY_NAMES={US:'Estados Unidos',BR:'Brasil',AR:'Argentina',UY:'Uruguay',IL:'Israel',ES:'España',CL:'Chile',MX:'México',PE:'Perú',CO:'Colombia',PY:'Paraguay',DE:'Alemania',GB:'Reino Unido'};
 const cname=c=>COUNTRY_NAMES[c]||c||'?';
+const KASM='resize=remote&reconnect=true&reconnect_delay=2000&clipboard_seamless=true&idle_disconnect=240';
+const directUrl=pc=>`https://${pc.host}/?${KASM}`;
 
 /* ---------- estado ---------- */
 const S={cfg:null,user:null,pcs:[],pc:null,ops:null,wiz:{exits:['AR'],active:'AR',tier:'mini',name:'Mi PC'},tab:'resumen',timers:[],busy:false};
@@ -101,7 +103,7 @@ function vHome(){const e=S.cfg?S.cfg.exits.filter(x=>x.available):[];
 function vAuth(){const mode=S.authMode||'login';
  return `${topbar()}<main class="wrap"><div class="card auth">
   <div class="eyebrow">${mode==='login'?'Entrar':'Crear cuenta'}</div><h2>${mode==='login'?'Hola de nuevo':'Sumate al demo'}</h2>
-  <p class="sub">${mode==='login'?'Entrá para ver y manejar tus PCs.':'Necesitás el código de invitación que te pasó Slonimtek.'}</p>
+  <p class="sub">${S.back?'Entrá y te llevamos directo al escritorio de tu PC.':mode==='login'?'Entrá para ver y manejar tus PCs.':'Necesitás el código de invitación que te pasó Slonimtek.'}</p>
   <form class="form" id="authForm">
    ${mode==='signup'?'<label>Nombre<input name="name" autocomplete="name" required></label>':''}
    <label>Email<input name="email" type="email" autocomplete="email" required></label>
@@ -157,10 +159,11 @@ function vSession(){const pc=S.pc;if(!pc)return '<div class="ses"><div class="ce
   <span id="idchip">${idChip(pc)}</span>
   <span class="ses-sp"></span>
   <button class="ses-btn" data-act="check">${ico.shield}<span>Verificar IP</span></button>
-  <a class="ses-btn" href="https://${pc.host}/" target="_blank" rel="noopener">${ico.full}<span>Pestaña nueva</span></a>
+  <button class="ses-btn" data-act="fullscreen">${ico.full}<span>Pantalla completa</span></button>
+  <a class="ses-btn" href="${directUrl(pc)}" target="_blank" rel="noopener">${ico.link}<span>Link directo</span></a>
   <a class="ses-btn exit" href="#panel">${ico.exit}<span>Salir</span></a></div>
   <div class="desk wall" id="desk" style="display:flex">
-   ${running?`<iframe class="pc-frame" src="https://${pc.host}/" allow="clipboard-read; clipboard-write; fullscreen" title="Escritorio de ${esc(pc.name)}"></iframe>`
+   ${running?`<iframe class="pc-frame" id="pcFrame" src="${directUrl(pc)}" allow="clipboard-read; clipboard-write; fullscreen; keyboard-map" allowfullscreen title="Escritorio de ${esc(pc.name)}"></iframe>`
    :`<div class="center-msg"><div>${exStamp(pc.active,96)}<h3 style="font-size:20px;color:#fff">${pc.state==='stopped'?'Tu PC está apagada':pc.state==='running'?'Arrancando el escritorio…':'Tu PC está '+esc(pc.state)}</h3>${pc.state==='stopped'?`<button class="btn btn-primary" data-act="pc-start" data-id="${pc.id}">${ico.power} Prenderla</button>`:'<p style="color:#9fb2c9">Esto se actualiza solo.</p>'}</div></div>`}
   </div></div>`}
 
@@ -177,7 +180,13 @@ function pcCardFull(pc){const e=ex(pc.active);const busy=['pending','stopping','
    <button class="btn btn-ghost btn-sm" data-act="pc-reboot" data-id="${pc.id}" ${pc.state!=='running'?'disabled':''}>${ico.restart} Reiniciar</button>
    <button class="btn btn-ghost btn-sm" data-act="pc-check" data-id="${pc.id}" ${pc.state!=='running'?'disabled':''}>${ico.shield} Verificar IP</button>
    <button class="btn btn-ghost btn-sm" data-act="pc-delete" data-id="${pc.id}">${ico.trash} Borrar</button></div></div>
-  <div class="tab-body"><h3 style="font-size:15px;font-family:var(--font);font-weight:700;margin-bottom:6px">Actividad</h3><ul class="feed">${(pc.events||[]).slice(0,6).map(e=>`<li><time>${ago(e.at)}</time><span>${esc(e.text)}</span></li>`).join('')||'<li><span class="muted">Sin actividad todavía.</span></li>'}</ul></div></section>`}
+  <div class="tab-body direct"><div><h3>${ico.link} Acceso directo, sin pasar por el portal</h3>
+   <p class="sm muted">Tu PC tiene su propia dirección. Abrila desde cualquier compu o celular: te pide entrar una vez y va directo al escritorio, con un botón para cambiar de país. Guardala en favoritos o instalala como app.</p>
+   <div class="cmd"><span class="dlink">${esc(directUrl(pc).split('?')[0])}</span></div>
+   <div class="cta-row" style="margin:12px 0 0"><button class="btn btn-ghost btn-sm" data-act="copy-link" data-url="${esc(directUrl(pc))}">${ico.copy} Copiar link</button><a class="btn btn-ghost btn-sm" href="${directUrl(pc)}" target="_blank" rel="noopener">${ico.monitor} Abrir a pantalla completa</a></div>
+   <details class="tbl" style="margin-top:12px"><summary>Cómo instalarla como app</summary><ul class="steps-ol" style="list-style:disc"><li><b>Compu (Chrome o Edge):</b> abrí el link y tocá el ícono de instalar en la barra de direcciones (o menú ⋮ → "Instalar").</li><li><b>iPhone o iPad (Safari):</b> abrí el link → Compartir → "Agregar a inicio".</li><li><b>Android (Chrome):</b> abrí el link → menú ⋮ → "Agregar a la pantalla principal".</li></ul></details></div>
+   <div class="qrbox"><div class="qr-slot" data-url="${esc(directUrl(pc))}"></div><small class="muted">Escaneala con el celular</small></div></div>
+  <div class="tab-body" style="border-top:1px solid var(--line)"><h3 style="font-size:15px;font-family:var(--font);font-weight:700;margin-bottom:6px">Actividad</h3><ul class="feed">${(pc.events||[]).slice(0,6).map(e=>`<li><time>${ago(e.at)}</time><span>${esc(e.text)}</span></li>`).join('')||'<li><span class="muted">Sin actividad todavía.</span></li>'}</ul></div></section>`}
 function vPanel(){if(!S.user)return vAuth();
  const n=S.pcs.length;
  return `${topbar()}<main class="wrap app-main"><div class="app-head"><div><div class="eyebrow">Mi panel · en vivo</div><h1>Hola, ${esc(S.user.name)}</h1><p>${n?`Tenés ${n} PC${n>1?'s':''}. Todo lo que ves acá es real.`:'Todavía no tenés PCs.'}</p></div>${n<S.cfg.limits.perUser?`<a class="btn btn-primary btn-sm" href="#armar/1">${ico.plus} Crear una PC</a>`:''}</div>
@@ -204,6 +213,14 @@ function vOps(){const o=S.ops;if(!S.user||!S.user.admin)return `${topbar()}<main
  </tbody></table></div></section>
  <section class="box"><h3>Eventos</h3><ul class="feed">${o.events.slice(0,25).map(e=>`<li><time>${ago(e.at)}</time><span>${e.kind==='bad'?'⚠️ ':e.kind==='ok'?'✅ ':''}${esc(e.text)}</span></li>`).join('')}</ul></section></main>`}
 
+/* ---------- QR del acceso directo ---------- */
+let qrLib=null;
+function drawQRs(){const slots=$$('.qr-slot');if(!slots.length)return;
+ const draw=()=>slots.forEach(el=>{try{const q=qrcode(0,'M');q.addData(el.dataset.url);q.make();el.innerHTML=q.createSvgTag({cellSize:4,margin:2,scalable:true})}catch(e){}});
+ if(window.qrcode)return draw();
+ if(!qrLib){qrLib=new Promise(r=>{const sc=document.createElement('script');sc.src='https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js';sc.onload=r;document.head.appendChild(sc)})}
+ qrLib.then(draw)}
+
 /* ---------- router ---------- */
 function parse(){const h=(location.hash||'#inicio').slice(1);const [r,a]=h.split('/');return{r:r||'inicio',a}}
 function clearTimers(){S.timers.forEach(t=>clearInterval(t));S.timers=[]}
@@ -211,12 +228,12 @@ function every(fn,ms){const t=setInterval(fn,ms);S.timers.push(t);return t}
 async function route(){clearTimers();closeModal();const {r,a}=parse();const app=$('#app');ribbon();
  const needAuth=['armar','armando','pc','panel','operacion'].includes(r);
  if(needAuth&&!S.user){S.authMode='login';S.after=location.hash;app.innerHTML=vAuth();bindAuth();return}
- if(r==='entrar'){app.innerHTML=vAuth();bindAuth();return}
+ if(r==='entrar'){if(a)S.back=a;app.innerHTML=vAuth();bindAuth();return}
  if(r==='armar'){const n=Math.min(3,Math.max(1,+a||1));app.innerHTML=vWizard(n);window.scrollTo(0,0);return}
  if(r==='armando'){S.pc=null;app.innerHTML=vBuilding();await loadPc(a);app.innerHTML=vBuilding();every(async()=>{await loadPc(a);if(parse().r==='armando')app.innerHTML=vBuilding();if(S.pc&&S.pc.provision&&(S.pc.provision.done||S.pc.provision.error))clearTimers()},3000);return}
  if(r==='pc'){S.pc=null;app.innerHTML=vSession();await loadPc(a);app.innerHTML=vSession();checkIdentity(false);
   every(async()=>{const was=S.pc&&S.pc.state+'/'+S.pc.desktop;await loadPc(a);const is=S.pc&&S.pc.state+'/'+S.pc.desktop;if(was!==is&&parse().r==='pc')app.innerHTML=vSession()},6000);return}
- if(r==='panel'){await loadPcs();app.innerHTML=vPanel();every(async()=>{await loadPcs();if(parse().r==='panel'&&!S.busy)app.innerHTML=vPanel()},8000);return}
+ if(r==='panel'){await loadPcs();app.innerHTML=vPanel();drawQRs();every(async()=>{await loadPcs();if(parse().r==='panel'&&!S.busy){app.innerHTML=vPanel();drawQRs()}},8000);return}
  if(r==='operacion'){S.ops=null;app.innerHTML=vOps();await loadOps();app.innerHTML=vOps();every(async()=>{await loadOps();if(parse().r==='operacion'&&!S.busy)app.innerHTML=vOps()},10000);return}
  app.innerHTML=vHome();
 }
@@ -227,7 +244,7 @@ async function checkIdentity(showToast){if(!S.pc)return;const chip=$('#idchip');
  try{const r=await api(`/api/pcs/${S.pc.id}/identity`);S.pc=r.pc;S.pc.identity=r.identity;if(parse().r==='pc'){const c=$('#idchip');if(c)c.innerHTML=idChip(S.pc)}
   if(showToast&&r.identity)toast(r.identity.online?`Te ven en ${r.identity.city||'?'}, ${cname(r.identity.country)} (${r.identity.ip})`:'La PC no tiene internet ahora mismo',!r.identity.online)}catch(e){toast(e.message,true)}}
 function bindAuth(){const f=$('#authForm');if(!f)return;f.addEventListener('submit',async e=>{e.preventDefault();const d=Object.fromEntries(new FormData(f));const btn=f.querySelector('button');btn.disabled=true;
- try{const r=await api(S.authMode==='signup'?'/api/signup':'/api/login',{method:'POST',body:d});S.user=r.user;toast(`Hola, ${S.user.name}`);location.hash=S.after&&S.after!=='#entrar'?S.after:'#panel';S.after=null;route()}
+ try{const r=await api(S.authMode==='signup'?'/api/signup':'/api/login',{method:'POST',body:d});S.user=r.user;toast(`Hola, ${S.user.name}`);if(S.back){location.href=`https://pc-${S.back}.${S.cfg.base}/?${KASM}`;return}location.hash=S.after&&S.after!=='#entrar'?S.after:'#panel';S.after=null;route()}
  catch(err){$('#authErr').innerHTML=`<div class="err">${esc(err.message)}</div>`;btn.disabled=false}})}
 window.addEventListener('hashchange',route);
 
@@ -270,6 +287,8 @@ const A={
  'ops-token':async el=>{try{const r=await api(`/api/ops/exits/${el.dataset.code}/token`,{method:'POST',body:{}});openModal(`<h3>Conectar la salida de ${esc(ex(el.dataset.code).name)}</h3>
    <p>En una compu con Linux, una Raspberry Pi o un VPS en ${esc(ex(el.dataset.code).city)}, abrí una terminal y pegá esto. La compu "llama" al gateway: no hace falta abrir puertos en el router.</p>
    <div class="cmd"><span id="cmdTxt">${esc(r.command)}</span></div><div class="modal-act"><button class="btn btn-ghost" data-act="copy-cmd">${ico.copy} Copiar</button><button class="btn btn-primary" data-act="close-modal">Listo</button></div><p class="fine">El código sirve una sola vez.</p>`)}catch(e){toast(e.message,true)}},
+ fullscreen:()=>{const f=$('#pcFrame')||$('#desk');try{document.fullscreenElement?document.exitFullscreen():f.requestFullscreen()}catch(e){}},
+ 'copy-link':el=>{navigator.clipboard&&navigator.clipboard.writeText(el.dataset.url).then(()=>toast('Link copiado')).catch(()=>toast(el.dataset.url))},
  'copy-cmd':()=>{const t=$('#cmdTxt').textContent;navigator.clipboard&&navigator.clipboard.writeText(t).then(()=>toast('Copiado')).catch(()=>{})},
 };
 document.addEventListener('click',e=>{if(e.target.matches('[data-bg]')){closeModal();return}const el=e.target.closest('[data-act]');if(!el||el.disabled)return;const f=A[el.dataset.act];if(f){e.preventDefault();f(el,e)}});

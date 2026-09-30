@@ -11,7 +11,11 @@ Demo real de punta a punta, no un mockup. Cada PC es una máquina de AWS con esc
 1. **Crear una PC** (`#armar/1`): elegís países y tamaño, y se prende una máquina real en AWS (~3 min). La pantalla "Armando" muestra cada paso real.
 2. **Abrir la PC** (`#pc/<id>`): el escritorio aparece en la página, con la barra "Te ven en". Adentro, Chromium abre "¿Desde dónde me ven?", que se actualiza sola cada 8 s.
 3. **Cambiar de país:** en unos 3 s la PC sale por otro país, y cambian la IP, la ciudad y la hora del sistema. Se puede confirmar con ipinfo.io, browserleaks o dnsleaktest desde adentro.
-4. **Operación** (`#operacion`, solo admin):
+4. **Acceso directo, sin el portal:** cada PC tiene su dirección, `https://pc-<id>.100-57-206-149.sslip.io/`. Está en el panel con botón de copiar y QR para el celular.
+   - Si no hay sesión, pide entrar y vuelve directo al escritorio.
+   - Se ve a pantalla completa, con un **botón flotante** para cambiar de país, verificar la IP o ir al panel.
+   - Se puede **instalar como app** en la compu (Chrome/Edge → Instalar) o en el celular (Agregar a inicio).
+5. **Operación** (`#operacion`, solo admin):
    - Estado de cada túnel (último handshake, datos, IP pública y ubicación real).
    - **"Probar corte"**: baja el túnel y verifica que las PCs queden sin internet, en vez de salir por otro lado. Resultado medido: 0 fugas.
    - Prender o apagar salidas y conectar la salida de Uruguay.
@@ -32,13 +36,14 @@ Navegador ──HTTPS──▶ Gateway (EC2 t4g.small, EIP 100.57.206.149, Virgi
 - **Sin fugas de DNS:** las PCs usan 1.1.1.1/9.9.9.9 por el túnel (nunca el DNS de AWS). Chromium tiene la política `WebRtcIPHandling=default_public_interface_only`.
 - **Cambio de país:** agrega la nueva `ip rule` antes de borrar la vieja, así nunca queda un hueco. Además ajusta la zona horaria de la PC vía el agente.
 - **Se apaga sola:** a los 120 min sin nadie conectado al escritorio.
+- **El escritorio siempre toma el tamaño de la ventana.** KasmVNC recibe `resize=remote`, se reconecta solo y hay botón de pantalla completa. El recuadro ocupa toda la pantalla (`position:absolute; inset:0`).
 - **HTTP/3 desactivado en Caddy.** Con QUIC la conexión sobrevive al cambio de IP, y el portal seguiría viendo la IP vieja.
 
 ## Estructura
 
 | Carpeta | Qué hay |
 |---|---|
-| `portal/` | `server.js` (API, EC2, ruteo, proxy), `public/` (web: `index.html`, `app.js`, `app.css`, `donde.html`) |
+| `portal/` | `server.js` (API, EC2, ruteo, proxy, acceso directo), `overlay.js` (botón flotante de la PC), `public/` (web: `index.html`, `app.js`, `app.css`, `donde.html`), `dev/overlay-test.html` (prueba local del botón) |
 | `gateway/` | `net-setup.sh` (tablas + firewall), `hub-iface.sh` (interfaz por país), `Caddyfile`, unidades systemd |
 | `exit/exit-install.sh` | Instalador de una salida (AWS, VPS o compu en casa). La salida "llama" al gateway, así que no hace falta abrir puertos |
 | `pc-image/` | `bake.sh` (XFCE + Chromium + KasmVNC), `localia-agent.py` (IP, zona horaria, reinicio) y `finalize.sh`. La imagen queda como AMI |
@@ -82,6 +87,7 @@ Con todo prendido son unos US$ 9 por día. Sin la salida de Argentina, unos US$ 
 ## Pendientes conocidos
 
 - **Argentina:** migrar a t3.medium cuando haya capacidad en la Local Zone (~6× más barato).
+- **Cliente de escritorio remoto nativo** (Windows App / Microsoft Remote Desktop por RDP): no está hecho. Requiere xrdp en la imagen y un acceso seguro (Cloudflare Access o un RD Gateway), sin abrir el puerto RDP a internet.
 - **"Tele y celular":** en el demo todavía no hay perfil WireGuard para dispositivos.
 - **KYC y pago:** en el demo son simulados.
 - **Acceso:** en producción pasaría a Cloudflare Access; en el demo es Caddy con la sesión del portal.

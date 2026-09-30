@@ -1,0 +1,14 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Prueba del botón flotante</title>
+<style>body{margin:0;height:100vh;background:linear-gradient(160deg,#0f2747,#0a1629);font:14px system-ui;color:#9fb2c9}p{padding:20px}</style></head>
+<body><p>Simulación del escritorio (KasmVNC). El botón flotante va arriba a la derecha.</p>
+<script>
+// API simulada: igual que /__localia/* del gateway
+let active='BR';const ids={AR:{ip:'15.220.121.62',city:'Buenos Aires',country:'AR'},BR:{ip:'56.126.81.122',city:'São Paulo',country:'BR'},US:{ip:'13.218.194.101',city:'Ashburn',country:'US'}};
+window.fetch=async(u,o)=>{const p=u.replace('/__localia/','');await new Promise(r=>setTimeout(r,300));
+ const J=x=>({json:async()=>x});
+ if(p==='state')return J({name:'PC demo',active,portal:'#',exits:[{code:'AR',name:'Argentina',city:'Buenos Aires'},{code:'BR',name:'Brasil',city:'São Paulo'},{code:'US',name:'Estados Unidos',city:'Virginia'}],identity:{online:true,...ids[active]}});
+ if(p==='identity')return J({identity:{online:true,...ids[active]}});
+ if(p==='exit'){active=JSON.parse(o.body).code;return J({active})}};
+</script>
+<script src="../overlay.js"></script>
+</body></html>

@@ -182,6 +182,13 @@ async function checkIdentity(pc) {
   const r = await agent(pc, '/identity', {}, 9000);
   pc.identity = { ...(r.json || {}), at: now(), expected: pc.active }; save(); return pc.identity;
 }
+async function switchExit(pc, code) {
+  if (!pc.exits.includes(code)) pc.exits.push(code);
+  const from = pc.active; await routePc(pc, code); pc.active = code; pc.identity = null; save();
+  if (pc.ec2 === 'running') agent(pc, '/tz', { method: 'POST', body: JSON.stringify({ tz: exitBy(code).tz }) });
+  ev(pc, `Cambiaste la salida de ${exitBy(from).name} a ${exitBy(code).name}`);
+  setTimeout(() => checkIdentity(pc).catch(() => {}), 2500);   // verificación automática
+}
 const canSee = (u, pc) => u && (u.admin || pc.userId === u.id);
 
 // ---------- aprovisionamiento (seguimiento paso a paso) ----------
@@ -261,11 +268,7 @@ async function api(req, res, url) {
     if (act === 'exit' && m === 'POST') {
       const b = await body(req); const code = String(b.code || '');
       if (!exitBy(code)) return send(res, 400, { error: 'País desconocido.' });
-      if (!pc.exits.includes(code)) pc.exits.push(code);
-      const from = pc.active; await routePc(pc, code); pc.active = code; pc.identity = null; save();
-      if (pc.ec2 === 'running') agent(pc, '/tz', { method: 'POST', body: JSON.stringify({ tz: exitBy(code).tz }) });
-      ev(pc, `Cambiaste la salida de ${exitBy(from).name} a ${exitBy(code).name}`);
-      setTimeout(() => checkIdentity(pc).catch(() => {}), 2500);   // verificación automática
+      await switchExit(pc, code);
       return send(res, 200, { pc: pubPc(pc) });
     }
     if (act === 'exits' && m === 'POST') { const b = await body(req); const code = String(b.code || ''); if (!exitBy(code)) return send(res, 400, { error: 'País desconocido.' }); if (b.remove) { if (code !== pc.active) pc.exits = pc.exits.filter(c => c !== code); } else if (!pc.exits.includes(code)) { pc.exits.push(code); ev(pc, `Sumaste ${exitBy(code).name}`); } save(); return send(res, 200, { pc: pubPc(pc) }); }
@@ -333,6 +336,40 @@ async function exitRegister(req, res, url) {
   ev(null, `Nueva salida registrada: ${ex.name}`, 'ok'); res.writeHead(200); res.end('ok\n');
 }
 
+
+// ---------- acceso directo a la PC (sin pasar por el portal) ----------
+// https://pc-<id>.<BASE>/ muestra el escritorio a pantalla completa, se puede instalar como app
+// y trae un botón flotante para cambiar de país.
+const KASM_PARAMS = 'resize=remote&reconnect=true&reconnect_delay=2000&clipboard_seamless=true&idle_disconnect=240';
+function desktopIndex(req, res, pc) {
+  const r = http.get({ host: pc.privateIp, port: 6901, path: '/', timeout: 8000 }, up => {
+    let d = ''; up.setEncoding('utf8'); up.on('data', c => d += c);
+    up.on('end', () => {
+      const ex = exitBy(pc.active);
+      const head = `<title>${esc(pc.name)} · Localía</title><link rel="manifest" href="/__localia/manifest.webmanifest"><link rel="icon" href="/__localia/icon.svg"><meta name="theme-color" content="#0c1a2c"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="${esc(pc.name)}">`;
+      d = d.replace(/<title>[^<]*<\/title>/i, '').replace(/<head>/i, '<head>' + head).replace(/<\/body>/i, '<script src="/__localia/overlay.js" defer></script></body>');
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'Content-Security-Policy': `frame-ancestors https://${PORTAL_HOST}` });
+      res.end(d);
+    });
+  });
+  r.on('error', () => { res.writeHead(502, { 'Content-Type': 'text/html; charset=utf-8' }); res.end('<p style="font:16px sans-serif;padding:24px">Tu PC está arrancando. Probá de nuevo en unos segundos.</p>'); });
+}
+const esc = v => String(v == null ? '' : v).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const ICON_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#0c1a2c"/><path d="M32 9c-10.5 0-19 8.2-19 18.4C13 40.4 32 55 32 55s19-14.6 19-27.6C51 17.2 42.5 9 32 9z" fill="#2a82d2"/><rect x="21.5" y="18.5" width="21" height="14" rx="3" fill="#fff"/><rect x="27.5" y="35" width="9" height="3" rx="1.5" fill="#fff"/></svg>';
+async function directApi(req, res, url, pc) {
+  const p = url.pathname.replace('/__localia/', '');
+  if (p === 'manifest.webmanifest') {
+    const m = { name: `${pc.name} · Localía`, short_name: pc.name, start_url: `/?${KASM_PARAMS}`, scope: '/', display: 'standalone', background_color: '#0a1629', theme_color: '#0c1a2c', icons: [{ src: '/__localia/icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' }] };
+    res.writeHead(200, { 'Content-Type': 'application/manifest+json' }); return res.end(JSON.stringify(m));
+  }
+  if (p === 'icon.svg') { res.writeHead(200, { 'Content-Type': 'image/svg+xml', 'Cache-Control': 'max-age=86400' }); return res.end(ICON_SVG); }
+  if (p === 'overlay.js') { res.writeHead(200, { 'Content-Type': 'text/javascript; charset=utf-8', 'Cache-Control': 'no-cache' }); return fs.createReadStream(path.join(__dirname, 'overlay.js')).pipe(res); }
+  if (p === 'state') return send(res, 200, { name: pc.name, active: pc.active, portal: `https://${PORTAL_HOST}/#panel`, exits: pc.exits.map(c => { const e = exitBy(c); return { code: c, name: e.name, city: e.city }; }), identity: pc.identity || null });
+  if (p === 'identity') { await refreshPc(pc); return send(res, 200, { identity: await checkIdentity(pc) }); }
+  if (p === 'exit' && req.method === 'POST') { const b = await body(req); if (!exitBy(b.code) || !pc.exits.includes(b.code)) return send(res, 400, { error: 'País no disponible.' }); await switchExit(pc, b.code); return send(res, 200, { active: pc.active }); }
+  return send(res, 404, { error: 'No existe.' });
+}
+
 // ---------- escritorio de cada PC (proxy a KasmVNC) ----------
 const proxy = httpProxy.createProxyServer({ ws: true, xfwd: false, proxyTimeout: 0 });
 const wsOpen = {};
@@ -359,7 +396,14 @@ const server = http.createServer(async (req, res) => {
     const host = String(req.headers.host || '').split(':')[0];
     if (host.startsWith('pc-')) {
       const g = desktopGate(req);
-      if (g.err) { res.writeHead(g.err === 403 ? 302 : g.err, g.err === 403 ? { Location: `https://${PORTAL_HOST}/#entrar` } : { 'Content-Type': 'text/plain' }); return res.end(g.err === 503 ? 'Tu PC está arrancando.' : ''); }
+      if (g.err) {
+        const pcm = pcForHost(req.headers.host);
+        if (g.err === 403) { res.writeHead(302, { Location: `https://${PORTAL_HOST}/#entrar/${pcm ? pcm.id : ''}` }); return res.end(); }
+        res.writeHead(g.err, { 'Content-Type': 'text/plain; charset=utf-8' }); return res.end(g.err === 503 ? 'Tu PC está arrancando.' : '');
+      }
+      const u2 = new URL(req.url, `https://${host}`);
+      if (u2.pathname.startsWith('/__localia/')) return await directApi(req, res, u2, g.pc);
+      if (u2.pathname === '/' && req.method === 'GET') return await desktopIndex(req, res, g.pc);
       return proxy.web(req, res, { target: `http://${g.pc.privateIp}:6901` });
     }
     const url = new URL(req.url, `https://${host || PORTAL_HOST}`);
