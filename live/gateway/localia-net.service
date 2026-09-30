@@ -1,0 +1,10 @@
+[Unit]
+Description=Localia gateway network (policy routing + kill switch)
+After=network-online.target
+Before=wg-quick.target
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/sbin/localia-net-setup
+[Install]
+WantedBy=multi-user.target

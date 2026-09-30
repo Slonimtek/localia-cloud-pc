@@ -6,6 +6,8 @@
 - **Repo:** https://github.com/Slonimtek/localia-cloud-pc (público, GitHub Pages desde `main`, raíz)
 - **Dueño:** Yaakov Slonimczyk (Slonimtek)
 
+> **Novedad (30/09/2026): hay un sistema en vivo funcionando de punta a punta.** El portal está en https://localia.100-57-206-149.sslip.io, por invitación. Tiene PCs reales en AWS Virginia con salida por EE.UU., Brasil y Argentina; el cambio de país tarda unos 3 s y el corte automático está probado, con 0 fugas. Uruguay queda listo para conectarse con una compu en casa. Todo el detalle está en [`live/README.md`](live/README.md).
+
 ---
 
 ## 1. La idea en una frase
@@ -132,6 +134,14 @@ Hay que validar todo con la calculadora de AWS, la cotización de Antel (averigu
 ---
 
 ## 7. Próximos pasos sugeridos
+
+**Ya hecho:** el piloto técnico mínimo (sistema en vivo, ver `live/README.md`). Resultados medidos:
+
+- **Buenos Aires Local Zone:** las IPs geolocalizan en Buenos Aires, AR (ipinfo).
+- **Cambio de salida:** unos 3 s.
+- **Corte automático:** 0 fugas en la prueba.
+
+Lo que sigue:
 
 1. **Piloto técnico mínimo:**
    - 1 PC en AWS Tel Aviv.

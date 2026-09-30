@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>¿Desde dónde me ven? · Localía</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f2f5f9;--surface:#fff;--line:#d8e0eb;--ink:#0c1a2c;--ink-2:#33455e;--muted:#5f718a;--sky:#1c6cb5;--stamp:#5a3ea6;--ok:#137f55;--ok-soft:#ddf2e8;--bad:#c2352d}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:
+ repeating-radial-gradient(circle at 85% 15%,transparent 0 9px,rgba(28,108,181,.08) 9px 10px),var(--bg);color:var(--ink);font:17px/1.5 "Instrument Sans",system-ui,sans-serif;padding:24px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:34px 34px 28px;max-width:640px;width:100%;box-shadow:0 20px 50px -20px rgba(12,26,44,.25)}
+.eyebrow{font:500 12px "JetBrains Mono",monospace;letter-spacing:.12em;text-transform:uppercase;color:#a8740f}
+h1{font:800 clamp(34px,6vw,54px)/1.02 "Bricolage Grotesque",sans-serif;letter-spacing:-.03em;margin:10px 0 6px}
+h1 em{font-style:normal;color:var(--stamp)}
+.ip{font:600 18px "JetBrains Mono",monospace;color:var(--ink-2)}
+dl{display:grid;grid-template-columns:auto 1fr;gap:8px 18px;margin:20px 0;padding:16px 0;border-top:1px dashed var(--line);border-bottom:1px dashed var(--line);font-size:15.5px}
+dt{color:var(--muted)}dd{margin:0;font-weight:600}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+a.b{display:inline-flex;align-items:center;gap:6px;padding:10px 16px;border-radius:999px;border:1px solid var(--line);text-decoration:none;color:var(--ink);font-weight:600;font-size:15px;background:#fff}
+a.b.p{background:var(--sky);color:#fff;border-color:var(--sky)}
+.live{display:inline-flex;align-items:center;gap:6px;font:500 11px "JetBrains Mono",monospace;letter-spacing:.1em;color:var(--ok);background:var(--ok-soft);padding:4px 8px;border-radius:6px;margin-left:8px}
+.live i{width:7px;height:7px;border-radius:50%;background:var(--ok);animation:b 1.2s infinite}@keyframes b{50%{opacity:.3}}
+.off{color:var(--bad)}
+small{color:var(--muted)}
+</style>
+</head>
+<body>
+<main class="card">
+ <div class="eyebrow">Localía · ¿Desde dónde me ven? <span class="live"><i></i>EN VIVO</span></div>
+ <h1 id="t">Mirando…</h1>
+ <div class="ip" id="ip"></div>
+ <dl id="d"></dl>
+ <p style="margin:0 0 14px;color:var(--ink-2)">Para confirmarlo con otros, abrí estos sitios. Te van a ver en el mismo lugar:</p>
+ <div class="btns">
+  <a class="b p" href="https://ipinfo.io" target="_blank">ipinfo.io</a>
+  <a class="b" href="https://browserleaks.com/ip" target="_blank">browserleaks: IP</a>
+  <a class="b" href="https://browserleaks.com/webrtc" target="_blank">browserleaks: WebRTC</a>
+  <a class="b" href="https://www.dnsleaktest.com" target="_blank">dnsleaktest</a>
+ </div>
+ <p style="margin-top:18px"><small>Esta página se actualiza sola cada 8 segundos: si cambiás de país desde la barra de arriba, lo vas a ver acá.</small></p>
+</main>
+<script>
+const N={US:'Estados Unidos',BR:'Brasil',AR:'Argentina',UY:'Uruguay',IL:'Israel',ES:'España',CL:'Chile',MX:'México',PE:'Perú',CO:'Colombia',PY:'Paraguay'};
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+async function go(){
+ try{const r=await fetch('/api/donde',{cache:'no-store'});const j=await r.json();const g=j.geo||{};
+  document.getElementById('t').innerHTML=`Te ven en <em>${esc(g.city||'?')}, ${esc(N[g.country]||g.country||'?')}</em>`;
+  document.getElementById('ip').textContent='IP '+(j.ip||'?');
+  const tz=Intl.DateTimeFormat().resolvedOptions().timeZone;
+  document.getElementById('d').innerHTML=`<dt>País</dt><dd>${esc(N[g.country]||g.country||'?')}</dd><dt>Ciudad</dt><dd>${esc(g.city||'?')}${g.region?', '+esc(g.region):''}</dd><dt>Proveedor</dt><dd>${esc((g.org||'').replace(/^AS\d+\s*/,'')||'?')}</dd><dt>Hora de esta PC</dt><dd>${new Date().toLocaleTimeString('es-UY',{hour:'2-digit',minute:'2-digit'})} · ${esc(tz)}</dd><dt>Idioma del navegador</dt><dd>${esc(navigator.language)}</dd>`;
+ }catch(e){document.getElementById('t').innerHTML='<span class="off">Sin internet ahora</span>';document.getElementById('ip').textContent='Si el túnel se corta, esta PC no sale por ningún otro lado.';}
+}
+go();setInterval(go,8000);
+</script>
+</body>
+</html>

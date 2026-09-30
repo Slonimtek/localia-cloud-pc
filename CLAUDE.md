@@ -4,6 +4,10 @@ Contexto completo del proyecto (idea, decisiones, arquitectura, precios, riesgos
 
 @PROYECTO-LOCALIA.md
 
+## Sistema en vivo
+
+Está en `live/` (portal Node en el gateway, WireGuard por país, PCs EC2 con KasmVNC). Leer `live/README.md`. Los secretos no están en git: se bajan con `bash live/traer-secretos.sh`, que los trae de AWS Parameter Store `/localia/*`. En zsh, poner llaves a las variables antes de ":" (`${VAR}:`); si no, zsh aplica modificadores.
+
 ## Cómo trabajar en este repo
 
 - El mockup es un solo archivo: `index.html`. Los datos editables están al principio del `<script>` (`COUNTRIES`, `ORIGINS`, `TIERS`, `EXTRA`, `FIBRA`, `CONEX`).

@@ -1,0 +1,12 @@
+{
+  "name": "localia-portal",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Localía: portal en vivo (PCs en la nube con salida por país)",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "dependencies": {
+    "@aws-sdk/client-ec2": "^3.600.0",
+    "http-proxy": "^1.18.1"
+  }
+}
