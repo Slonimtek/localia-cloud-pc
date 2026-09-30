@@ -4,7 +4,7 @@ Demo real de punta a punta, no un mockup. Cada PC es una máquina de AWS con esc
 
 - **Portal:** https://localia.100-57-206-149.sslip.io
 - **Acceso:** con código de invitación. Los usuarios y contraseñas están en `live/.secrets/ACCESOS.md` (no está en git) y en AWS Parameter Store (`/localia/accesos`).
-- **Estado al 30/09/2026:** salidas por **EE.UU., Brasil y Argentina** funcionando. **Uruguay** espera que se conecte una salida "de casa".
+- **Estado al 30/09/2026:** salidas por **EE.UU. y Brasil** funcionando. **Argentina está apagada** a pedido: no se ofrece en el portal y se vuelve a prender desde Operación. **Uruguay** espera que se conecte una salida "de casa".
 
 ## Qué se puede mostrar
 
@@ -97,7 +97,7 @@ El SSH solo acepta IPs conocidas, así que hay que agregar la IP de casa al secu
 | Cada PC Mini t4g.medium | ~0,034 | solo prendida; se apaga sola |
 | Discos + imagen | ~US$ 6/mes | |
 
-Con todo prendido son unos US$ 13 por día (US$ 11 son la salida de Argentina). Sin esa salida, unos US$ 2 por día. Precios on-demand consultados en la AWS Pricing API el 30/09/2026.
+**Hoy, con Argentina apagada:** ~US$ 1 por día de base (gateway + EE.UU. + Brasil), más ~US$ 0,034 por hora por cada PC Mini prendida. Argentina apagada solo cobra su disco (~US$ 0,8/mes). Si se la vuelve a prender, suma ~US$ 11 por día. Precios on-demand consultados en la AWS Pricing API el 30/09/2026.
 
 ## Pendientes conocidos
 

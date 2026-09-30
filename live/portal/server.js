@@ -78,6 +78,7 @@ function run(cmd, args, timeout = 8000) {
 function send(res, code, obj, headers = {}) { const b = JSON.stringify(obj); res.writeHead(code, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', ...headers }); res.end(b); }
 function body(req) { return new Promise(r => { let d = ''; req.on('data', c => { d += c; if (d.length > 1e5) req.destroy(); }); req.on('end', () => { try { r(JSON.parse(d || '{}')); } catch (e) { r({}); } }); }); }
 const exitBy = code => EXITS.find(x => x.code === code);
+const exitOff = code => !!(db.exitOff || {})[code];   // salida apagada desde Operación: no se ofrece
 async function fetchJSON(url, opts = {}, ms = 7000) {
   const ac = new AbortController(); const t = setTimeout(() => ac.abort(), ms);
   try { const r = await fetch(url, { ...opts, signal: ac.signal }); const j = await r.json().catch(() => ({})); return { status: r.status, json: j }; }
@@ -207,7 +208,7 @@ const agentUrl = (pc, p) => `http://${pc.privateIp}:8081${p}`;
 const agent = (pc, p, opts = {}, ms = 7000) => fetchJSON(agentUrl(pc, p), { ...opts, headers: { 'X-Localia-Token': pc.token, 'Content-Type': 'application/json', ...(opts.headers || {}) } }, ms);
 function pubPc(pc, live) {
   const t = TIERS[pc.tier]; const ex = exitBy(pc.active);
-  return { id: pc.id, name: pc.name, tier: pc.tier, tierName: t.name, specs: t, state: pc.ec2 || 'unknown', desktop: pc.desktop || null, exits: pc.exits, active: pc.active,
+  return { id: pc.id, name: pc.name, tier: pc.tier, tierName: t.name, specs: t, state: pc.ec2 || 'unknown', desktop: pc.desktop || null, exits: pc.exits.filter(c => c === pc.active || !exitOff(c)), active: pc.active,
     activeCity: ex && ex.city, activeName: ex && ex.name, host: `pc-${pc.id}.${BASE}`, identity: pc.identity || null, createdAt: pc.createdAt, lastActivity: pc.lastActivity || null,
     events: (pc.events || []).slice(0, 15), provision: pc.provision || null, ...(live || {}) };
 }
@@ -261,7 +262,7 @@ async function api(req, res, url) {
   const u = userOf(req); const p = url.pathname; const m = req.method;
   if (p === '/api/caddy/ask') { const d = url.searchParams.get('domain') || ''; const ok = d === PORTAL_HOST || (d.endsWith('.' + BASE) && db.pcs.some(x => `pc-${x.id}.${BASE}` === d && x.status !== 'deleted')); res.writeHead(ok ? 200 : 403); return res.end(); }
   if (p === '/api/donde') { const ip = clientIp(req); return send(res, 200, { ip, geo: await geo(ip) }); }
-  if (p === '/api/config') return send(res, 200, { base: BASE, portal: PORTAL_HOST, exits: EXITS.map(x => ({ code: x.code, name: x.name, city: x.city, tz: x.tz, kind: x.kind, available: x.kind !== 'home' || !!(db.exitPeers || {})[x.code] })), tiers: TIERS, limits: { perUser: MAX_PCS_PER_USER, total: MAX_PCS_TOTAL }, idleStopMin: IDLE_STOP_MIN });
+  if (p === '/api/config') return send(res, 200, { base: BASE, portal: PORTAL_HOST, exits: EXITS.map(x => ({ code: x.code, name: x.name, city: x.city, tz: x.tz, kind: x.kind, available: (x.kind !== 'home' || !!(db.exitPeers || {})[x.code]) && !exitOff(x.code) })), tiers: TIERS, limits: { perUser: MAX_PCS_PER_USER, total: MAX_PCS_TOTAL }, idleStopMin: IDLE_STOP_MIN });
   if (p === '/api/signup' && m === 'POST') {
     const b = await body(req); const email = String(b.email || '').trim().toLowerCase();
     if (!ENV.INVITE_CODE || b.invite !== ENV.INVITE_CODE) return send(res, 403, { error: 'Código de invitación incorrecto.' });
@@ -285,7 +286,7 @@ async function api(req, res, url) {
   }
   if (p === '/api/pcs' && m === 'POST') {
     const b = await body(req); const tier = TIERS[b.tier] ? b.tier : 'mini';
-    const exits = [...new Set((b.exits || []).filter(c => exitBy(c)))]; const active = exits.includes(b.active) ? b.active : exits[0];
+    const exits = [...new Set((b.exits || []).filter(c => exitBy(c) && !exitOff(c)))]; const active = exits.includes(b.active) ? b.active : exits[0];
     if (!active) return send(res, 400, { error: 'Elegí al menos un país.' });
     const live = db.pcs.filter(x => x.status !== 'deleted');
     if (!u.admin && live.filter(x => x.userId === u.id).length >= MAX_PCS_PER_USER) return send(res, 429, { error: `En el demo cada cuenta puede tener hasta ${MAX_PCS_PER_USER} PCs.` });
@@ -321,6 +322,7 @@ async function api(req, res, url) {
     if (act === 'exit' && m === 'POST') {
       const b = await body(req); const code = String(b.code || '');
       if (!exitBy(code)) return send(res, 400, { error: 'País desconocido.' });
+      if (exitOff(code)) return send(res, 409, { error: `La salida de ${exitBy(code).name} está apagada.` });
       await switchExit(pc, code);
       return send(res, 200, { pc: pubPc(pc) });
     }
@@ -332,7 +334,7 @@ async function api(req, res, url) {
   if (p === '/api/ops' && m === 'GET') {
     const live = db.pcs.filter(x => x.status !== 'deleted'); await Promise.all(live.map(refreshPc));
     const wg = await wgStatus();
-    const exits = await Promise.all(EXITS.map(async x => { const w = wg.find(y => y.code === x.code) || {}; const pubIp = x.publicIp || (w.endpoint ? w.endpoint.split(':')[0] : null); return { ...x, ...w, publicIp: pubIp, geo: pubIp ? await geo(pubIp) : null, pcs: live.filter(pc => pc.active === x.code).length, registered: x.kind !== 'home' || !!(db.exitPeers || {})[x.code] }; }));
+    const exits = await Promise.all(EXITS.map(async x => { const w = wg.find(y => y.code === x.code) || {}; const pubIp = x.publicIp || (w.endpoint ? w.endpoint.split(':')[0] : null); return { ...x, ...w, publicIp: pubIp, geo: pubIp ? await geo(pubIp) : null, off: exitOff(x.code), pcs: live.filter(pc => pc.active === x.code).length, registered: x.kind !== 'home' || !!(db.exitPeers || {})[x.code] }; }));
     let exitStates = {};
     try { const ids = EXITS.filter(x => x.instanceId); for (const reg of [...new Set(ids.map(x => x.region))]) { const r = await ec2[reg].send(new DescribeInstancesCommand({ InstanceIds: ids.filter(x => x.region === reg).map(x => x.instanceId) })); r.Reservations.forEach(rv => rv.Instances.forEach(i => { exitStates[i.InstanceId] = i.State.Name; })); } } catch (e) {}
     exits.forEach(x => { if (x.instanceId) x.ec2 = exitStates[x.instanceId] || 'unknown'; });
@@ -354,7 +356,9 @@ async function api(req, res, url) {
     if (om[2] === 'start' || om[2] === 'stop') {
       if (!ex.instanceId) return send(res, 400, { error: 'Esta salida no es una máquina de AWS.' });
       const C = om[2] === 'start' ? StartInstancesCommand : StopInstancesCommand;
-      await ec2[ex.region].send(new C({ InstanceIds: [ex.instanceId] })); ev(null, `Salida ${ex.name}: ${om[2] === 'start' ? 'prendiendo' : 'apagando'}`, 'warn');
+      await ec2[ex.region].send(new C({ InstanceIds: [ex.instanceId] }));
+      db.exitOff = db.exitOff || {}; db.exitOff[ex.code] = om[2] === 'stop'; save();
+      ev(null, `Salida ${ex.name}: ${om[2] === 'start' ? 'prendiendo (vuelve a ofrecerse)' : 'apagada (ya no se ofrece)'}`, 'warn');
       return send(res, 200, { ok: true });
     }
     if (om[2] === 'token') {  // instalador para una salida "de casa" (ej. Uruguay)
@@ -417,9 +421,9 @@ async function directApi(req, res, url, pc) {
   }
   if (p === 'icon.svg') { res.writeHead(200, { 'Content-Type': 'image/svg+xml', 'Cache-Control': 'max-age=86400' }); return res.end(ICON_SVG); }
   if (p === 'overlay.js') { res.writeHead(200, { 'Content-Type': 'text/javascript; charset=utf-8', 'Cache-Control': 'no-cache' }); return fs.createReadStream(path.join(__dirname, 'overlay.js')).pipe(res); }
-  if (p === 'state') return send(res, 200, { name: pc.name, active: pc.active, portal: `https://${PORTAL_HOST}/#panel`, exits: pc.exits.map(c => { const e = exitBy(c); return { code: c, name: e.name, city: e.city }; }), identity: pc.identity || null });
+  if (p === 'state') return send(res, 200, { name: pc.name, active: pc.active, portal: `https://${PORTAL_HOST}/#panel`, exits: pc.exits.filter(c => c === pc.active || !exitOff(c)).map(c => { const e = exitBy(c); return { code: c, name: e.name, city: e.city }; }), identity: pc.identity || null });
   if (p === 'identity') { await refreshPc(pc); return send(res, 200, { identity: await checkIdentity(pc) }); }
-  if (p === 'exit' && req.method === 'POST') { const b = await body(req); if (!exitBy(b.code) || !pc.exits.includes(b.code)) return send(res, 400, { error: 'País no disponible.' }); await switchExit(pc, b.code); return send(res, 200, { active: pc.active }); }
+  if (p === 'exit' && req.method === 'POST') { const b = await body(req); if (!exitBy(b.code) || !pc.exits.includes(b.code) || exitOff(b.code)) return send(res, 400, { error: 'País no disponible.' }); await switchExit(pc, b.code); return send(res, 200, { active: pc.active }); }
   return send(res, 404, { error: 'No existe.' });
 }
 
