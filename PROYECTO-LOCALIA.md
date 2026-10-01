@@ -6,15 +6,14 @@
 - **Repo:** https://github.com/Slonimtek/localia-cloud-pc (público, GitHub Pages desde `main`, raíz)
 - **Dueño:** Yaakov Slonimczyk (Slonimtek)
 
-> **Estado (01/10/2026): sistema en vivo de punta a punta.**
-> - **Portal:** https://localia.100-57-206-149.sslip.io, por invitación.
-> - **PCs:** reales en AWS Virginia (Debian + XFCE + Chromium). Se abren en el navegador, con link directo o app instalable, y con **Windows App**.
-> - **Países:** al crear la PC **no se pregunta el país**. La identidad se cambia **desde adentro de la PC** con el ícono "Cambiar país". Salidas: **EE.UU.** (el propio gateway) y **Brasil** (São Paulo). **Uruguay** está listo para conectar con una compu en casa; Argentina fue dada de baja.
-> - **Corte automático:** probado, 0 fugas.
-> - **Costo base:** ~US$ 22/mes, más ~US$ 0,034/h por PC prendida.
-> - **Detalle técnico:** [`live/README.md`](live/README.md).
+> **Estado (01/10/2026): el demo en vivo funcionó de punta a punta y después se dio de baja en AWS a pedido, para no pagar.**
+> - **Qué se probó:** PCs reales con escritorio en el navegador, link directo, app instalable y Windows App. Cambio de país desde adentro de la PC. Salidas por EE.UU. y Brasil. Corte automático con 0 fugas.
+> - **Qué queda:** el código completo en `live/`, para recrearlo (ver `live/README.md`). No queda ningún recurso en AWS: máquinas, IPs, imagen, red, IAM, llaves y secretos fueron borrados.
+> - **Gasto total aproximado:** ~US$ 10.
 
 ## Seguir desde otra compu (casa)
+
+> Desde el 01/10/2026 no hay infraestructura en AWS: los pasos 2 a 6 aplican solo si se vuelve a levantar el demo.
 
 1. **Bajar el repo** (esta rama) y abrir Claude Code en la carpeta. `CLAUDE.md` carga este documento y la guía de `live/`.
    ```bash

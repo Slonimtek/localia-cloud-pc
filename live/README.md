@@ -1,5 +1,7 @@
 # Localía · sistema en vivo
 
+> **Dado de baja el 01/10/2026.** Se borró todo en AWS a pedido, para no pagar. Esta guía y el código sirven para volver a levantarlo; las IPs, IDs y la URL de abajo ya no existen.
+
 Demo real de punta a punta, no un mockup. Cada PC es una máquina de AWS con escritorio en el navegador que **sale a internet por el país que elijas**. El país se cambia en un clic y el corte automático es real.
 
 - **Portal:** https://localia.100-57-206-149.sslip.io
