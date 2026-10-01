@@ -1,6 +1,6 @@
 // Localía · portal en vivo (gateway). Node 18+, sin framework.
 // - Web + API del cliente (cuentas, PCs, países) y vista de operación.
-// - Crea/prende/apaga PCs reales en EC2 y decide por qué país sale cada PC (ip rule → túnel WireGuard).
+// - Crea/prende/apaga PCs reales (AWS o Hetzner, ver providers.js) y decide por qué país sale cada PC (ip rule → túnel WireGuard).
 // - Muestra el escritorio de cada PC (KasmVNC) en pc-<id>.<BASE> con la sesión del portal.
 'use strict';
 const http = require('http');
@@ -9,8 +9,7 @@ const path = require('path');
 const crypto = require('crypto');
 const { execFile } = require('child_process');
 const httpProxy = require('http-proxy');
-const { EC2Client, RunInstancesCommand, DescribeInstancesCommand, StartInstancesCommand, StopInstancesCommand,
-  RebootInstancesCommand, TerminateInstancesCommand } = require('@aws-sdk/client-ec2');
+const providers = require('./providers');
 
 // ---------- configuración ----------
 function loadEnv(file) {
@@ -25,15 +24,12 @@ const PORTAL_HOST = 'localia.' + BASE;
 const DATA = ENV.DATA_DIR || '/var/lib/localia';
 const PUBLIC = path.join(__dirname, 'public');
 const EXITS = JSON.parse(fs.readFileSync(ENV.EXITS_FILE || '/etc/localia/exits.json', 'utf8'));
-const TIERS = {
-  mini: { name: 'Mini', type: 't4g.medium', cpu: 2, ram: 4, disk: 32 },
-  standard: { name: 'Standard', type: 't4g.xlarge', cpu: 4, ram: 16, disk: 64 },
-  gold: { name: 'Gold', type: 't4g.2xlarge', cpu: 8, ram: 32, disk: 128 },
-};
+const cloud = providers(ENV);                      // dónde viven las PCs: CLOUD=aws (por defecto) o hetzner
+const TIERS = cloud.tiers;
+let awsExits = null; const exitCloud = () => cloud.name === 'aws' ? cloud : (awsExits || (awsExits = providers.aws(ENV)));   // salidas en AWS
 const MAX_PCS_PER_USER = +(ENV.MAX_PCS_PER_USER || 2);
 const MAX_PCS_TOTAL = +(ENV.MAX_PCS_TOTAL || 5);
-const IDLE_STOP_MIN = +(ENV.IDLE_STOP_MIN || 120);
-const ec2 = { 'us-east-1': new EC2Client({ region: 'us-east-1' }), 'sa-east-1': new EC2Client({ region: 'sa-east-1' }) };
+const IDLE_STOP_MIN = +(ENV.IDLE_STOP_MIN ?? (cloud.billsWhenOff ? 0 : 120));   // 0 = no se apaga sola (donde apagada se cobra igual)
 
 // ---------- datos (archivo JSON) ----------
 fs.mkdirSync(DATA, { recursive: true });
@@ -166,13 +162,8 @@ async function geo(ip) {
   geoCache.set(ip, { t: Date.now(), v }); return v;
 }
 
-// ---------- EC2 ----------
-async function describe(ids) {
-  if (!ids.length) return {};
-  const r = await ec2['us-east-1'].send(new DescribeInstancesCommand({ InstanceIds: ids })).catch(() => null);
-  const m = {}; (r && r.Reservations || []).forEach(rv => rv.Instances.forEach(i => { m[i.InstanceId] = { state: i.State.Name, privateIp: i.PrivateIpAddress, type: i.InstanceType, launched: i.LaunchTime }; }));
-  return m;
-}
+// ---------- máquinas (el proveedor está en providers.js) ----------
+const describe = ids => cloud.describe(ids);
 function userData(pc) {
   const ex = exitBy(pc.active);
   const s = `#!/bin/bash
@@ -198,18 +189,13 @@ rm -f /home/localia/.config/chromium/Singleton*
 systemctl start localia-desktop
 systemctl restart localia-rdp-bridge || true
 `;
-  return Buffer.from(s).toString('base64');
+  return s;
 }
 async function createInstance(pc) {
-  const t = TIERS[pc.tier];
-  const tags = [{ Key: 'app', Value: 'localia-pc' }, { Key: 'Name', Value: 'localia-pc-' + pc.id }, { Key: 'pcid', Value: pc.id }];
-  const r = await ec2['us-east-1'].send(new RunInstancesCommand({
-    ImageId: ENV.AMI_PC, InstanceType: t.type, MinCount: 1, MaxCount: 1, SubnetId: ENV.SUBNET_PC, SecurityGroupIds: [ENV.SG_PC], KeyName: ENV.KEY_NAME,
-    UserData: userData(pc), MetadataOptions: { HttpTokens: 'required' },
-    BlockDeviceMappings: [{ DeviceName: '/dev/xvda', Ebs: { VolumeSize: t.disk, VolumeType: 'gp3', DeleteOnTermination: true } }],
-    TagSpecifications: [{ ResourceType: 'instance', Tags: tags }, { ResourceType: 'volume', Tags: tags }],
-  }));
-  const i = r.Instances[0]; pc.instanceId = i.InstanceId; pc.privateIp = i.PrivateIpAddress; pc.ec2 = 'pending';
+  const r = await cloud.create({ id: pc.id, tier: TIERS[pc.tier], userData: userData(pc) });
+  pc.instanceId = r.instanceId; pc.privateIp = r.privateIp; pc.ec2 = r.state; pc.cloud = cloud.name;
+  for (let k = 0; !pc.privateIp && k < 20; k++) { await sleep(2000); const d = (await describe([pc.instanceId]))[pc.instanceId]; if (d && d.privateIp) pc.privateIp = d.privateIp; }
+  if (!pc.privateIp) throw new Error('la máquina no recibió IP privada');
 }
 const agentUrl = (pc, p) => `http://${pc.privateIp}:8081${p}`;
 const agent = (pc, p, opts = {}, ms = 7000) => fetchJSON(agentUrl(pc, p), { ...opts, headers: { 'X-Localia-Token': pc.token, 'Content-Type': 'application/json', ...(opts.headers || {}) } }, ms);
@@ -244,7 +230,7 @@ async function provision(pc) {
   const P = pc.provision = { step: 'reserving', steps: [], startedAt: now() }; save();
   const mark = (step, text) => { P.step = step; P.steps.push({ step, text, at: now() }); save(); };
   try {
-    await createInstance(pc); mark('reserving', `PC ${TIERS[pc.tier].name} reservada en Virginia (${pc.instanceId})`);
+    await createInstance(pc); mark('reserving', `PC ${TIERS[pc.tier].name} reservada en ${cloud.place} (${pc.instanceId})`);
     await routePc(pc, pc.active); await ensureRdpDnat(pc); mark('tunnel', `Salida asignada: ${exitBy(pc.active).name} · corte automático activo`);
     const t0 = Date.now();
     while (Date.now() - t0 < 6 * 60e3) { await refreshPc(pc); if (pc.ec2 === 'running') break; await sleep(4000); }
@@ -269,7 +255,7 @@ async function api(req, res, url) {
   const u = userOf(req); const p = url.pathname; const m = req.method;
   if (p === '/api/caddy/ask') { const d = url.searchParams.get('domain') || ''; const ok = d === PORTAL_HOST || (d.endsWith('.' + BASE) && db.pcs.some(x => `pc-${x.id}.${BASE}` === d && x.status !== 'deleted')); res.writeHead(ok ? 200 : 403); return res.end(); }
   if (p === '/api/donde') { const ip = clientIp(req); return send(res, 200, { ip, geo: await geo(ip) }); }
-  if (p === '/api/config') return send(res, 200, { base: BASE, portal: PORTAL_HOST, exits: EXITS.map(x => ({ code: x.code, name: x.name, city: x.city, tz: x.tz, kind: x.kind, available: (x.kind !== 'home' || !!(db.exitPeers || {})[x.code]) && !exitOff(x.code) })), tiers: TIERS, limits: { perUser: MAX_PCS_PER_USER, total: MAX_PCS_TOTAL }, idleStopMin: IDLE_STOP_MIN });
+  if (p === '/api/config') return send(res, 200, { base: BASE, portal: PORTAL_HOST, exits: EXITS.map(x => ({ code: x.code, name: x.name, city: x.city, tz: x.tz, kind: x.kind, available: (x.kind !== 'home' || !!(db.exitPeers || {})[x.code]) && !exitOff(x.code) })), tiers: TIERS, cloud: { name: cloud.name, label: cloud.label, place: cloud.place }, limits: { perUser: MAX_PCS_PER_USER, total: MAX_PCS_TOTAL }, idleStopMin: IDLE_STOP_MIN });
   if (p === '/api/signup' && m === 'POST') {
     const b = await body(req); const email = String(b.email || '').trim().toLowerCase();
     if (!ENV.INVITE_CODE || b.invite !== ENV.INVITE_CODE) return send(res, 403, { error: 'Código de invitación incorrecto.' });
@@ -308,9 +294,9 @@ async function api(req, res, url) {
     const act = mm[2];
     if (!act && m === 'GET') { await refreshPc(pc); return send(res, 200, { pc: pubPc(pc) }); }
     if (act === 'identity') { await refreshPc(pc); const id = await checkIdentity(pc); return send(res, 200, { identity: id, pc: pubPc(pc) }); }
-    if (act === 'start' && m === 'POST') { await ec2['us-east-1'].send(new StartInstancesCommand({ InstanceIds: [pc.instanceId] })); pc.lastActivity = now(); ev(pc, 'La prendiste desde el panel'); await routePc(pc, pc.active); return send(res, 200, { pc: pubPc(await refreshPc(pc)) }); }
-    if (act === 'stop' && m === 'POST') { await ec2['us-east-1'].send(new StopInstancesCommand({ InstanceIds: [pc.instanceId] })); ev(pc, 'La apagaste desde el panel. Tus archivos quedan guardados.'); return send(res, 200, { pc: pubPc(await refreshPc(pc)) }); }
-    if (act === 'reboot' && m === 'POST') { await ec2['us-east-1'].send(new RebootInstancesCommand({ InstanceIds: [pc.instanceId] })); ev(pc, 'La reiniciaste desde el panel'); return send(res, 200, { pc: pubPc(pc) }); }
+    if (act === 'start' && m === 'POST') { await cloud.start(pc.instanceId); pc.lastActivity = now(); ev(pc, 'La prendiste desde el panel'); await routePc(pc, pc.active); return send(res, 200, { pc: pubPc(await refreshPc(pc)) }); }
+    if (act === 'stop' && m === 'POST') { await cloud.stop(pc.instanceId); ev(pc, 'La apagaste desde el panel. Tus archivos quedan guardados.'); return send(res, 200, { pc: pubPc(await refreshPc(pc)) }); }
+    if (act === 'reboot' && m === 'POST') { await cloud.reboot(pc.instanceId); ev(pc, 'La reiniciaste desde el panel'); return send(res, 200, { pc: pubPc(pc) }); }
     if (act === 'rdp' && m === 'POST') {   // habilita la red del usuario y devuelve los datos para Windows App
       if (pc.ec2 !== 'running') { await refreshPc(pc); if (pc.ec2 !== 'running') return send(res, 409, { error: 'Prendé la PC primero.' }); }
       await ensureRdpDnat(pc);
@@ -325,7 +311,7 @@ async function api(req, res, url) {
       return res.end(rdpFile(pc));
     }
     if (act === 'restart-desktop' && m === 'POST') { await agent(pc, '/restart-desktop', { method: 'POST', body: '{}' }); ev(pc, 'Reiniciaste el escritorio'); return send(res, 200, { ok: true }); }
-    if (act === 'delete' && m === 'POST') { if (pc.instanceId) await ec2['us-east-1'].send(new TerminateInstancesCommand({ InstanceIds: [pc.instanceId] })).catch(() => {}); await unroutePc(pc); await removeRdpDnat(pc); pc.status = 'deleted'; ev(pc, 'PC borrada', 'warn'); save(); return send(res, 200, { ok: true }); }
+    if (act === 'delete' && m === 'POST') { if (pc.instanceId) await Promise.resolve(cloud.destroy(pc.instanceId)).catch(() => {}); await unroutePc(pc); await removeRdpDnat(pc); pc.status = 'deleted'; ev(pc, 'PC borrada', 'warn'); save(); return send(res, 200, { ok: true }); }
     if (act === 'exit' && m === 'POST') {
       const b = await body(req); const code = String(b.code || '');
       if (!exitBy(code)) return send(res, 400, { error: 'País desconocido.' });
@@ -343,7 +329,7 @@ async function api(req, res, url) {
     const wg = await wgStatus();
     const exits = await Promise.all(EXITS.map(async x => { const w = wg.find(y => y.code === x.code) || {}; const pubIp = x.publicIp || (w.endpoint ? w.endpoint.split(':')[0] : null); return { ...x, ...w, publicIp: pubIp, geo: pubIp ? await geo(pubIp) : null, off: exitOff(x.code), pcs: live.filter(pc => pc.active === x.code).length, registered: x.kind !== 'home' || !!(db.exitPeers || {})[x.code] }; }));
     let exitStates = {};
-    try { const ids = EXITS.filter(x => x.instanceId); for (const reg of [...new Set(ids.map(x => x.region))]) { const r = await ec2[reg].send(new DescribeInstancesCommand({ InstanceIds: ids.filter(x => x.region === reg).map(x => x.instanceId) })); r.Reservations.forEach(rv => rv.Instances.forEach(i => { exitStates[i.InstanceId] = i.State.Name; })); } } catch (e) {}
+    try { const ids = EXITS.filter(x => x.instanceId); for (const reg of [...new Set(ids.map(x => x.region))]) { const d = await exitCloud().describe(ids.filter(x => x.region === reg).map(x => x.instanceId), reg); for (const [id, v] of Object.entries(d)) exitStates[id] = v.state; } } catch (e) {}
     exits.forEach(x => { if (x.instanceId) x.ec2 = exitStates[x.instanceId] || 'unknown'; });
     return send(res, 200, { exits, pcs: live.map(x => ({ ...pubPc(x), user: (db.users.find(y => y.id === x.userId) || {}).email, privateIp: x.privateIp })), users: db.users.length, events: db.events.slice(0, 60), tokens: (db.exitTokens || []).filter(t => !t.used).map(t => ({ code: t.code, at: t.at })) });
   }
@@ -363,8 +349,7 @@ async function api(req, res, url) {
     }
     if (om[2] === 'start' || om[2] === 'stop') {
       if (!ex.instanceId) return send(res, 400, { error: 'Esta salida no es una máquina de AWS.' });
-      const C = om[2] === 'start' ? StartInstancesCommand : StopInstancesCommand;
-      await ec2[ex.region].send(new C({ InstanceIds: [ex.instanceId] }));
+      await exitCloud()[om[2]](ex.instanceId, ex.region);
       db.exitOff = db.exitOff || {}; db.exitOff[ex.code] = om[2] === 'stop'; save();
       ev(null, `Salida ${ex.name}: ${om[2] === 'start' ? 'prendiendo (vuelve a ofrecerse)' : 'apagada (ya no se ofrece)'}`, 'warn');
       return send(res, 200, { ok: true });
@@ -518,7 +503,7 @@ setInterval(async () => {   // se apaga sola si nadie la usa (cuida la plata)
   for (const pc of db.pcs.filter(x => x.status !== 'deleted' && x.ec2 === 'running' && x.provision && x.provision.done)) {
     if (wsOpen[pc.id] > 0) { pc.lastActivity = now(); continue; }   // hay alguien usando el escritorio
     const idle = (Date.now() - Date.parse(pc.lastActivity || pc.createdAt)) / 60e3;
-    if (idle > IDLE_STOP_MIN) { await ec2['us-east-1'].send(new StopInstancesCommand({ InstanceIds: [pc.instanceId] })).catch(() => {}); pc.ec2 = 'stopping'; ev(pc, `Se apagó sola tras ${IDLE_STOP_MIN} min sin uso`); }
+    if (IDLE_STOP_MIN > 0 && idle > IDLE_STOP_MIN) { await Promise.resolve(cloud.stop(pc.instanceId)).catch(() => {}); pc.ec2 = 'stopping'; ev(pc, `Se apagó sola tras ${IDLE_STOP_MIN} min sin uso`); }
   }
 }, 5 * 60e3);
 boot();
