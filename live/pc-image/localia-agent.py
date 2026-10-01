@@ -5,17 +5,42 @@ GET  /identity  cómo ven los sitios a esta PC (IP y ubicación, a través del t
 POST /tz        {"tz": "America/Montevideo"} cambia la zona horaria del sistema
 POST /restart-desktop  reinicia el escritorio
 POST /rdp-password     {"password": "..."} contraseña para Windows App (máx. 8, letras y números)
+POST /mode      {"mode": "simple"|"completo"} la sesión abre directo en el navegador o con escritorio completo
+GET  /files     archivos de la carpeta Descargas (para "Bajar a mi compu")
+GET  /file?name=...    baja un archivo de Descargas
+POST /upload?name=...  guarda en Descargas un archivo que el usuario sube desde su compu
 
 Además, en 127.0.0.1:8082 sirve la app "Cambiar país" para el usuario de la PC:
 le pide el cambio al gateway por la red privada (10.60.1.10:3001) con el token de esta PC.
 """
-import json, os, re, subprocess, threading, time, urllib.request, urllib.error
+import json, os, re, shutil, subprocess, threading, time, urllib.request, urllib.error
+from urllib.parse import urlsplit, parse_qs
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+ENV_FILE = os.environ.get('LOCALIA_AGENT_ENV', '/etc/localia/agent.env')
+FILES = os.environ.get('LOCALIA_FILES', '/home/localia/Descargas')
+MAX_UPLOAD = 200 * 1024 * 1024
+
+def safe_name(n):
+    """Solo un nombre de archivo suelto dentro de Descargas: sin carpetas, sin ocultos."""
+    n = str(n or '').strip()
+    if not n or n != os.path.basename(n) or n.startswith('.') or '\x00' in n or len(n.encode()) > 200: return None
+    return n
+
+def list_files():
+    out = []
+    try:
+        for e in os.scandir(FILES):
+            if e.is_file(follow_symlinks=False) and not e.name.startswith('.') and not e.name.endswith('.crdownload'):
+                st = e.stat(); out.append({'name': e.name, 'size': st.st_size, 'mtime': int(st.st_mtime)})
+    except FileNotFoundError:
+        pass
+    return sorted(out, key=lambda f: -f['mtime'])[:50]
 
 def env():
     d = {}
     try:
-        for line in open('/etc/localia/agent.env'):
+        for line in open(ENV_FILE):
             if '=' in line:
                 k, v = line.strip().split('=', 1); d[k] = v
     except FileNotFoundError:
@@ -57,11 +82,51 @@ class H(BaseHTTPRequestHandler):
             return self._send(200, {'ok': True, 'desktop': sh('systemctl', 'is-active', 'localia-desktop'), 'tz': sh('timedatectl', 'show', '-p', 'Timezone', '--value'), 'uptime_s': int(up)})
         if self.path == '/identity':
             return self._send(200, identity())
+        u = urlsplit(self.path)
+        if u.path == '/files':
+            return self._send(200, {'files': list_files()})
+        if u.path == '/file':
+            name = safe_name(parse_qs(u.query).get('name', [''])[0]); f = name and os.path.join(FILES, name)
+            if not f or not os.path.isfile(f) or os.path.islink(f): return self._send(404, {'error': 'not found'})
+            self.send_response(200); self.send_header('Content-Type', 'application/octet-stream'); self.send_header('Content-Length', str(os.path.getsize(f))); self.end_headers()
+            with open(f, 'rb') as fh: shutil.copyfileobj(fh, self.wfile, 256 * 1024)
+            return
         self._send(404, {'error': 'not found'})
+    def _upload(self, u):
+        name = safe_name(parse_qs(u.query).get('name', [''])[0]); n = int(self.headers.get('Content-Length') or 0)
+        if not name: return self._send(400, {'error': 'bad name'})
+        if n <= 0 or n > MAX_UPLOAD: return self._send(413, {'error': 'too big'})
+        os.makedirs(FILES, exist_ok=True)
+        base, ext = os.path.splitext(name); dest = os.path.join(FILES, name); k = 1
+        while os.path.exists(dest): dest = os.path.join(FILES, '%s (%d)%s' % (base, k, ext)); k += 1
+        tmp = os.path.join(FILES, '.subiendo-%d-%d' % (os.getpid(), threading.get_ident()))
+        try:
+            left = n
+            with open(tmp, 'wb') as fh:
+                while left > 0:
+                    chunk = self.rfile.read(min(left, 256 * 1024))
+                    if not chunk: raise IOError('corte')
+                    fh.write(chunk); left -= len(chunk)
+            os.rename(tmp, dest)
+            try: shutil.chown(dest, 'localia', 'localia')
+            except Exception: pass
+        except Exception:
+            try: os.remove(tmp)
+            except OSError: pass
+            return self._send(500, {'error': 'upload failed'})
+        return self._send(200, {'ok': True, 'name': os.path.basename(dest), 'size': n})
     def do_POST(self):
         if not self._ok(): return self._send(403, {'error': 'forbidden'})
+        u = urlsplit(self.path)
+        if u.path == '/upload': return self._upload(u)
         n = int(self.headers.get('Content-Length') or 0)
         body = json.loads(self.rfile.read(n) or b'{}')
+        if self.path == '/mode':
+            mode = str(body.get('mode', ''))
+            if mode not in ('simple', 'completo'): return self._send(400, {'error': 'bad mode'})
+            if not os.path.exists('/usr/local/sbin/localia-mode'): return self._send(501, {'error': 'imagen sin modo simple'})
+            subprocess.Popen(['/usr/local/sbin/localia-mode', mode])   # reinicia el escritorio
+            return self._send(200, {'ok': True, 'mode': mode})
         if self.path == '/tz':
             tz = str(body.get('tz', ''))
             if not tz or '..' in tz or not os.path.exists('/usr/share/zoneinfo/' + tz):

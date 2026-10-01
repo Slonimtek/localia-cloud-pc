@@ -175,6 +175,9 @@ RDP_PASSWORD=${pc.rdpPassword || ''}
 E
 chmod 600 /etc/localia/agent.env
 echo "https://${PORTAL_HOST}/donde?pc=${pc.id}" > /etc/localia/start_url
+echo "https://${PORTAL_HOST}/inicio?pc=${pc.id}" > /etc/localia/start_simple
+# modo simple (abre directo en el navegador) o escritorio completo; las imágenes viejas no lo tienen
+[ -x /usr/local/sbin/localia-mode ] && /usr/local/sbin/localia-mode ${modeOf(pc)} --no-restart || true
 hostnamectl set-hostname localia-pc-${pc.id} || true
 timedatectl set-timezone ${ex ? ex.tz : 'UTC'} || true
 systemctl restart localia-agent
@@ -201,7 +204,7 @@ const agentUrl = (pc, p) => `http://${pc.privateIp}:8081${p}`;
 const agent = (pc, p, opts = {}, ms = 7000) => fetchJSON(agentUrl(pc, p), { ...opts, headers: { 'X-Localia-Token': pc.token, 'Content-Type': 'application/json', ...(opts.headers || {}) } }, ms);
 function pubPc(pc, live) {
   const t = TIERS[pc.tier]; const ex = exitBy(pc.active);
-  return { id: pc.id, name: pc.name, tier: pc.tier, tierName: t.name, specs: t, state: pc.ec2 || 'unknown', desktop: pc.desktop || null, exits: [...new Set([...availableExits(), pc.active])], active: pc.active,
+  return { id: pc.id, name: pc.name, mode: modeOf(pc), tier: pc.tier, tierName: t.name, specs: t, state: pc.ec2 || 'unknown', desktop: pc.desktop || null, exits: [...new Set([...availableExits(), pc.active])], active: pc.active,
     activeCity: ex && ex.city, activeName: ex && ex.name, host: `pc-${pc.id}.${BASE}`, identity: pc.identity || null, createdAt: pc.createdAt, lastActivity: pc.lastActivity || null,
     events: (pc.events || []).slice(0, 15), provision: pc.provision || null, ...(live || {}) };
 }
@@ -223,6 +226,7 @@ async function switchExit(pc, code) {
   ev(pc, `Cambiaste la salida de ${exitBy(from).name} a ${exitBy(code).name}`);
   setTimeout(() => checkIdentity(pc).catch(() => {}), 2500);   // verificación automática
 }
+const modeOf = pc => pc.mode === 'simple' ? 'simple' : 'completo';   // las PCs anteriores al modo simple quedan en completo
 const canSee = (u, pc) => u && (u.admin || pc.userId === u.id);
 
 // ---------- aprovisionamiento (seguimiento paso a paso) ----------
@@ -284,7 +288,7 @@ async function api(req, res, url) {
     const live = db.pcs.filter(x => x.status !== 'deleted');
     if (!u.admin && live.filter(x => x.userId === u.id).length >= MAX_PCS_PER_USER) return send(res, 429, { error: `En el demo cada cuenta puede tener hasta ${MAX_PCS_PER_USER} PCs.` });
     if (live.length >= MAX_PCS_TOTAL) return send(res, 429, { error: 'El demo llegó al máximo de PCs. Borrá una para crear otra.' });
-    const pc = { id: rid(6), userId: u.id, name: String(b.name || '').slice(0, 40) || 'Mi PC', tier, exits, active, token: crypto.randomBytes(24).toString('hex'), rdpPassword: newRdpPassword(), rdpSet: true, status: 'active', createdAt: now(), lastActivity: now() };
+    const pc = { id: rid(6), userId: u.id, name: String(b.name || '').slice(0, 40) || 'Mi PC', tier, exits, active, token: crypto.randomBytes(24).toString('hex'), rdpPassword: newRdpPassword(), rdpSet: true, mode: 'simple', status: 'active', createdAt: now(), lastActivity: now() };
     db.pcs.push(pc); ev(pc, `PC creada: ${TIERS[tier].name}. Arranca saliendo por ${exitBy(active).name}; el país se elige desde adentro de la PC`); save();
     provision(pc); return send(res, 200, { pc: pubPc(pc) });
   }
@@ -390,6 +394,7 @@ async function exitRegister(req, res, url) {
 // ---------- acceso directo a la PC (sin pasar por el portal) ----------
 // https://pc-<id>.<BASE>/ muestra el escritorio a pantalla completa, se puede instalar como app
 // y trae un botón flotante para cambiar de país.
+const MAX_UPLOAD = 200 * 1024 * 1024;   // el mismo tope que el agente de la PC
 const KASM_PARAMS = 'resize=remote&reconnect=true&reconnect_delay=2000&clipboard_seamless=true&idle_disconnect=240';
 function desktopIndex(req, res, pc) {
   const r = http.get({ host: pc.privateIp, port: 6901, path: '/', timeout: 8000 }, up => {
@@ -414,9 +419,48 @@ async function directApi(req, res, url, pc) {
   }
   if (p === 'icon.svg') { res.writeHead(200, { 'Content-Type': 'image/svg+xml', 'Cache-Control': 'max-age=86400' }); return res.end(ICON_SVG); }
   if (p === 'overlay.js') { res.writeHead(200, { 'Content-Type': 'text/javascript; charset=utf-8', 'Cache-Control': 'no-cache' }); return fs.createReadStream(path.join(__dirname, 'overlay.js')).pipe(res); }
-  if (p === 'state') return send(res, 200, { name: pc.name, active: pc.active, portal: `https://${PORTAL_HOST}/#panel`, exits: [...new Set([...availableExits(), pc.active])].map(c => { const e = exitBy(c); return { code: c, name: e.name, city: e.city }; }), identity: pc.identity || null });
+  if (p === 'state') return send(res, 200, { name: pc.name, mode: modeOf(pc), maxUpload: MAX_UPLOAD, active: pc.active, portal: `https://${PORTAL_HOST}/#panel`, exits: [...new Set([...availableExits(), pc.active])].map(c => { const e = exitBy(c); return { code: c, name: e.name, city: e.city }; }), identity: pc.identity || null });
   if (p === 'identity') { await refreshPc(pc); return send(res, 200, { identity: await checkIdentity(pc) }); }
   if (p === 'exit' && req.method === 'POST') { const b = await body(req); if (!availableExits().includes(b.code)) return send(res, 400, { error: 'País no disponible.' }); await switchExit(pc, b.code); return send(res, 200, { active: pc.active }); }
+  // ----- archivos: entre la compu del usuario y la carpeta Descargas de la PC -----
+  if (p === 'files' && req.method === 'GET') { const r = await agent(pc, '/files', {}, 6000); return send(res, r.status === 200 ? 200 : 503, r.status === 200 ? r.json : { error: 'Tu PC todavía está arrancando.' }); }
+  if (p.startsWith('file/') && req.method === 'GET') {
+    let name; try { name = decodeURIComponent(p.slice(5)); } catch (e) { return send(res, 400, { error: 'Nombre inválido.' }); }
+    const up = http.get({ host: pc.privateIp, port: 8081, path: '/file?name=' + encodeURIComponent(name), headers: { 'X-Localia-Token': pc.token }, timeout: 15000 }, ar => {
+      if (ar.statusCode !== 200) { ar.resume(); return send(res, 404, { error: 'No encontramos ese archivo.' }); }
+      res.writeHead(200, { 'Content-Type': 'application/octet-stream', 'Content-Length': ar.headers['content-length'], 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff',
+        'Content-Disposition': `attachment; filename="${name.replace(/[^\x20-\x7e]|["\\]/g, '_')}"; filename*=UTF-8''${encodeURIComponent(name)}` });
+      ar.pipe(res);
+    });
+    up.on('timeout', () => up.destroy(new Error('timeout')));
+    up.on('error', () => { if (!res.headersSent) send(res, 503, { error: 'Tu PC no respondió.' }); else res.destroy(); });
+    return;
+  }
+  // Los POST de acá abajo exigen un header propio: un sitio cualquiera no puede subir archivos ni cambiar el modo por vos.
+  if (req.method === 'POST' && (p === 'upload' || p === 'mode') && req.headers['x-localia'] !== '1') return send(res, 403, { error: 'No permitido.' });
+  if (p === 'upload' && req.method === 'POST') {
+    const name = String(url.searchParams.get('name') || '').slice(0, 200); const len = +req.headers['content-length'] || 0;
+    if (!name) return send(res, 400, { error: 'Falta el nombre del archivo.' });
+    if (len <= 0) return send(res, 400, { error: 'El archivo está vacío.' });
+    if (len > MAX_UPLOAD) return send(res, 413, { error: `El archivo es muy grande (máximo ${Math.round(MAX_UPLOAD / 1048576)} MB).` });
+    const up = http.request({ host: pc.privateIp, port: 8081, method: 'POST', path: '/upload?name=' + encodeURIComponent(name), headers: { 'X-Localia-Token': pc.token, 'Content-Length': len, 'Content-Type': 'application/octet-stream' } }, ar => {
+      let d = ''; ar.setEncoding('utf8'); ar.on('data', c => d += c);
+      ar.on('end', () => { let j = {}; try { j = JSON.parse(d); } catch (e) {}
+        if (ar.statusCode === 200) { ev(pc, `Subiste "${j.name}" a tu PC`); return send(res, 200, { ok: true, name: j.name }); }
+        send(res, ar.statusCode === 400 ? 400 : 502, { error: ar.statusCode === 400 ? 'Ese nombre de archivo no sirve. Cambiale el nombre y probá de nuevo.' : 'No se pudo subir. Probá de nuevo.' }); });
+    });
+    up.on('error', () => { if (!res.headersSent) send(res, 503, { error: 'Tu PC no respondió. ¿Está prendida?' }); });
+    req.pipe(up); return;
+  }
+  if (p === 'mode' && req.method === 'POST') {
+    const b = await body(req); const mode = b.mode === 'simple' ? 'simple' : b.mode === 'completo' ? 'completo' : null;
+    if (!mode) return send(res, 400, { error: 'Modo desconocido.' });
+    const r = await agent(pc, '/mode', { method: 'POST', body: JSON.stringify({ mode }) }, 8000);
+    if (r.status === 501 || r.status === 404) return send(res, 409, { error: 'Esta PC es anterior al modo simple. Creá una nueva para usarlo.' });
+    if (r.status !== 200) return send(res, 503, { error: 'Tu PC no respondió. ¿Está prendida?' });
+    pc.mode = mode; save(); ev(pc, mode === 'simple' ? 'Pasaste al modo simple' : 'Pasaste al escritorio completo');
+    return send(res, 200, { mode });
+  }
   return send(res, 404, { error: 'No existe.' });
 }
 
@@ -436,7 +480,7 @@ function desktopGate(req) {
 // ---------- servidor ----------
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon', '.json': 'application/json' };
 function serveStatic(req, res, p) {
-  if (p === '/' || p === '/donde') p = p === '/donde' ? '/donde.html' : '/index.html';
+  if (p === '/' || p === '/donde' || p === '/inicio') p = p === '/' ? '/index.html' : p + '.html';
   const f = path.join(PUBLIC, path.normalize(p).replace(/^(\.\.[/\\])+/, ''));
   if (!f.startsWith(PUBLIC) || !fs.existsSync(f) || fs.statSync(f).isDirectory()) { res.writeHead(404, { 'Content-Type': 'text/plain' }); return res.end('404'); }
   res.writeHead(200, { 'Content-Type': MIME[path.extname(f)] || 'application/octet-stream', 'Cache-Control': 'no-cache' }); fs.createReadStream(f).pipe(res);

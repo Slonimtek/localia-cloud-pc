@@ -23,6 +23,17 @@ Demo real de punta a punta, no un mockup. Cada PC es una máquina de AWS con esc
    - **"Probar corte"**: baja el túnel y verifica que las PCs queden sin internet, en vez de salir por otro lado. Resultado medido: 0 fugas.
    - Prender o apagar salidas y conectar la salida de Uruguay.
 
+## Modo simple (en la rama, todavía sin imagen)
+
+Pensado para usuarios no técnicos: la PC abre **directo en el navegador**, sin escritorio ni menús, en una página de Inicio con accesos grandes a bancos, trámites, tele y compras del país por el que sale.
+
+- **Inicio:** `portal/public/inicio.html` (`/inicio`). Los accesos por país están en `SITES`, al principio del `<script>`.
+- **Archivos:** en el botón flotante de la PC (y como "Archivos" dentro del portal): **"Subir un archivo desde mi compu"** lo deja en la carpeta Descargas de la PC, y **"Bajar archivos a mi compu"** lista lo que se bajó adentro. Tope de 200 MB por archivo.
+- **Escritorio completo:** sigue disponible desde el mismo botón ("Ver el escritorio completo" / "Volver al modo simple").
+- **PCs nuevas:** nacen en modo simple. Las anteriores quedan como estaban (escritorio completo).
+- **Falta:** armar la imagen v6 corriendo `pc-image/localia-simple.sh` después de `localia-apps.sh`, y apuntar `AMI_PC` a esa imagen. Con la imagen v5 el portal funciona igual, pero las PCs abren con escritorio completo y sin carpeta Descargas configurada. El arranque sin escritorio está escrito pero **no probado en una PC real**.
+- **Probar el botón sin PC:** `portal/dev/overlay-test.html` (acceso directo) y `portal/dev/overlay-test-embed.html` (dentro del portal).
+
 ## Arquitectura
 
 ```
@@ -48,10 +59,10 @@ Navegador ──HTTPS──▶ Gateway (EC2 t4g.micro, EIP 100.57.206.149, Virgi
 
 | Carpeta | Qué hay |
 |---|---|
-| `portal/` | `server.js` (API, EC2, ruteo, proxy, acceso directo), `overlay.js` (botón flotante de la PC), `public/` (web: `index.html`, `app.js`, `app.css`, `donde.html`), `dev/overlay-test.html` (prueba local del botón) |
+| `portal/` | `server.js` (API, EC2, ruteo, proxy, acceso directo), `overlay.js` (botón flotante de la PC), `providers.js` (AWS o Hetzner), `public/` (web: `index.html`, `app.js`, `app.css`, `donde.html`, `inicio.html`), `dev/overlay-test.html` (prueba local del botón) |
 | `gateway/` | `net-setup.sh` (tablas + firewall), `hub-iface.sh` (interfaz por país), `Caddyfile`, unidades systemd |
 | `exit/exit-install.sh` | Instalador de una salida (AWS, VPS o compu en casa). La salida "llama" al gateway, así que no hace falta abrir puertos |
-| `pc-image/` | `bake.sh` (XFCE + Chromium + KasmVNC), `rdp-setup.sh` (Windows App: xrdp + x11vnc), `localia-apps.sh` + `cambiar-pais.html` (app "Cambiar país" y accesos del escritorio), `localia-agent.py` (IP, zona horaria, contraseña, app local) y `finalize.sh`. Imagen actual: ver `AMI_PC` en `portal.env` |
+| `pc-image/` | `bake.sh` (XFCE + Chromium + KasmVNC), `rdp-setup.sh` (Windows App: xrdp + x11vnc), `localia-apps.sh` + `cambiar-pais.html` (app "Cambiar país" y accesos del escritorio), `localia-simple.sh` (modo simple y carpeta Descargas), `localia-agent.py` (IP, zona horaria, contraseña, app local) y `finalize.sh`. Imagen actual: ver `AMI_PC` en `portal.env` |
 | `.secrets/` | **No va a git**: llave SSH, `portal.env`, `state.env` (IDs de AWS), `ACCESOS.md` |
 
 ## Windows App (RDP) con apertura por pedido

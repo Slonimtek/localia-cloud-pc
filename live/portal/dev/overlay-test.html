@@ -4,11 +4,16 @@
 <script>
 // API simulada: igual que /__localia/* del gateway
 let active='BR';const ids={AR:{ip:'15.220.121.62',city:'Buenos Aires',country:'AR'},BR:{ip:'56.126.81.122',city:'São Paulo',country:'BR'},US:{ip:'13.218.194.101',city:'Ashburn',country:'US'}};
-window.fetch=async(u,o)=>{const p=u.replace('/__localia/','');await new Promise(r=>setTimeout(r,300));
+let mode='simple';const fl=[{name:'Comprobante BROU.pdf',size:184320,mtime:2},{name:'Constancia BPS <2026>.pdf',size:2300000,mtime:1}];
+window.fetch=async(u,o)=>{const p=u.replace('/__localia/','').split('?')[0];await new Promise(r=>setTimeout(r,300));
  const J=x=>({json:async()=>x});
- if(p==='state')return J({name:'PC demo',active,portal:'#',exits:[{code:'AR',name:'Argentina',city:'Buenos Aires'},{code:'BR',name:'Brasil',city:'São Paulo'},{code:'US',name:'Estados Unidos',city:'Virginia'}],identity:{online:true,...ids[active]}});
+ if(p==='state')return J({name:'PC demo',mode,maxUpload:209715200,active,portal:'#',exits:[{code:'AR',name:'Argentina',city:'Buenos Aires'},{code:'BR',name:'Brasil',city:'São Paulo'},{code:'US',name:'Estados Unidos',city:'Virginia'}],identity:{online:true,...ids[active]}});
  if(p==='identity')return J({identity:{online:true,...ids[active]}});
- if(p==='exit'){active=JSON.parse(o.body).code;return J({active})}};
+ if(p==='exit'){active=JSON.parse(o.body).code;return J({active})}
+ if(p==='files')return J({files:fl});
+ if(p==='upload'){const n=decodeURIComponent(u.split('name=')[1]);fl.unshift({name:n,size:o.body.size||1,mtime:9});return J({ok:true,name:n})}
+ if(p==='mode'){mode=JSON.parse(o.body).mode;return J({mode})}};
 </script>
 <script src="../overlay.js"></script>
+<!-- Para ver la versión de adentro del portal (solo "Archivos"), abrir overlay-test-embed.html -->
 </body></html>

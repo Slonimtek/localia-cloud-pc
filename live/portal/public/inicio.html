@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Inicio · Localía</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f2f5f9;--surface:#fff;--line:#d8e0eb;--ink:#0c1a2c;--ink-2:#33455e;--muted:#5f718a;--sky:#1c6cb5;--stamp:#5a3ea6;--ok:#137f55;--ok-soft:#ddf2e8;--bad:#c2352d;--bad-soft:#fbe4e2}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:repeating-radial-gradient(circle at 88% 8%,transparent 0 9px,rgba(28,108,181,.07) 9px 10px),var(--bg);color:var(--ink);font:18px/1.5 "Instrument Sans",system-ui,sans-serif}
+.wrap{max-width:1040px;margin:0 auto;padding:28px 24px 48px}
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:14px 20px;margin-bottom:22px}
+.who{flex:1;min-width:260px}
+.eyebrow{font:500 12px "JetBrains Mono",monospace;letter-spacing:.12em;text-transform:uppercase;color:#8a5f0b}
+h1{font:800 clamp(30px,4.6vw,46px)/1.04 "Bricolage Grotesque",sans-serif;letter-spacing:-.03em;margin:6px 0 2px;text-wrap:balance}
+h1 em{font-style:normal;color:var(--stamp)}
+.state{display:inline-flex;align-items:center;gap:8px;font-size:15px;color:var(--ink-2)}
+.state i{width:9px;height:9px;border-radius:50%;background:var(--ok)}
+.state.off i{background:var(--bad)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:13px 20px;border-radius:999px;border:1px solid var(--stamp);background:var(--stamp);color:#fff;font:600 17px "Instrument Sans",sans-serif;text-decoration:none;cursor:pointer}
+.btn:hover{filter:brightness(1.08)}
+.btn:focus-visible,.tile:focus-visible,input:focus-visible{outline:3px solid #9ec5ec;outline-offset:2px}
+form{display:flex;gap:10px;margin:0 0 28px}
+input[type=text]{flex:1;min-width:0;padding:15px 20px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font:inherit;color:var(--ink)}
+form .btn{background:var(--sky);border-color:var(--sky)}
+h2{font:700 13px "JetBrains Mono",monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:26px 0 12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px}
+.tile{display:flex;align-items:center;gap:12px;padding:16px 16px;border-radius:16px;border:1px solid var(--line);background:var(--surface);color:var(--ink);text-decoration:none;font-weight:600;min-height:68px;box-shadow:0 8px 20px -16px rgba(12,26,44,.35)}
+.tile:hover{border-color:var(--sky);transform:translateY(-1px)}
+.tile .ic{flex:none;width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-size:20px;background:#eaf2fb}
+.help{margin-top:34px;padding:20px 22px;border-radius:18px;background:var(--surface);border:1px dashed var(--line);color:var(--ink-2);font-size:16.5px}
+.help b{color:var(--ink)}
+.help ul{margin:8px 0 0;padding-left:20px}.help li{margin:6px 0}
+.warn{display:none;margin:0 0 22px;padding:14px 18px;border-radius:14px;background:var(--bad-soft);color:#7d1f19;font-weight:600}
+@media (prefers-reduced-motion:reduce){.tile:hover{transform:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <div class="top">
+  <div class="who">
+   <div class="eyebrow">Localía · Tu PC</div>
+   <h1 id="t">Un segundo…</h1>
+   <div class="state" id="s"><i></i><span id="st">Mirando desde dónde te ven</span></div>
+  </div>
+  <a class="btn" id="sw" href="http://127.0.0.1:8082/">🌎 Cambiar de país</a>
+ </div>
+ <div class="warn" id="w">Ahora esta PC no tiene internet. Si recién cambiaste de país, esperá unos segundos. Tu conexión nunca sale por otro lado.</div>
+ <form id="f" autocomplete="off"><input type="text" id="q" placeholder="Buscá algo o escribí una dirección (ej. brou.com.uy)" aria-label="Buscar o escribir una dirección"><button class="btn" type="submit">Ir</button></form>
+ <div id="tiles"></div>
+ <div class="help">
+  <b>¿Cómo paso archivos?</b>
+  <ul>
+   <li><b>Para subir algo a un trámite</b> (una foto del documento, un PDF): tocá el botón de Localía (arriba a la derecha) o "Archivos" (abajo a la derecha) y elegí "Subir un archivo desde mi compu". Después, cuando el sitio te pida el archivo, buscalo en la carpeta <b>Descargas</b>.</li>
+   <li><b>Para llevarte un comprobante:</b> bajalo acá como siempre. Después, desde ese mismo botón, elegí "Bajar archivos a mi compu".</li>
+  </ul>
+ </div>
+</div>
+<script>
+const N={US:'Estados Unidos',BR:'Brasil',AR:'Argentina',UY:'Uruguay',IL:'Israel',ES:'España',CL:'Chile',MX:'México',PE:'Perú',CO:'Colombia',PY:'Paraguay'};
+// Accesos por país. Editables: [nombre, dirección]. Abren en una pestaña nueva y esta página queda de inicio.
+const SITES={
+ UY:[['Bancos','🏦',[['BROU','https://www.brou.com.uy'],['Santander','https://www.santander.com.uy'],['Itaú','https://www.itau.com.uy'],['Scotiabank','https://www.scotiabank.com.uy'],['BBVA','https://www.bbva.com.uy']]],
+     ['Trámites','📄',[['Trámites del Estado','https://www.gub.uy/tramites'],['BPS','https://www.bps.gub.uy'],['DGI','https://www.gub.uy/direccion-general-impositiva'],['Antel','https://www.antel.com.uy']]],
+     ['Tele y noticias','📺',[['Canal 10','https://www.canal10.com.uy'],['Teledoce','https://www.teledoce.com'],['Canal 4','https://www.canal4.com.uy'],['El País','https://www.elpais.com.uy'],['El Observador','https://www.elobservador.com.uy']]],
+     ['Compras','🛒',[['Mercado Libre','https://www.mercadolibre.com.uy']]]],
+ AR:[['Bancos','🏦',[['Banco Nación','https://www.bna.com.ar'],['Galicia','https://www.galicia.ar'],['Santander','https://www.santander.com.ar'],['BBVA','https://www.bbva.com.ar']]],
+     ['Trámites','📄',[['Mi Argentina','https://www.argentina.gob.ar/miargentina'],['ARCA (ex AFIP)','https://www.arca.gob.ar'],['ANSES','https://www.anses.gob.ar']]],
+     ['Tele y noticias','📺',[['TN','https://tn.com.ar'],['Telefe','https://mitelefe.com'],['La Nación','https://www.lanacion.com.ar'],['Clarín','https://www.clarin.com']]],
+     ['Compras','🛒',[['Mercado Libre','https://www.mercadolibre.com.ar']]]],
+ BR:[['Bancos','🏦',[['Banco do Brasil','https://www.bb.com.br'],['Itaú','https://www.itau.com.br'],['Bradesco','https://banco.bradesco'],['Caixa','https://www.caixa.gov.br']]],
+     ['Trámites','📄',[['gov.br','https://www.gov.br'],['Receita Federal','https://www.gov.br/receitafederal']]],
+     ['Tele y noticias','📺',[['Globoplay','https://globoplay.globo.com'],['G1','https://g1.globo.com'],['Folha','https://www.folha.uol.com.br']]],
+     ['Compras','🛒',[['Mercado Livre','https://www.mercadolivre.com.br']]]],
+ US:[['Bancos','🏦',[['Bank of America','https://www.bankofamerica.com'],['Chase','https://www.chase.com'],['Wells Fargo','https://www.wellsfargo.com']]],
+     ['Trámites','📄',[['USA.gov','https://www.usa.gov'],['IRS','https://www.irs.gov'],['Seguro Social','https://www.ssa.gov']]],
+     ['Tele y noticias','📺',[['Univision','https://www.univision.com'],['Telemundo','https://www.telemundo.com']]],
+     ['Compras','🛒',[['Amazon','https://www.amazon.com']]]]
+};
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let shown=null;
+function tiles(cc){
+ if(cc===shown)return;shown=cc;
+ const groups=SITES[cc]||[];
+ document.getElementById('tiles').innerHTML=groups.map(([g,ic,list])=>`<h2>${esc(g)}</h2><div class="grid">${list.map(([n,u])=>`<a class="tile" href="${esc(u)}" target="_blank" rel="noopener"><span class="ic" aria-hidden="true">${ic}</span>${esc(n)}</a>`).join('')}</div>`).join('');
+}
+async function go(){
+ const t=document.getElementById('t'),s=document.getElementById('s'),st=document.getElementById('st'),w=document.getElementById('w');
+ try{const r=await fetch('/api/donde',{cache:'no-store'});const j=await r.json();const g=j.geo||{};
+  if(!g.country)throw new Error('sin país');
+  t.innerHTML=`Te ven en <em>${esc(N[g.country]||g.country)}</em>`;
+  s.className='state';st.textContent=`${g.city?g.city+' · ':''}Conexión protegida`;w.style.display='none';
+  tiles(g.country);
+ }catch(e){t.textContent='Sin internet ahora';s.className='state off';st.textContent='Reintentando…';w.style.display='block';}
+}
+document.getElementById('f').addEventListener('submit',e=>{e.preventDefault();
+ const v=document.getElementById('q').value.trim();if(!v)return;
+ const isUrl=/^https?:\/\//i.test(v)||(/^[^\s]+\.[a-z]{2,}(\/\S*)?$/i.test(v)&&!/\s/.test(v));
+ window.open(isUrl?(/^https?:\/\//i.test(v)?v:'https://'+v):'https://www.google.com/search?q='+encodeURIComponent(v),'_blank','noopener');
+ document.getElementById('q').value='';
+});
+go();setInterval(go,8000);
+</script>
+</body>
+</html>
