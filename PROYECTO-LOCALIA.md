@@ -6,7 +6,39 @@
 - **Repo:** https://github.com/Slonimtek/localia-cloud-pc (público, GitHub Pages desde `main`, raíz)
 - **Dueño:** Yaakov Slonimczyk (Slonimtek)
 
-> **Novedad (30/09/2026): hay un sistema en vivo funcionando de punta a punta.** El portal está en https://localia.100-57-206-149.sslip.io, por invitación. Tiene PCs reales en AWS Virginia con salida por EE.UU., Brasil y Argentina; el cambio de país tarda unos 3 s y el corte automático está probado, con 0 fugas. Uruguay queda listo para conectarse con una compu en casa. Todo el detalle está en [`live/README.md`](live/README.md).
+> **Estado (01/10/2026): sistema en vivo de punta a punta.**
+> - **Portal:** https://localia.100-57-206-149.sslip.io, por invitación.
+> - **PCs:** reales en AWS Virginia (Debian + XFCE + Chromium). Se abren en el navegador, con link directo o app instalable, y con **Windows App**.
+> - **Países:** al crear la PC **no se pregunta el país**. La identidad se cambia **desde adentro de la PC** con el ícono "Cambiar país". Salidas: **EE.UU.** (el propio gateway) y **Brasil** (São Paulo). **Uruguay** está listo para conectar con una compu en casa; Argentina fue dada de baja.
+> - **Corte automático:** probado, 0 fugas.
+> - **Costo base:** ~US$ 22/mes, más ~US$ 0,034/h por PC prendida.
+> - **Detalle técnico:** [`live/README.md`](live/README.md).
+
+## Seguir desde otra compu (casa)
+
+1. **Bajar el repo** (esta rama) y abrir Claude Code en la carpeta. `CLAUDE.md` carga este documento y la guía de `live/`.
+   ```bash
+   git clone -b seguir-desde-casa https://github.com/Slonimtek/localia-cloud-pc.git
+   ```
+2. **Usar el portal y el demo:** alcanza con el navegador, desde cualquier lugar. Los accesos están en Parameter Store (`/localia/accesos`) o se bajan en el paso 4.
+3. **Para tocar la infraestructura:** AWS CLI con un perfil de la cuenta `038744350127`. Conviene un usuario IAM propio, no las claves root:
+   ```bash
+   aws configure --profile localia
+   ```
+4. **Bajar los secretos** (llave SSH, configuración, accesos) a `live/.secrets/`:
+   ```bash
+   AWS_PROFILE=localia bash live/traer-secretos.sh
+   ```
+5. **Habilitar el SSH desde casa:** el gateway solo acepta IPs conocidas. Agregar la IP de casa al security group `localia-gateway`:
+   ```bash
+   aws ec2 authorize-security-group-ingress --region us-east-1 --profile localia --group-id sg-0018518149374728e --protocol tcp --port 22 --cidr "$(curl -s https://checkip.amazonaws.com)/32"
+   ```
+6. **Entrar al gateway:**
+   ```bash
+   ssh -i live/.secrets/localia-admin.pem admin@100.57.206.149
+   ```
+   Las PCs se alcanzan saltando por el gateway, con `-J admin@100.57.206.149` y su IP privada `10.60.2.x`.
+
 
 ---
 
