@@ -30,7 +30,7 @@
     if (!st) return;
     var id = st.identity, where = id && id.online ? (id.city || '') + ', ' + (N[id.country] || id.country) : name(st.active);
     var h_ = embedded ? '<div class="pill" data-a="toggle">📁 <span class="txt"><b>Archivos</b> ▴</span></div>'
-      : '<div class="pill" data-a="toggle"><span class="dot" style="' + (id && id.online === false ? 'background:#f07068' : '') + '"></span><span class="txt">' + (st.direct ? '<b>' + h(st.name) + '</b>' : 'Te ven en <b>' + h(where) + '</b>') + ' ▾</span></div>';
+      : '<div class="pill" data-a="toggle"><span class="dot" style="' + (id && id.online === false ? 'background:#f07068' : '') + '"></span><span class="txt">' + (st.direct ? '📁 <b>Archivos y opciones</b>' : 'Te ven en <b>' + h(where) + '</b>') + ' ▾</span></div>';
     if (open) {
       h_ += '<div class="menu"><div class="k">Localía · ' + h(st.name) + '</div>';
       if (!embedded && st.exits.length > 1) {
