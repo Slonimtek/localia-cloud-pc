@@ -56,10 +56,10 @@ function hetzner(ENV) {
   const action = (id, a) => call('POST', `/servers/${id}/actions/${a}`);
   return {
     name: 'hetzner', label: 'Hetzner', place: ENV.HCLOUD_PLACE || 'Alemania', billsWhenOff: true,
-    tiers: {   // ARM (Ampere), la misma arquitectura que la imagen actual; el disco viene con el tamaño
-      mini: { name: 'Mini', type: ENV.HCLOUD_TYPE_MINI || 'cax11', cpu: 2, ram: 4, disk: 40 },
-      standard: { name: 'Standard', type: ENV.HCLOUD_TYPE_STANDARD || 'cax31', cpu: 8, ram: 16, disk: 160 },
-      gold: { name: 'Gold', type: ENV.HCLOUD_TYPE_GOLD || 'cax41', cpu: 16, ram: 32, disk: 320 },
+    tiers: {   // x86 compartido (línea CX). Las ARM (CAX) no tenían stock al 04/10/2026. El disco viene con el tamaño
+      mini: { name: 'Mini', type: ENV.HCLOUD_TYPE_MINI || 'cx23', cpu: 2, ram: 4, disk: 40 },
+      standard: { name: 'Standard', type: ENV.HCLOUD_TYPE_STANDARD || 'cx43', cpu: 8, ram: 16, disk: 160 },
+      gold: { name: 'Gold', type: ENV.HCLOUD_TYPE_GOLD || 'cx53', cpu: 16, ram: 32, disk: 320 },
     },
     // Ubicaciones que ofrece Hetzner. Hoy el portal alcanza a las PCs por la red privada, que no cruza zonas:
     // quedan disponibles las de la zona del portal (HCLOUD_ZONE). Las demás necesitan un portal de relevo en su zona.

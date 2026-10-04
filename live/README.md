@@ -1,6 +1,13 @@
 # Localía · sistema en vivo
 
-> **Dado de baja el 01/10/2026.** Se borró todo en AWS a pedido, para no pagar. Esta guía y el código sirven para volver a levantarlo; las IPs, IDs y la URL de abajo ya no existen.
+> **En vivo en Hetzner desde el 04/10/2026**, en modo directo (sin salidas por país) y con modo simple.
+> - **Portal:** https://localia.178-104-63-109.sslip.io (por invitación; accesos en Parameter Store `/localia/accesos`).
+> - **Qué hay:** servidor `localia-portal` (cx23, Núremberg), red privada `localia` (10.60.1.0/24), firewalls `localia-portal` y `localia-pc`, imagen `localia-pc-debian12-amd64-v6-simple` y una PC Mini de prueba.
+> - **Costo:** portal €6,49/mes + cada PC Mini €6,49/mes (siempre prendida) + imagen ~€0,02/mes.
+> - **Probado en una PC real:** creación en ~100 s, arranque en modo simple, subir y bajar archivos, y puertos cerrados desde internet.
+> - **Seguir desde otra compu:** `bash live/traer-secretos.sh` y después `ssh -F live/.secrets/ssh_config portal`. El SSH del portal solo acepta las IPs cargadas en el firewall `localia-portal`.
+>
+> El demo de AWS se dio de baja el 01/10/2026: lo que sigue de acá para abajo describe ese demo (salidas por país) y queda como referencia; sus IPs, IDs y URL ya no existen.
 
 Demo real de punta a punta, no un mockup. Cada PC es una máquina de AWS con escritorio en el navegador que **sale a internet por el país que elijas**. El país se cambia en un clic y el corte automático es real.
 
@@ -33,7 +40,10 @@ Desde el 04/10/2026 el modelo es **sin salidas por país**: el cliente elige la 
 - **Red:** cada PC tiene IP pública propia para salir, con el firewall cerrado a toda entrada. El portal llega al escritorio y al agente por la red privada.
 - **Sin apagado automático:** en Hetzner una máquina apagada se cobra igual.
 - **No disponible todavía en este modo:** Windows App (dependía del gateway) y las ubicaciones de otras zonas.
-- **Probado** contra una API de Hetzner simulada. **Falta probar con una cuenta real**, y armar allá la red, el firewall, el portal y la imagen.
+- **Tamaños:** línea x86 compartida: Mini `cx23` (2 vCPU, 4 GB, 40 GB), Standard `cx43` (8 vCPU, 16 GB, 160 GB), Gold `cx53` (16 vCPU, 32 GB, 320 GB). Las ARM (`cax`) no tenían stock el 04/10/2026.
+- **Entre PCs:** el firewall de Hetzner no filtra la red privada, así que cada PC trae su propio firewall (`pc-image/pc-firewall.sh`): solo el portal llega al escritorio, al agente y a SSH.
+- **Armar la imagen:** en una máquina Debian 12 nueva, copiar `pc-image/*` a `/tmp` y correr `bake.sh`, `localia-apps.sh`, `localia-simple.sh`, `pc-firewall.sh <ip privada del portal>` y al final `finalize.sh`; apagar, sacar un snapshot y poner su ID en `HCLOUD_IMAGE`.
+- **Desplegar el portal:** copiar `portal/` a `/opt/localia/portal` del servidor y `systemctl restart localia-portal`.
 
 ## Modo simple (en la rama, todavía sin imagen)
 
@@ -43,7 +53,7 @@ Pensado para usuarios no técnicos: la PC abre **directo en el navegador**, sin 
 - **Archivos:** en el botón flotante de la PC (y como "Archivos" dentro del portal): **"Subir un archivo desde mi compu"** lo deja en la carpeta Descargas de la PC, y **"Bajar archivos a mi compu"** lista lo que se bajó adentro. Tope de 200 MB por archivo.
 - **Escritorio completo:** sigue disponible desde el mismo botón ("Ver el escritorio completo" / "Volver al modo simple").
 - **PCs nuevas:** nacen en modo simple. Las anteriores quedan como estaban (escritorio completo).
-- **Falta:** armar la imagen v6 corriendo `pc-image/localia-simple.sh` después de `localia-apps.sh`, y apuntar `AMI_PC` a esa imagen. Con la imagen v5 el portal funciona igual, pero las PCs abren con escritorio completo y sin carpeta Descargas configurada. El arranque sin escritorio está escrito pero **no probado en una PC real**.
+- **Probado en una PC real** (imagen v6, Hetzner): arranca solo con el navegador, sin panel ni escritorio. **Falta probar con personas:** teclado (ñ, tildes, @), copiar y pegar, y el cambio a escritorio completo desde el botón.
 - **Probar el botón sin PC:** `portal/dev/overlay-test.html` (acceso directo) y `portal/dev/overlay-test-embed.html` (dentro del portal).
 
 ## Arquitectura

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Prepara la imagen base de una PC Localía (Debian 12 arm64): escritorio XFCE + Chromium + KasmVNC + agente.
+# Prepara la imagen base de una PC Localía (Debian 12, arm64 o amd64): escritorio XFCE + Chromium + KasmVNC + agente.
 set -euxo pipefail
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -y
@@ -9,7 +9,7 @@ apt-get install -y --no-install-recommends xfce4 xfce4-terminal xfce4-taskmanage
 for l in es_UY es_AR es_ES pt_BR en_US he_IL es_CL es_MX es_PE es_CO es_PY; do sed -i "s/^# *\(${l}.UTF-8 UTF-8\)/\1/" /etc/locale.gen; done
 locale-gen
 update-locale LANG=es_UY.UTF-8
-URL=$(curl -s https://api.github.com/repos/kasmtech/KasmVNC/releases/latest | jq -r '.assets[].browser_download_url' | grep -E 'bookworm.*arm64\.deb$' | head -1)
+URL=$(curl -s https://api.github.com/repos/kasmtech/KasmVNC/releases/latest | jq -r '.assets[].browser_download_url' | grep -E "bookworm.*$(dpkg --print-architecture)\.deb\$" | head -1)
 echo "KasmVNC: $URL"
 wget -q -O /tmp/kasmvnc.deb "$URL"
 apt-get install -y /tmp/kasmvnc.deb

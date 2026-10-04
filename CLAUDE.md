@@ -6,7 +6,7 @@ Contexto completo del proyecto (idea, decisiones, arquitectura, precios, riesgos
 
 ## Sistema en vivo
 
-Está en `live/` (portal Node en el gateway, WireGuard por país, PCs EC2 con KasmVNC). Leer `live/README.md`. Los secretos no están en git: se bajan con `bash live/traer-secretos.sh`, que los trae de AWS Parameter Store `/localia/*`. En zsh, poner llaves a las variables antes de ":" (`${VAR}:`); si no, zsh aplica modificadores.
+Está en `live/` y corre en **Hetzner** desde el 04/10/2026, en modo directo (sin salidas por país): portal Node + PCs con KasmVNC. El código de WireGuard por país y de AWS sigue en el repo, apagado. Leer `live/README.md`. Los secretos no están en git: se bajan con `bash live/traer-secretos.sh`, que los trae de AWS Parameter Store `/localia/*`. En zsh, poner llaves a las variables antes de ":" (`${VAR}:`); si no, zsh aplica modificadores.
 
 ## Cómo trabajar en este repo
 
