@@ -56,7 +56,9 @@ function stamp(code,name,city,size){const id='sp'+(++sid);const txt=`LOCALÍA ·
  <text x="60" y="67" text-anchor="middle" font-family="Bricolage Grotesque,sans-serif" font-weight="800" font-size="25" fill="currentColor">${esc(code)}</text>
  <text x="60" y="80" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="6.8" fill="currentColor">${SD}</text></g></svg>`}
 const ex=code=>(S.cfg&&S.cfg.exits.find(x=>x.code===code))||{code,name:cname(code),city:''};
-const exStamp=(code,size)=>{const e=ex(code);return stamp(code,e.name,e.city,size)};
+const exStamp=(code,size)=>{const e=ex(code);return stamp(e.country||code,e.name,e.city,size)};
+const D=()=>!!(S.cfg&&S.cfg.direct);   // modo directo: sin salidas por país, la PC sale desde su ubicación
+const provider=()=>(S.cfg&&S.cfg.cloud&&S.cfg.cloud.label)||'la nube';
 function clock(tz){try{return new Intl.DateTimeFormat('es-UY',{timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date())}catch(e){return '--:--'}}
 const ago=iso=>{if(!iso)return '';const s=(Date.now()-Date.parse(iso))/1000;if(s<60)return 'recién';if(s<3600)return `hace ${Math.round(s/60)} min`;if(s<86400)return `hace ${Math.round(s/3600)} h`;return new Date(iso).toLocaleDateString('es-UY')};
 const bytes=b=>b>1e9?(b/1e9).toFixed(1)+' GB':b>1e6?(b/1e6).toFixed(1)+' MB':b>1e3?Math.round(b/1e3)+' kB':b+' B';
@@ -80,22 +82,23 @@ function vHome(){const e=S.cfg?S.cfg.exits.filter(x=>x.available):[];
  return `${topbar()}
  <section class="hero"><div class="wrap hero-in">
   <div class="hero-copy"><div class="eyebrow">Slonimtek · Localía · demo en vivo</div>
-   <h1>Tu computadora en tu país, <em>estés donde estés.</em></h1>
-   <p class="lead">Esto no es un mockup: cada PC es una computadora real en la nube, cerca tuyo, que sale a internet por el país que elijas con una IP de ahí. La abrís desde el navegador y cambiás de país en un clic.</p>
+   <h1>${D()?'Tu computadora en la nube, <em>lista en minutos.</em>':'Tu computadora en tu país, <em>estés donde estés.</em>'}</h1>
+   <p class="lead">${D()?'Esto no es un mockup: cada PC es una computadora real en la nube, en la ubicación que elijas. La abrís desde el navegador, sin instalar nada, y queda siempre igual a como la dejaste.':'Esto no es un mockup: cada PC es una computadora real en la nube, cerca tuyo, que sale a internet por el país que elijas con una IP de ahí. La abrís desde el navegador y cambiás de país en un clic.'}</p>
    <div class="cta-row"><a class="btn btn-primary btn-lg" href="#armar/1">Crear mi PC ${ico.arrow}</a>${S.user?`<a class="btn btn-ghost btn-lg" href="#panel">Ir a mi panel</a>`:`<a class="btn btn-ghost btn-lg" href="#entrar">Entrar</a>`}</div>
-   <ul class="proof"><li>${ico.check} Países disponibles hoy: ${e.map(x=>esc(x.name)).join(', ')||'…'}</li><li>${ico.check} Corte automático real</li><li>${ico.check} Sin instalar nada</li></ul></div>
+   <ul class="proof">${D()?`<li>${ico.check} Ubicaciones hoy: ${e.map(x=>esc(x.city)).join(', ')||'…'}</li><li>${ico.check} Subí y bajá archivos con un botón</li>`:`<li>${ico.check} Países disponibles hoy: ${e.map(x=>esc(x.name)).join(', ')||'…'}</li><li>${ico.check} Corte automático real</li>`}<li>${ico.check} Sin instalar nada</li></ul></div>
   <div class="hero-vis"><div class="flow" style="grid-template-columns:1fr;margin:0">
    <div class="fn"><span class="k">Vos</span><b>Donde estés</b><small>abrís tu PC en una pestaña</small></div>
    <div class="fa" style="flex-direction:row;max-width:none;justify-content:flex-start;padding-left:16px;text-align:left">${ico.arrow}<span>escritorio remoto cifrado</span></div>
-   <div class="fn"><span class="k">Tu PC</span><b>AWS · Virginia</b><small>Linux con escritorio y navegador</small></div>
-   <div class="fa" style="flex-direction:row;max-width:none;justify-content:flex-start;padding-left:16px;text-align:left">${ico.arrow}<span>túnel WireGuard · corte automático</span></div>
-   <div class="fn hl"><span class="k">Salida</span><b>${e.map(x=>esc(x.city)).join(' · ')||'…'}</b><small>los sitios te ven ahí</small></div></div></div>
+   <div class="fn"><span class="k">Tu PC</span><b>${D()?e.map(x=>esc(x.city)).join(' · ')||'…':'AWS · Virginia'}</b><small>${D()?'la ubicación la elegís vos':'Linux con escritorio y navegador'}</small></div>
+${D()?`<div class="fa" style="flex-direction:row;max-width:none;justify-content:flex-start;padding-left:16px;text-align:left">${ico.arrow}<span>internet directo</span></div>
+   <div class="fn hl"><span class="k">Internet</span><b>Sale desde su ubicación</b><small>con su propia IP</small></div>`:`<div class="fa" style="flex-direction:row;max-width:none;justify-content:flex-start;padding-left:16px;text-align:left">${ico.arrow}<span>túnel WireGuard · corte automático</span></div>
+   <div class="fn hl"><span class="k">Salida</span><b>${e.map(x=>esc(x.city)).join(' · ')||'…'}</b><small>los sitios te ven ahí</small></div>`}</div></div>
  </div></section>
  <section class="sec"><div class="wrap"><div class="sec-head"><div class="eyebrow">Cómo se prueba</div><h2>Tres pasos, de punta a punta.</h2></div>
   <div class="steps3">
-   <div class="st"><span class="n">01</span><h3>Creá tu PC</h3><p>Elegí el tamaño y confirmá. En unos minutos está prendida, de verdad.</p></div>
-   <div class="st"><span class="n">02</span><h3>Abrila y mirá tu IP</h3><p>Se abre sola en "¿Desde dónde me ven?". Probá ipinfo.io o browserleaks: te ven en el país elegido.</p></div>
-   <div class="st"><span class="n">03</span><h3>Elegí tu país desde adentro</h3><p>Con el ícono "Cambiar país" de tu PC. En segundos sale por otro país, sin reiniciar nada.</p></div>
+   <div class="st"><span class="n">01</span><h3>Creá tu PC</h3><p>${D()?'Elegí dónde la querés y el tamaño.':'Elegí el tamaño y confirmá.'} En unos minutos está prendida, de verdad.</p></div>
+   <div class="st"><span class="n">02</span>${D()?'<h3>Abrila desde el navegador</h3><p>Abre directo en una página de inicio, sin menús raros. Desde tu compu, tu tablet o tu celular.</p>':'<h3>Abrila y mirá tu IP</h3><p>Se abre sola en "¿Desde dónde me ven?". Probá ipinfo.io o browserleaks: te ven en el país elegido.</p>'}</div>
+   <div class="st"><span class="n">03</span>${D()?'<h3>Pasá tus archivos</h3><p>Subí un archivo desde tu compu o bajate lo que descargaste en la PC, con un botón.</p>':'<h3>Elegí tu país desde adentro</h3><p>Con el ícono "Cambiar país" de tu PC. En segundos sale por otro país, sin reiniciar nada.</p>'}</div>
   </div></div></section>
  <footer class="foot"><div class="wrap foot-in"><div class="brand">${logo()}<b>Localía</b><small>by Slonimtek</small></div><p>Demo en vivo por invitación. Precios y pagos: modo demo, no se cobra nada.</p></div></footer>`}
 
@@ -115,42 +118,45 @@ function vAuth(){const mode=S.authMode||'login';
  </div></main>`}
 
 /* ---------- crear PC ---------- */
-const WSTEPS=['Tamaño','Confirmar'];
-function vWizard(n){const w=S.wiz;const exits=S.cfg.exits;
+const wsteps=()=>D()?['Ubicación','Tamaño','Confirmar']:['Tamaño','Confirmar'];
+function vWizard(n){const w=S.wiz;const exits=S.cfg.exits;const WSTEPS=wsteps();const N=WSTEPS.length;n=Math.min(N,Math.max(1,n));const step=WSTEPS[n-1];const loc=D()?ex(w.location):null;
  let body='';
- if(n===1){body=`<div class="step-head"><div class="eyebrow">Paso 1 de 2 · Tamaño</div><h2>¿Qué tan potente la querés?</h2><p class="sub">Son máquinas reales de AWS (Graviton). Para el demo alcanza con Mini.</p></div>
+ if(step==='Ubicación'){body=`<div class="step-head"><div class="eyebrow">Paso ${n} de ${N} · Ubicación</div><h2>¿Dónde querés tu PC?</h2><p class="sub">Elegí la más cercana a vos para que el escritorio vaya fluido. Tu PC sale a internet desde ahí, y no se puede mudar después.</p></div>
+  <div class="tiers" style="margin-top:20px">${exits.map(x=>`<button class="tier${w.location===x.code?' on':''}" data-act="w-loc" data-code="${x.code}" ${x.available?'':'disabled style="opacity:.55;cursor:not-allowed"'}><span class="tier-name">${esc(x.city)}</span><span class="tier-for mono">${esc(x.name)}</span>${!x.available?'<span class="tier-sel ghost">Próximamente</span>':w.location===x.code?`<span class="tier-sel">${ico.check} Elegida</span>`:'<span class="tier-sel ghost">Elegir</span>'}</button>`).join('')}</div>`}
+ if(step==='Tamaño'){body=`<div class="step-head"><div class="eyebrow">Paso ${n} de ${N} · Tamaño</div><h2>¿Qué tan potente la querés?</h2><p class="sub">Son máquinas reales de ${esc(provider())}. Para el demo alcanza con Mini.</p></div>
   <div class="tiers" style="margin-top:20px">${Object.entries(S.cfg.tiers).map(([k,t])=>`<button class="tier t-${k}${w.tier===k?' on':''}" data-act="w-tier" data-tier="${k}"><span class="tier-name">${t.name}</span><span class="tier-for mono">${t.type}</span>
    <span class="tier-specs mono"><span>${t.cpu} vCPU</span><span>${t.ram} GB RAM</span><span>${t.disk} GB SSD</span></span>${w.tier===k?`<span class="tier-sel">${ico.check} Elegida</span>`:'<span class="tier-sel ghost">Elegir</span>'}</button>`).join('')}</div>`}
- if(n===2){const t=S.cfg.tiers[w.tier];body=`<div class="step-head"><div class="eyebrow">Paso 2 de 2 · Confirmar</div><h2>Todo listo para crearla</h2><p class="sub">Al confirmar se prende una máquina real en AWS. Tarda unos 3 minutos. El país desde donde te ven lo elegís después, adentro de tu PC, con el ícono "Cambiar país".</p></div>
+ if(step==='Confirmar'){const t=S.cfg.tiers[w.tier];body=`<div class="step-head"><div class="eyebrow">Paso ${n} de ${N} · Confirmar</div><h2>Todo listo para crearla</h2><p class="sub">Al confirmar se prende una máquina real en ${esc(provider())}. Tarda unos minutos.${D()?'':' El país desde donde te ven lo elegís después, adentro de tu PC, con el ícono "Cambiar país".'}</p></div>
   <div class="form" style="grid-template-columns:1fr;max-width:420px"><label>Nombre de tu PC<input id="pcName" value="${esc(w.name)}" maxlength="40"></label></div>
-  <div class="lines"><div><span>PC ${t.name} (${t.type})</span><span class="mono">${t.cpu} vCPU · ${t.ram} GB</span></div><div><span>País de identidad</span><span>lo elegís adentro de tu PC</span></div><div><span>Verificación de identidad y pago</span><span class="mono">modo demo</span></div><div><span>Se apaga sola si no la usás</span><span class="mono">${S.cfg.idleStopMin} min</span></div></div>
+  <div class="lines"><div><span>PC ${t.name} (${t.type})</span><span class="mono">${t.cpu} vCPU · ${t.ram} GB</span></div>${D()?`<div><span>Ubicación</span><span>${esc(loc.city)}, ${esc(loc.name)}</span></div>`:'<div><span>País de identidad</span><span>lo elegís adentro de tu PC</span></div>'}<div><span>Verificación de identidad y pago</span><span class="mono">modo demo</span></div>${S.cfg.idleStopMin>0?`<div><span>Se apaga sola si no la usás</span><span class="mono">${S.cfg.idleStopMin} min</span></div>`:'<div><span>Siempre prendida</span><span>abre al instante</span></div>'}</div>
   <div class="cta-row" style="margin:22px 0 8px"><button class="btn btn-primary btn-lg" data-act="create" id="createBtn">${ico.power} Crear mi PC</button></div><div id="createErr"></div>`}
  return `${topbar()}<main class="wrap wiz"><nav class="stepper">${WSTEPS.map((s,i)=>`<a class="stp${i+1===n?' on':''}${i+1<n?' done':''}" href="#armar/${i+1}"><span class="n">${i+1<n?'✓':i+1}</span>${s}</a>`).join('')}</nav>
-  <div class="wiz-grid"><section class="wiz-main">${body}<div class="wiz-nav"><a class="btn btn-ghost" href="${n>1?'#armar/'+(n-1):'#inicio'}">${ico.back} ${n>1?'Atrás':'Inicio'}</a>${n<2?`<a class="btn btn-primary" href="#armar/${n+1}" style="display:inline-flex">Siguiente: ${WSTEPS[n]} ${ico.arrow}</a>`:''}</div></section>
+  <div class="wiz-grid"><section class="wiz-main">${body}<div class="wiz-nav"><a class="btn btn-ghost" href="${n>1?'#armar/'+(n-1):'#inicio'}">${ico.back} ${n>1?'Atrás':'Inicio'}</a>${n<N?`<a class="btn btn-primary" href="#armar/${n+1}" style="display:inline-flex">Siguiente: ${WSTEPS[n]} ${ico.arrow}</a>`:''}</div></section>
   <aside class="card sum"><div class="sum-head"><div><div class="eyebrow">Tu PC</div><h3>${esc(S.cfg.tiers[w.tier].name)}</h3></div></div>
-   <dl><div><dt>Tu PC está en</dt><dd>AWS Virginia</dd></div><div><dt>Tamaño</dt><dd>${S.cfg.tiers[w.tier].name}</dd></div><div><dt>País de identidad</dt><dd>lo elegís adentro</dd></div><div><dt>Disponibles hoy</dt><dd>${S.cfg.exits.filter(x=>x.available).map(x=>esc(x.name)).join(' · ')}</dd></div></dl>
-   <ul class="sum-inc"><li>${ico.check} Corte automático: nunca sale por otro país</li><li>${ico.check} DNS por el túnel</li><li>${ico.check} Escritorio en el navegador</li></ul></aside></div></main>`}
+   ${D()?`<dl><div><dt>Tu PC está en</dt><dd>${esc(loc.city)}, ${esc(loc.name)}</dd></div><div><dt>Tamaño</dt><dd>${S.cfg.tiers[w.tier].name}</dd></div></dl>
+   <ul class="sum-inc"><li>${ico.check} Abre directo en el navegador</li><li>${ico.check} Subí y bajá archivos con un botón</li><li>${ico.check} Nadie entra a tu PC desde internet</li></ul>`:`<dl><div><dt>Tu PC está en</dt><dd>AWS Virginia</dd></div><div><dt>Tamaño</dt><dd>${S.cfg.tiers[w.tier].name}</dd></div><div><dt>País de identidad</dt><dd>lo elegís adentro</dd></div><div><dt>Disponibles hoy</dt><dd>${S.cfg.exits.filter(x=>x.available).map(x=>esc(x.name)).join(' · ')}</dd></div></dl>
+   <ul class="sum-inc"><li>${ico.check} Corte automático: nunca sale por otro país</li><li>${ico.check} DNS por el túnel</li><li>${ico.check} Escritorio en el navegador</li></ul>`}</aside></div></main>`}
 
 /* ---------- armando ---------- */
-const PSTEPS=[['reserving','Reservando la máquina en AWS'],['tunnel','Asignando la salida y el corte automático'],['booting','Prendiendo la PC'],['desktop','Arrancando el escritorio'],['ready','Chequeo final: ¿desde dónde te ven?']];
+const PSTEPS=[['reserving','Reservando la máquina'],['tunnel','Preparando la conexión'],['booting','Prendiendo la PC'],['desktop','Arrancando el escritorio'],['ready','Chequeo final']];
 function vBuilding(){const pc=S.pc;if(!pc)return `${topbar()}<main class="build"><div class="card build-card"><p>Cargando…</p></div></main>`;
  const P=pc.provision||{steps:[]};const idx=PSTEPS.findIndex(s=>s[0]===P.step);const done=P.done;
  return `${topbar()}<main class="build"><div class="card build-card">
   <div class="build-stamp${done?' stamped':''}">${exStamp(pc.active,130)}</div>
-  <div class="build-head"><div class="eyebrow">${done?'Lista':P.error?'Error':'Armando tu PC · en vivo'}</div><h2>${done?`¡Listo! Te ven en ${esc(pc.activeName)}`:'Estamos armando tu PC'}</h2><p class="sub">${P.error?esc(P.error):done?'Abrila y mirá tu IP: se abre sola en "¿Desde dónde me ven?".':'Esto pasa de verdad en AWS. Tarda unos 3 minutos.'}</p></div>
+  <div class="build-head"><div class="eyebrow">${done?'Lista':P.error?'Error':'Armando tu PC · en vivo'}</div><h2>${done?(D()?'¡Listo! Tu PC está prendida':`¡Listo! Te ven en ${esc(pc.activeName)}`):'Estamos armando tu PC'}</h2><p class="sub">${P.error?esc(P.error):done?(D()?'Abrila: arranca directo en el navegador.':'Abrila y mirá tu IP: se abre sola en "¿Desde dónde me ven?".'):'Esto pasa de verdad. Tarda unos minutos.'}</p></div>
   <div class="bar"><span style="width:${done?100:Math.max(6,(idx+.5)/PSTEPS.length*100)}%"></span></div>
   <ol class="bsteps">${PSTEPS.map(([k,l],i)=>{const st=P.steps.filter(s=>s.step===k).pop();const cls=done||i<idx?'done':i===idx?'now':'';return `<li class="${cls}"><span class="bi"></span><span>${st?esc(st.text):l}</span></li>`}).join('')}</ol>
   ${done?`<div class="cta-row" style="margin:22px 0 0"><a class="btn btn-primary" href="#pc/${pc.id}">${ico.monitor} Abrir mi PC</a><a class="btn btn-ghost" href="#panel">Ir a mi panel</a></div>`:''}
  </div></main>`}
 
 /* ---------- la PC en el navegador ---------- */
-function idChip(pc){const id=pc.identity;return !id?`<span class="idchip wait">${ico.globe} chequeando…</span>`:!id.online?`<span class="idchip bad">${ico.alert} sin internet</span>`:`<span class="idchip${id.country===pc.active?'':' bad'}">${ico.check} ${esc(id.city||'')}, ${esc(id.country)} · <span class="mono">${esc(id.ip)}</span></span>`}
+function idChip(pc){const id=pc.identity;return !id?`<span class="idchip wait">${ico.globe} chequeando…</span>`:!id.online?`<span class="idchip bad">${ico.alert} sin internet</span>`:`<span class="idchip${id.country===(pc.expect||pc.active)?'':' bad'}">${ico.check} ${esc(id.city||'')}, ${esc(id.country)} · <span class="mono">${esc(id.ip)}</span></span>`}
 function vSession(){const pc=S.pc;if(!pc)return '<div class="ses"><div class="center-msg"><div>Cargando…</div></div></div>';
  const e=ex(pc.active);const running=pc.state==='running'&&pc.desktop==='active';
  return `<div class="ses"><div class="ses-bar">
   <a class="brand" href="#panel">${logo()}<b>Localía</b></a>
-  <span class="ses-chip hide-m">${ico.monitor} ${esc(pc.name)} · Virginia</span>
-  <label class="ses-sel"><span>Te ven en</span><select data-chg="exit" aria-label="País por donde salís a internet">${pc.exits.map(c=>`<option value="${c}" ${c===pc.active?'selected':''}>${esc(ex(c).name)}</option>`).join('')}</select></label>
+  <span class="ses-chip hide-m">${ico.monitor} ${esc(pc.name)} · ${esc(pc.place||'')}</span>
+  ${pc.exits.length>1?`<label class="ses-sel"><span>Te ven en</span><select data-chg="exit" aria-label="País por donde salís a internet">${pc.exits.map(c=>`<option value="${c}" ${c===pc.active?'selected':''}>${esc(ex(c).name)}</option>`).join('')}</select></label>`:''}
   <span id="idchip">${idChip(pc)}</span>
   <span class="ses-sp"></span>
   <button class="ses-btn" data-act="check">${ico.shield}<span>Verificar IP</span></button>
@@ -166,9 +172,9 @@ function vSession(){const pc=S.pc;if(!pc)return '<div class="ses"><div class="ce
 function pcCardFull(pc){const e=ex(pc.active);const busy=['pending','stopping','shutting-down'].includes(pc.state);
  const P=pc.provision;const provisioning=P&&!P.done&&!P.error;
  return `<section class="pcrow"><div class="pcd-head"><div><h2>${esc(pc.name)} ${stPill(pc.state)}</h2>
-  <div class="pcd-meta"><span class="chip">${ico.monitor} AWS Virginia · ${esc(pc.tierName)} (${pc.specs.type})</span><span class="chip">${ico.link} Túnel con corte automático</span></div>
-  <div class="exit-switch"><span>Te ven en</span><div class="seg">${pc.exits.map(c=>`<button class="${c===pc.active?'on':''}" data-act="set-exit" data-id="${pc.id}" data-code="${c}">${esc(ex(c).name)}</button>`).join('')}</div>
-</div>
+  <div class="pcd-meta"><span class="chip">${ico.monitor} ${esc(provider())} ${esc(pc.place||'')}${D()?', '+esc(pc.activeName||''):''} · ${esc(pc.tierName)} (${pc.specs.type})</span>${D()?'':`<span class="chip">${ico.link} Túnel con corte automático</span>`}</div>
+  ${pc.exits.length>1?`<div class="exit-switch"><span>Te ven en</span><div class="seg">${pc.exits.map(c=>`<button class="${c===pc.active?'on':''}" data-act="set-exit" data-id="${pc.id}" data-code="${c}">${esc(ex(c).name)}</button>`).join('')}</div>
+</div>`:''}
   <p style="margin-top:12px;font-size:14.5px">${ico.globe} <b>Así te ven ahora:</b> ${idLine(pc)}</p></div>
   <div class="pcd-act">${provisioning?`<a class="btn btn-primary" href="#armando/${pc.id}">Ver cómo se arma</a>`:`<a class="btn btn-primary" href="#pc/${pc.id}" ${pc.state!=='running'?'':''}>${ico.monitor} Abrir mi PC</a>`}
    ${pc.state==='stopped'?`<button class="btn btn-ghost btn-sm" data-act="pc-start" data-id="${pc.id}">${ico.power} Prender</button>`:`<button class="btn btn-ghost btn-sm" data-act="pc-stop" data-id="${pc.id}" ${pc.state!=='running'||busy?'disabled':''}>${ico.power} Apagar</button>`}
@@ -176,12 +182,12 @@ function pcCardFull(pc){const e=ex(pc.active);const busy=['pending','stopping','
    <button class="btn btn-ghost btn-sm" data-act="pc-check" data-id="${pc.id}" ${pc.state!=='running'?'disabled':''}>${ico.shield} Verificar IP</button>
    <button class="btn btn-ghost btn-sm" data-act="pc-delete" data-id="${pc.id}">${ico.trash} Borrar</button></div></div>
   <div class="tab-body direct"><div><h3>${ico.link} Acceso directo, sin pasar por el portal</h3>
-   <p class="sm muted">Tu PC tiene su propia dirección. Abrila desde cualquier compu o celular: te pide entrar una vez y va directo al escritorio, con un botón para cambiar de país. Guardala en favoritos o instalala como app.</p>
+   <p class="sm muted">Tu PC tiene su propia dirección. Abrila desde cualquier compu o celular: te pide entrar una vez y va directo al escritorio${D()?'':', con un botón para cambiar de país'}. Guardala en favoritos o instalala como app.</p>
    <div class="cmd"><span class="dlink">${esc(directUrl(pc).split('?')[0])}</span></div>
    <div class="cta-row" style="margin:12px 0 0"><button class="btn btn-ghost btn-sm" data-act="copy-link" data-url="${esc(directUrl(pc))}">${ico.copy} Copiar link</button><a class="btn btn-ghost btn-sm" href="${directUrl(pc)}" target="_blank" rel="noopener">${ico.monitor} Abrir a pantalla completa</a></div>
    <details class="tbl" style="margin-top:12px"><summary>Cómo instalarla como app</summary><ul class="steps-ol" style="list-style:disc"><li><b>Compu (Chrome o Edge):</b> abrí el link y tocá el ícono de instalar en la barra de direcciones (o menú ⋮ → "Instalar").</li><li><b>iPhone o iPad (Safari):</b> abrí el link → Compartir → "Agregar a inicio".</li><li><b>Android (Chrome):</b> abrí el link → menú ⋮ → "Agregar a la pantalla principal".</li></ul></details></div>
    <div class="qrbox"><div class="qr-slot" data-url="${esc(directUrl(pc))}"></div><small class="muted">Escaneala con el celular</small></div></div>
-  <div class="tab-body winapp"><div><h3>${ico.monitor} Con la app de escritorio remoto de Microsoft</h3>
+  <div class="tab-body winapp"${D()?' style="display:none"':''}><div><h3>${ico.monitor} Con la app de escritorio remoto de Microsoft</h3>
    <p class="sm muted">Entrá a tu PC con <b>Windows App</b> (Windows, Mac, iPhone, iPad o Android). Es el mismo escritorio que ves en el navegador. Por seguridad, el acceso se habilita solo para la red donde estás, por 12 horas.</p></div>
    <button class="btn btn-primary btn-sm" data-act="rdp" data-id="${pc.id}" ${pc.state!=='running'?'disabled title="Prendé la PC primero"':''}>${ico.monitor} Conectar con Windows App</button></div>
   <div class="tab-body" style="border-top:1px solid var(--line)"><h3 style="font-size:15px;font-family:var(--font);font-weight:700;margin-bottom:6px">Actividad</h3><ul class="feed">${(pc.events||[]).slice(0,6).map(e=>`<li><time>${ago(e.at)}</time><span>${esc(e.text)}</span></li>`).join('')||'<li><span class="muted">Sin actividad todavía.</span></li>'}</ul></div></section>`}
@@ -227,7 +233,7 @@ async function route(){clearTimers();closeModal();const {r,a}=parse();const app=
  const needAuth=['armar','armando','pc','panel','operacion'].includes(r);
  if(needAuth&&!S.user){S.authMode='login';S.after=location.hash;app.innerHTML=vAuth();bindAuth();return}
  if(r==='entrar'){if(a)S.back=a;app.innerHTML=vAuth();bindAuth();return}
- if(r==='armar'){const n=Math.min(2,Math.max(1,+a||1));app.innerHTML=vWizard(n);window.scrollTo(0,0);return}
+ if(r==='armar'){const n=Math.min(wsteps().length,Math.max(1,+a||1));app.innerHTML=vWizard(n);window.scrollTo(0,0);return}
  if(r==='armando'){S.pc=null;app.innerHTML=vBuilding();await loadPc(a);app.innerHTML=vBuilding();every(async()=>{await loadPc(a);if(parse().r==='armando')app.innerHTML=vBuilding();if(S.pc&&S.pc.provision&&(S.pc.provision.done||S.pc.provision.error))clearTimers()},3000);return}
  if(r==='pc'){S.pc=null;app.innerHTML=vSession();await loadPc(a);app.innerHTML=vSession();checkIdentity(false);
   every(async()=>{const was=S.pc&&S.pc.state+'/'+S.pc.desktop;await loadPc(a);const is=S.pc&&S.pc.state+'/'+S.pc.desktop;if(was!==is&&parse().r==='pc')app.innerHTML=vSession()},6000);return}
@@ -262,7 +268,8 @@ const A={
  logout:async()=>{await api('/api/logout',{method:'POST',body:{}}).catch(()=>{});S.user=null;location.hash='#inicio';route()},
  'w-exit':el=>{const c=el.dataset.code;const w=S.wiz;if(w.exits.includes(c)){if(w.exits.length>1){w.exits=w.exits.filter(x=>x!==c);if(w.active===c)w.active=w.exits[0]}}else{w.exits.push(c);if(w.exits.length===1)w.active=c}$('#app').innerHTML=vWizard(1)},
  'w-active':el=>{S.wiz.active=el.dataset.code;$('#app').innerHTML=vWizard(1)},
- 'w-tier':el=>{S.wiz.tier=el.dataset.tier;$('#app').innerHTML=vWizard(2)},
+ 'w-tier':el=>{S.wiz.tier=el.dataset.tier;location.hash='#armar/'+wsteps().length},
+ 'w-loc':el=>{S.wiz.location=el.dataset.code;location.hash='#armar/2'},
  create:async el=>{const nm=$('#pcName');if(nm)S.wiz.name=nm.value||'Mi PC';el.disabled=true;el.innerHTML=`${ico.restart} Creando…`;
   try{const r=await api('/api/pcs',{method:'POST',body:S.wiz});location.hash='#armando/'+r.pc.id}catch(e){$('#createErr').innerHTML=`<div class="err">${esc(e.message)}</div>`;el.disabled=false;el.innerHTML=`${ico.power} Crear mi PC`}},
  check:()=>checkIdentity(true),
@@ -270,7 +277,7 @@ const A={
  'pc-stop':el=>pcAction(el.dataset.id,'stop','Apagando tu PC. Tus archivos quedan guardados.'),
  'pc-reboot':el=>pcAction(el.dataset.id,'reboot','Reiniciando tu PC.'),
  'pc-check':async el=>{S.busy=true;el.disabled=true;el.innerHTML=`${ico.restart} Chequeando…`;try{const r=await api(`/api/pcs/${el.dataset.id}/identity`);const i=r.identity;toast(i&&i.online?`Te ven en ${i.city||'?'}, ${cname(i.country)} (${i.ip})`:'Sin internet ahora mismo',!(i&&i.online))}catch(e){toast(e.message,true)}S.busy=false;await loadPcs();$('#app').innerHTML=vPanel()},
- 'pc-delete':el=>{const pc=S.pcs.find(p=>p.id===el.dataset.id);openModal(`<h3>¿Borrar "${esc(pc&&pc.name)}"?</h3><p>Se borra la máquina en AWS con todo lo que tenga adentro. No se puede deshacer.</p><div class="modal-act"><button class="btn btn-ghost" data-act="close-modal">Cancelar</button><button class="btn btn-primary" style="background:var(--bad)" data-act="do-delete" data-id="${el.dataset.id}">Sí, borrarla</button></div>`)},
+ 'pc-delete':el=>{const pc=S.pcs.find(p=>p.id===el.dataset.id);openModal(`<h3>¿Borrar "${esc(pc&&pc.name)}"?</h3><p>Se borra la máquina con todo lo que tenga adentro. No se puede deshacer.</p><div class="modal-act"><button class="btn btn-ghost" data-act="close-modal">Cancelar</button><button class="btn btn-primary" style="background:var(--bad)" data-act="do-delete" data-id="${el.dataset.id}">Sí, borrarla</button></div>`)},
  'do-delete':el=>{closeModal();pcAction(el.dataset.id,'delete','PC borrada.')},
  'set-exit':async el=>{S.busy=true;try{await api(`/api/pcs/${el.dataset.id}/exit`,{method:'POST',body:{code:el.dataset.code}});toast(`Ahora sale por ${ex(el.dataset.code).name}. Verificando…`);await new Promise(r=>setTimeout(r,2500));await api(`/api/pcs/${el.dataset.id}/identity`).catch(()=>{})}catch(e){toast(e.message,true)}S.busy=false;await loadPcs();$('#app').innerHTML=vPanel()},
  'add-exit':async el=>{try{await api(`/api/pcs/${el.dataset.id}/exits`,{method:'POST',body:{code:el.dataset.code}});toast(`Sumaste ${ex(el.dataset.code).name}.`)}catch(e){toast(e.message,true)}await loadPcs();$('#app').innerHTML=vPanel()},
@@ -308,6 +315,7 @@ try{const t=localStorage.getItem('localia-theme');if(t)document.documentElement.
 
 /* ---------- arranque ---------- */
 (async()=>{try{S.cfg=await api('/api/config');const m=await api('/api/me');S.user=m.user}catch(e){}
+ if(S.cfg&&S.cfg.direct){const av=S.cfg.exits.filter(x=>x.available).map(x=>x.code);if(!av.includes(S.wiz.location))S.wiz.location=av[0]}
  if(S.cfg){const av=S.cfg.exits.filter(x=>x.available).map(x=>x.code);S.wiz.exits=S.wiz.exits.filter(c=>av.includes(c));if(!S.wiz.exits.length&&av.length)S.wiz.exits=[av[0]];S.wiz.active=S.wiz.exits[0]}
  route()})();
 })();

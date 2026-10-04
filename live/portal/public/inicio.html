@@ -59,7 +59,7 @@ h2{font:700 13px "JetBrains Mono",monospace;letter-spacing:.12em;text-transform:
  </div>
 </div>
 <script>
-const N={US:'Estados Unidos',BR:'Brasil',AR:'Argentina',UY:'Uruguay',IL:'Israel',ES:'España',CL:'Chile',MX:'México',PE:'Perú',CO:'Colombia',PY:'Paraguay'};
+const N={DE:'Alemania',FI:'Finlandia',SG:'Singapur',US:'Estados Unidos',BR:'Brasil',AR:'Argentina',UY:'Uruguay',IL:'Israel',ES:'España',CL:'Chile',MX:'México',PE:'Perú',CO:'Colombia',PY:'Paraguay'};
 // Accesos por país. Editables: [nombre, dirección]. Abren en una pestaña nueva y esta página queda de inicio.
 const SITES={
  UY:[['Bancos','🏦',[['BROU','https://www.brou.com.uy'],['Santander','https://www.santander.com.uy'],['Itaú','https://www.itau.com.uy'],['Scotiabank','https://www.scotiabank.com.uy'],['BBVA','https://www.bbva.com.uy']]],
@@ -81,18 +81,25 @@ const SITES={
 };
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 let shown=null;
+// Si la PC está en un país sin accesos cargados, el cliente elige de qué país quiere los suyos (queda guardado).
+function home(){try{return localStorage.getItem('localia-home')}catch(e){return null}}
 function tiles(cc){
- if(cc===shown)return;shown=cc;
- const groups=SITES[cc]||[];
- document.getElementById('tiles').innerHTML=groups.map(([g,ic,list])=>`<h2>${esc(g)}</h2><div class="grid">${list.map(([n,u])=>`<a class="tile" href="${esc(u)}" target="_blank" rel="noopener"><span class="ic" aria-hidden="true">${ic}</span>${esc(n)}</a>`).join('')}</div>`).join('');
+ const own=!!SITES[cc];const pick=own?cc:(SITES[home()]?home():null);
+ const key=cc+'|'+pick;if(key===shown)return;shown=key;
+ const chooser=own?'':`<h2>¿De qué país querés tus accesos?</h2><div class="grid">${Object.keys(SITES).map(c=>`<button class="tile" data-home="${c}" style="cursor:pointer;font:inherit;font-weight:600${c===pick?';border-color:var(--stamp)':''}">${esc(N[c]||c)}</button>`).join('')}</div>`;
+ const groups=SITES[pick]||[];
+ document.getElementById('tiles').innerHTML=chooser+groups.map(([g,ic,list])=>`<h2>${esc(g)}</h2><div class="grid">${list.map(([n,u])=>`<a class="tile" href="${esc(u)}" target="_blank" rel="noopener"><span class="ic" aria-hidden="true">${ic}</span>${esc(n)}</a>`).join('')}</div>`).join('');
 }
+let lastCc=null;
+document.getElementById('tiles').addEventListener('click',e=>{const b=e.target.closest('[data-home]');if(!b)return;try{localStorage.setItem('localia-home',b.dataset.home)}catch(x){}tiles(lastCc)});
 async function go(){
  const t=document.getElementById('t'),s=document.getElementById('s'),st=document.getElementById('st'),w=document.getElementById('w');
  try{const r=await fetch('/api/donde',{cache:'no-store'});const j=await r.json();const g=j.geo||{};
   if(!g.country)throw new Error('sin país');
-  t.innerHTML=`Te ven en <em>${esc(N[g.country]||g.country)}</em>`;
-  s.className='state';st.textContent=`${g.city?g.city+' · ':''}Conexión protegida`;w.style.display='none';
-  tiles(g.country);
+  const vpn=j.vpn!==false;document.getElementById('sw').style.display=vpn?'':'none';
+  t.innerHTML=vpn?`Te ven en <em>${esc(N[g.country]||g.country)}</em>`:'¿Qué querés hacer <em>hoy</em>?';
+  s.className='state';st.textContent=vpn?`${g.city?g.city+' · ':''}Conexión protegida`:`Tu PC está en ${g.city?g.city+', ':''}${N[g.country]||g.country}`;w.style.display='none';
+  lastCc=g.country;tiles(g.country);
  }catch(e){t.textContent='Sin internet ahora';s.className='state off';st.textContent='Reintentando…';w.style.display='block';}
 }
 document.getElementById('f').addEventListener('submit',e=>{e.preventDefault();

@@ -23,6 +23,18 @@ Demo real de punta a punta, no un mockup. Cada PC es una máquina de AWS con esc
    - **"Probar corte"**: baja el túnel y verifica que las PCs queden sin internet, en vez de salir por otro lado. Resultado medido: 0 fugas.
    - Prender o apagar salidas y conectar la salida de Uruguay.
 
+## Modo directo en Hetzner (en la rama, sin desplegar)
+
+Desde el 04/10/2026 el modelo es **sin salidas por país**: el cliente elige la ubicación de la PC al crearla y la PC sale a internet desde ahí.
+
+- **Se activa solo** con `CLOUD=hetzner` (para volver a los túneles por país: `SALIDA=vpn`). Con `CLOUD=aws` todo sigue como antes.
+- **Variables en `portal.env`:** `HCLOUD_TOKEN`, `HCLOUD_IMAGE` (snapshot de la imagen de PC), `HCLOUD_NETWORK` (red privada), `HCLOUD_FIREWALL` (firewall sin reglas de entrada, se aplica a cada PC), `HCLOUD_ZONE` (por defecto `eu-central`) y `HCLOUD_SSH_KEY` (opcional).
+- **Ubicaciones:** se ofrecen las de la zona del portal (Falkenstein, Núremberg y Helsinki). Ashburn, Hillsboro y Singapur aparecen como "Próximamente": la red privada de Hetzner no cruza zonas, así que cada zona necesita su propio portal de relevo.
+- **Red:** cada PC tiene IP pública propia para salir, con el firewall cerrado a toda entrada. El portal llega al escritorio y al agente por la red privada.
+- **Sin apagado automático:** en Hetzner una máquina apagada se cobra igual.
+- **No disponible todavía en este modo:** Windows App (dependía del gateway) y las ubicaciones de otras zonas.
+- **Probado** contra una API de Hetzner simulada. **Falta probar con una cuenta real**, y armar allá la red, el firewall, el portal y la imagen.
+
 ## Modo simple (en la rama, todavía sin imagen)
 
 Pensado para usuarios no técnicos: la PC abre **directo en el navegador**, sin escritorio ni menús, en una página de Inicio con accesos grandes a bancos, trámites, tele y compras del país por el que sale.

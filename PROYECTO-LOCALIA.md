@@ -11,6 +11,8 @@
 > - **Qué queda:** el código completo en `live/`, para recrearlo (ver `live/README.md`). No queda ningún recurso en AWS: máquinas, IPs, imagen, red, IAM, llaves y secretos fueron borrados.
 > - **Gasto total aproximado:** ~US$ 10.
 
+> **Cambio de rumbo (04/10/2026): sin salidas por país.** Por decisión del dueño se deja de lado el modelo de "identidad por país" (túnel WireGuard + nodo de salida). Ahora **el cliente elige la ubicación de su PC entre las que ofrece el proveedor** y la PC sale a internet directo desde ahí, con su propia IP. El proveedor elegido es **Hetzner** (Alemania, Finlandia, EE.UU., Singapur; no tiene Latinoamérica, Israel ni España). Consecuencia: los sitios ven al cliente en el país donde está la PC, no en su país de origen. Las secciones 1 a 7 de abajo describen el modelo anterior y quedan como historia; el código de túneles sigue en el repo y se reactiva con `SALIDA=vpn`.
+
 ## Seguir desde otra compu (casa)
 
 > Desde el 01/10/2026 no hay infraestructura en AWS: los pasos 2 a 6 aplican solo si se vuelve a levantar el demo.

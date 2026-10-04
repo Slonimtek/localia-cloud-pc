@@ -30,10 +30,10 @@
     if (!st) return;
     var id = st.identity, where = id && id.online ? (id.city || '') + ', ' + (N[id.country] || id.country) : name(st.active);
     var h_ = embedded ? '<div class="pill" data-a="toggle">📁 <span class="txt"><b>Archivos</b> ▴</span></div>'
-      : '<div class="pill" data-a="toggle"><span class="dot" style="' + (id && id.online === false ? 'background:#f07068' : '') + '"></span><span class="txt">Te ven en <b>' + h(where) + '</b> ▾</span></div>';
+      : '<div class="pill" data-a="toggle"><span class="dot" style="' + (id && id.online === false ? 'background:#f07068' : '') + '"></span><span class="txt">' + (st.direct ? '<b>' + h(st.name) + '</b>' : 'Te ven en <b>' + h(where) + '</b>') + ' ▾</span></div>';
     if (open) {
       h_ += '<div class="menu"><div class="k">Localía · ' + h(st.name) + '</div>';
-      if (!embedded) {
+      if (!embedded && st.exits.length > 1) {
         st.exits.forEach(function (e) { h_ += '<button data-a="exit" data-c="' + h(e.code) + '" class="' + (e.code === st.active ? 'on' : '') + '"><span class="code">' + h(e.code) + '</span>' + h(e.name) + ' <span style="opacity:.6">· ' + h(e.city) + '</span></button>'; });
         h_ += '<hr>';
       }
@@ -43,7 +43,7 @@
           : '<div class="msg">Todavía no hay nada. Lo que bajes adentro de la PC (un comprobante, un PDF) aparece acá.</div>') + '</div>';
       }
       if (!embedded) {
-        h_ += '<hr><button data-a="check">🛡️ Verificar mi IP</button><button data-a="full">⛶ Pantalla completa</button>';
+        h_ += '<hr>' + (st.direct ? '' : '<button data-a="check">🛡️ Verificar mi IP</button>') + '<button data-a="full">⛶ Pantalla completa</button>';
         h_ += st.mode === 'simple' ? '<button data-a="mode" data-m="completo">🖥️ Ver el escritorio completo</button>' : '<button data-a="mode" data-m="simple">✨ Volver al modo simple</button>';
         h_ += '<button data-a="panel">↩ Ir a mi panel</button>';
       }

@@ -49,11 +49,12 @@ async function go(){
  try{const r=await fetch('/api/donde',{cache:'no-store'});const j=await r.json();const g=j.geo||{};
   document.getElementById('t').innerHTML=`Te ven en <em>${esc(g.city||'?')}, ${esc(N[g.country]||g.country||'?')}</em>`;
   document.getElementById('ip').textContent='IP '+(j.ip||'?');
+  document.getElementById('switchRow').style.display=(j.vpn!==false&&/[?&]pc=/.test(location.search))?'flex':'none';
   const tz=Intl.DateTimeFormat().resolvedOptions().timeZone;
   document.getElementById('d').innerHTML=`<dt>País</dt><dd>${esc(N[g.country]||g.country||'?')}</dd><dt>Ciudad</dt><dd>${esc(g.city||'?')}${g.region?', '+esc(g.region):''}</dd><dt>Proveedor</dt><dd>${esc((g.org||'').replace(/^AS\d+\s*/,'')||'?')}</dd><dt>Hora de esta PC</dt><dd>${new Date().toLocaleTimeString('es-UY',{hour:'2-digit',minute:'2-digit'})} · ${esc(tz)}</dd><dt>Idioma del navegador</dt><dd>${esc(navigator.language)}</dd>`;
  }catch(e){document.getElementById('t').innerHTML='<span class="off">Sin internet ahora</span>';document.getElementById('ip').textContent='Si el túnel se corta, esta PC no sale por ningún otro lado.';}
 }
-if(/[?&]pc=/.test(location.search))document.getElementById('switchRow').style.display='flex';
+
 go();setInterval(go,8000);
 </script>
 </body>

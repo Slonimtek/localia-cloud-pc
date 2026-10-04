@@ -61,6 +61,16 @@ function hetzner(ENV) {
       standard: { name: 'Standard', type: ENV.HCLOUD_TYPE_STANDARD || 'cax31', cpu: 8, ram: 16, disk: 160 },
       gold: { name: 'Gold', type: ENV.HCLOUD_TYPE_GOLD || 'cax41', cpu: 16, ram: 32, disk: 320 },
     },
+    // Ubicaciones que ofrece Hetzner. Hoy el portal alcanza a las PCs por la red privada, que no cruza zonas:
+    // quedan disponibles las de la zona del portal (HCLOUD_ZONE). Las demás necesitan un portal de relevo en su zona.
+    locations: [
+      { code: 'fsn1', city: 'Falkenstein', name: 'Alemania', country: 'DE', tz: 'Europe/Berlin', zone: 'eu-central' },
+      { code: 'nbg1', city: 'Núremberg', name: 'Alemania', country: 'DE', tz: 'Europe/Berlin', zone: 'eu-central' },
+      { code: 'hel1', city: 'Helsinki', name: 'Finlandia', country: 'FI', tz: 'Europe/Helsinki', zone: 'eu-central' },
+      { code: 'ash', city: 'Ashburn', name: 'Estados Unidos', country: 'US', tz: 'America/New_York', zone: 'us-east' },
+      { code: 'hil', city: 'Hillsboro', name: 'Estados Unidos', country: 'US', tz: 'America/Los_Angeles', zone: 'us-west' },
+      { code: 'sin', city: 'Singapur', name: 'Singapur', country: 'SG', tz: 'Asia/Singapore', zone: 'ap-southeast' },
+    ].map(l => ({ ...l, available: l.zone === (ENV.HCLOUD_ZONE || 'eu-central') })),
     async describe(ids) {
       const m = {};
       await Promise.all(ids.map(async id => {
@@ -70,10 +80,12 @@ function hetzner(ENV) {
       }));
       return m;
     },
-    async create({ id, tier, userData }) {
+    async create({ id, tier, userData, location, publicIp }) {
       const r = await call('POST', '/servers', {
-        name: 'localia-pc-' + id, server_type: tier.type, image: +ENV.HCLOUD_IMAGE || ENV.HCLOUD_IMAGE, location: ENV.HCLOUD_LOCATION || 'fsn1',
-        networks: [+ENV.HCLOUD_NETWORK], public_net: { enable_ipv4: false, enable_ipv6: false },
+        name: 'localia-pc-' + id, server_type: tier.type, image: +ENV.HCLOUD_IMAGE || ENV.HCLOUD_IMAGE, location: location || ENV.HCLOUD_LOCATION || 'fsn1',
+        // Modo directo: IP pública propia para salir a internet; el firewall (HCLOUD_FIREWALL) no deja entrar a nadie.
+        networks: [+ENV.HCLOUD_NETWORK], public_net: { enable_ipv4: !!publicIp, enable_ipv6: false },
+        firewalls: publicIp ? [{ firewall: +ENV.HCLOUD_FIREWALL }] : undefined,
         ssh_keys: ENV.HCLOUD_SSH_KEY ? [ENV.HCLOUD_SSH_KEY] : undefined, user_data: userData, start_after_create: true,
         labels: { app: 'localia-pc', pcid: id },
       });
@@ -89,7 +101,8 @@ function hetzner(ENV) {
 
 module.exports = ENV => {
   const name = String(ENV.CLOUD || 'aws').toLowerCase();
-  if (name === 'hetzner') { if (!ENV.HCLOUD_TOKEN || !ENV.HCLOUD_IMAGE || !ENV.HCLOUD_NETWORK) throw new Error('CLOUD=hetzner necesita HCLOUD_TOKEN, HCLOUD_IMAGE y HCLOUD_NETWORK en portal.env'); return hetzner(ENV); }
+  if (name === 'hetzner') { if (!ENV.HCLOUD_TOKEN || !ENV.HCLOUD_IMAGE || !ENV.HCLOUD_NETWORK) throw new Error('CLOUD=hetzner necesita HCLOUD_TOKEN, HCLOUD_IMAGE y HCLOUD_NETWORK en portal.env');
+    if (ENV.SALIDA !== 'vpn' && !ENV.HCLOUD_FIREWALL) throw new Error('CLOUD=hetzner en modo directo necesita HCLOUD_FIREWALL (firewall que no deja entrar a nadie a las PCs)'); return hetzner(ENV); }
   if (name !== 'aws') throw new Error('CLOUD desconocido: ' + name);
   return aws(ENV);
 };
