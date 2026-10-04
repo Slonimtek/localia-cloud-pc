@@ -44,24 +44,26 @@ h2{font:700 13px "JetBrains Mono",monospace;letter-spacing:.12em;text-transform:
   <div class="who">
    <div class="eyebrow">Localía · Tu PC</div>
    <h1 id="t">Un segundo…</h1>
-   <div class="state" id="s"><i></i><span id="st">Mirando desde dónde te ven</span></div>
+   <div class="state" id="s"><i></i><span id="st">Cargando…</span></div>
   </div>
-  <a class="btn" id="sw" href="http://127.0.0.1:8082/">🌎 Cambiar de país</a>
+  <a class="btn" id="sw" style="display:none" href="http://127.0.0.1:8082/">🌎 Cambiar de país</a>
  </div>
- <div class="warn" id="w">Ahora esta PC no tiene internet. Si recién cambiaste de país, esperá unos segundos. Tu conexión nunca sale por otro lado.</div>
- <form id="f" autocomplete="off"><input type="text" id="q" placeholder="Buscá algo o escribí una dirección (ej. brou.com.uy)" aria-label="Buscar o escribir una dirección"><button class="btn" type="submit">Ir</button></form>
+ <div class="warn" id="w">Ahora esta PC no tiene internet. Estamos reintentando.</div>
+ <form id="f" autocomplete="off"><input type="text" id="q" placeholder="Buscá algo o escribí una dirección" aria-label="Buscar o escribir una dirección"><button class="btn" type="submit">Ir</button></form>
  <div id="tiles"></div>
  <div class="help">
-  <b>¿Cómo paso archivos?</b>
+  <b>¿Cómo paso archivos entre mi compu y esta PC?</b>
   <ul>
-   <li><b>Para subir algo a un trámite</b> (una foto del documento, un PDF): tocá el botón de Localía (arriba a la derecha) o "Archivos" (abajo a la derecha) y elegí "Subir un archivo desde mi compu". Después, cuando el sitio te pida el archivo, buscalo en la carpeta <b>Descargas</b>.</li>
-   <li><b>Para llevarte un comprobante:</b> bajalo acá como siempre. Después, desde ese mismo botón, elegí "Bajar archivos a mi compu".</li>
+   <li><b>Para traer un archivo:</b> tocá el botón de Localía (arriba a la derecha) o "Archivos" (abajo a la derecha) y elegí "Subir un archivo desde mi compu". Queda en la carpeta <b>Descargas</b>.</li>
+   <li><b>Para llevarte un archivo:</b> desde ese mismo botón, elegí "Bajar archivos a mi compu".</li>
   </ul>
  </div>
 </div>
 <script>
 const N={DE:'Alemania',FI:'Finlandia',SG:'Singapur',US:'Estados Unidos',BR:'Brasil',AR:'Argentina',UY:'Uruguay',IL:'Israel',ES:'España',CL:'Chile',MX:'México',PE:'Perú',CO:'Colombia',PY:'Paraguay'};
-// Accesos por país. Editables: [nombre, dirección]. Abren en una pestaña nueva y esta página queda de inicio.
+// Accesos rápidos del modo directo (sin países). Editables: [nombre, dirección, ícono].
+const GENERAL=[['Accesos rápidos','🔗',[['Google','https://www.google.com','🔎'],['Gmail','https://mail.google.com','✉️'],['YouTube','https://www.youtube.com','▶️'],['WhatsApp Web','https://web.whatsapp.com','💬'],['Google Drive','https://drive.google.com','📁'],['Wikipedia','https://es.wikipedia.org','📚']]]];
+// Accesos por país (solo con salidas por país). Editables: [nombre, dirección]. Abren en una pestaña nueva y esta página queda de inicio.
 const SITES={
  UY:[['Bancos','🏦',[['BROU','https://www.brou.com.uy'],['Santander','https://www.santander.com.uy'],['Itaú','https://www.itau.com.uy'],['Scotiabank','https://www.scotiabank.com.uy'],['BBVA','https://www.bbva.com.uy']]],
      ['Trámites','📄',[['Trámites del Estado','https://www.gub.uy/tramites'],['BPS','https://www.bps.gub.uy'],['DGI','https://www.gub.uy/direccion-general-impositiva'],['Antel','https://www.antel.com.uy']]],
@@ -84,23 +86,25 @@ const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;',
 let shown=null;
 // Si la PC está en un país sin accesos cargados, el cliente elige de qué país quiere los suyos (queda guardado).
 function home(){try{return localStorage.getItem('localia-home')}catch(e){return null}}
-function tiles(cc){
+function tiles(cc,vpn){
+ if(!vpn){if(shown==='general')return;shown='general';document.getElementById('tiles').innerHTML=groupsHtml(GENERAL);return}
  const own=!!SITES[cc];const pick=own?cc:(SITES[home()]?home():null);
  const key=cc+'|'+pick;if(key===shown)return;shown=key;
  const chooser=own?'':`<h2>¿De qué país querés tus accesos?</h2><div class="grid">${Object.keys(SITES).map(c=>`<button class="tile" data-home="${c}" style="cursor:pointer;font:inherit;font-weight:600${c===pick?';border-color:var(--stamp)':''}">${esc(N[c]||c)}</button>`).join('')}</div>`;
  const groups=SITES[pick]||[];
- document.getElementById('tiles').innerHTML=chooser+groups.map(([g,ic,list])=>`<h2>${esc(g)}</h2><div class="grid">${list.map(([n,u])=>`<a class="tile" href="${esc(u)}" target="_blank" rel="noopener"><span class="ic" aria-hidden="true">${ic}</span>${esc(n)}</a>`).join('')}</div>`).join('');
+ document.getElementById('tiles').innerHTML=chooser+groupsHtml(groups);
 }
-let lastCc=null;
-document.getElementById('tiles').addEventListener('click',e=>{const b=e.target.closest('[data-home]');if(!b)return;try{localStorage.setItem('localia-home',b.dataset.home)}catch(x){}tiles(lastCc)});
+function groupsHtml(groups){return groups.map(([g,ic,list])=>`<h2>${esc(g)}</h2><div class="grid">${list.map(([n,u,i])=>`<a class="tile" href="${esc(u)}" target="_blank" rel="noopener"><span class="ic" aria-hidden="true">${i||ic}</span>${esc(n)}</a>`).join('')}</div>`).join('')}
+let lastCc=null,lastVpn=true;
+document.getElementById('tiles').addEventListener('click',e=>{const b=e.target.closest('[data-home]');if(!b)return;try{localStorage.setItem('localia-home',b.dataset.home)}catch(x){}tiles(lastCc,lastVpn)});
 async function go(){
  const t=document.getElementById('t'),s=document.getElementById('s'),st=document.getElementById('st'),w=document.getElementById('w');
  try{const r=await fetch('/api/donde',{cache:'no-store'});const j=await r.json();const g=j.geo||{};
-  if(!g.country)throw new Error('sin país');
-  const vpn=j.vpn!==false;document.getElementById('sw').style.display=vpn?'':'none';
-  t.innerHTML=vpn?`Te ven en <em>${esc(N[g.country]||g.country)}</em>`:'¿Qué querés hacer <em>hoy</em>?';
-  s.className='state';st.textContent=vpn?`${g.city?g.city+' · ':''}Conexión protegida`:`Tu PC está en ${g.city?g.city+', ':''}${N[g.country]||g.country}`;w.style.display='none';
-  lastCc=g.country;tiles(g.country);
+  const vpn=j.vpn!==false;if(vpn&&!g.country)throw new Error('sin país');
+  document.getElementById('sw').style.display=vpn?'':'none';
+  t.innerHTML=vpn?`Te ven en <em>${esc(N[g.country]||g.country)}</em>`:'Tu PC está <em>lista</em>';
+  s.className='state';st.textContent=vpn?`${g.city?g.city+' · ':''}Conexión protegida`:'Conectada a internet';w.style.display='none';
+  lastCc=g.country;lastVpn=vpn;tiles(g.country,vpn);
  }catch(e){t.textContent='Sin internet ahora';s.className='state off';st.textContent='Reintentando…';w.style.display='block';}
 }
 document.getElementById('f').addEventListener('submit',e=>{e.preventDefault();

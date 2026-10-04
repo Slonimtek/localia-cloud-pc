@@ -495,7 +495,7 @@ function desktopGate(req) {
 // ---------- servidor ----------
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon', '.json': 'application/json' };
 function serveStatic(req, res, p) {
-  if (p === '/' || p === '/donde' || p === '/inicio') p = p === '/' ? '/index.html' : p + '.html';
+  if (p === '/' || p === '/donde' || p === '/inicio') p = p === '/' ? '/index.html' : (DIRECT ? '/inicio' : p) + '.html';   // sin salidas por país no hay "¿desde dónde me ven?"
   const f = path.join(PUBLIC, path.normalize(p).replace(/^(\.\.[/\\])+/, ''));
   if (!f.startsWith(PUBLIC) || !fs.existsSync(f) || fs.statSync(f).isDirectory()) { res.writeHead(404, { 'Content-Type': 'text/plain' }); return res.end('404'); }
   res.writeHead(200, { 'Content-Type': MIME[path.extname(f)] || 'application/octet-stream', 'Cache-Control': 'no-cache' }); fs.createReadStream(f).pipe(res);
