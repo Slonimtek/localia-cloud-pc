@@ -26,7 +26,7 @@ module.exports = ({ DATA, PORTAL_HOST, send, body, getPc, log }) => {
   function addMessage(pcId, ct, from, text, file) {
     const c = load(pcId); const m = { id: ++c.seq, contact: ct.id, from, text: text || '', file: file || null, at: now() };
     c.messages.push(m); ct.lastAt = m.at; ct.lastText = file ? '📎 ' + file.name : m.text.slice(0, 80);
-    if (from === 'client') { ct.unread = (ct.unread || 0) + 1; ct.joinedAt = ct.joinedAt || m.at; }
+    if (from === 'client') { ct.unread = (ct.unread || 0) + 1; ct.joinedAt = ct.joinedAt || m.at; c.lastIn = m.id; }
     save(pcId); return m;
   }
   const thread = (c, ct, after) => c.messages.filter(m => m.contact === ct.id && m.id > after).map(pubMsg);
@@ -66,8 +66,10 @@ module.exports = ({ DATA, PORTAL_HOST, send, body, getPc, log }) => {
     if (sub === '') return page(res, 'bandeja.html');
     if (m === 'POST' && req.headers['x-localia'] !== '1') return send(res, 403, { error: 'No permitido.' });
     const pubCt = ct => ({ id: ct.id, name: ct.name, phone: ct.phone, notes: ct.notes || '', blocked: !!ct.blocked, joined: !!ct.joinedAt, createdAt: ct.createdAt, lastAt: ct.lastAt || null, lastText: ct.lastText || '', unread: ct.unread || 0, invite: inviteUrl(ct) });
-    if (sub === 'api/state' && m === 'GET') return send(res, 200, { name: c.name || pc.name, pcName: pc.name, contacts: c.contacts.map(pubCt).sort((a, b) => String(b.lastAt || b.createdAt).localeCompare(String(a.lastAt || a.createdAt))), maxFile: MAX_FILE });
-    if (sub === 'api/settings' && m === 'POST') { const b = await body(req); c.name = clean(b.name, 60); save(pc.id); return send(res, 200, { name: c.name || pc.name }); }
+    if (sub === 'api/state' && m === 'GET') return send(res, 200, { name: c.name || pc.name, pcName: pc.name, contacts: c.contacts.map(pubCt).sort((a, b) => String(b.lastAt || b.createdAt).localeCompare(String(a.lastAt || a.createdAt))), maxFile: MAX_FILE, sound: c.sound !== false, lastIn: c.lastIn || 0 });
+    // Resumen liviano para el aviso sonoro y el contador del botón flotante
+    if (sub === 'api/unread' && m === 'GET') return send(res, 200, { unread: c.contacts.reduce((a, x) => a + (x.unread || 0), 0), lastIn: c.lastIn || 0, sound: c.sound !== false });
+    if (sub === 'api/settings' && m === 'POST') { const b = await body(req); if (b.name !== undefined) c.name = clean(b.name, 60); if (b.sound !== undefined) c.sound = !!b.sound; save(pc.id); return send(res, 200, { name: c.name || pc.name, sound: c.sound !== false }); }
     if (sub === 'api/contacts' && m === 'POST') {
       const b = await body(req); const name = clean(b.name, 60); const phone = clean(b.phone, 30).replace(/[^\d+]/g, '');
       if (!name) return send(res, 400, { error: 'Poné el nombre del contacto.' });

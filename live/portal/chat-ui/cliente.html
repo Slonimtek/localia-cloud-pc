@@ -36,7 +36,7 @@ textarea:focus-visible,button:focus-visible{outline:3px solid #9ec5ec;outline-of
 </style>
 </head>
 <body>
-<header><div class="av" id="av">·</div><div><b id="biz">Chat</b><small id="sub">Conectando…</small></div></header>
+<header><div class="av" id="av">·</div><div style="flex:1;min-width:0"><b id="biz">Chat</b><small id="sub">Conectando…</small></div><button id="bell" type="button" style="background:rgba(255,255,255,.12);color:#fff"></button></header>
 <div id="err" role="alert"></div>
 <main id="list" aria-live="polite"></main>
 <footer>
@@ -51,6 +51,13 @@ const $=id=>document.getElementById(id);const list=$('list'),txt=$('txt');
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const size=n=>n>1048576?(n/1048576).toFixed(1).replace('.',',')+' MB':Math.max(1,Math.round(n/1024))+' KB';
 let last=0,lastDay='',maxFile=25*1048576,started=false,busy=false;
+let ac=null;function unlock(){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume()}catch(e){}}
+['pointerdown','keydown','touchstart'].forEach(ev=>document.addEventListener(ev,unlock,{capture:true,passive:true}));
+function beep(){if(!ac||ac.state!=='running')return false;const t=ac.currentTime;[[880,0],[1175,.16]].forEach(([f,d])=>{const o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(.0001,t+d);g.gain.exponentialRampToValueAtTime(.25,t+d+.02);g.gain.exponentialRampToValueAtTime(.0001,t+d+.3);o.connect(g);g.connect(ac.destination);o.start(t+d);o.stop(t+d+.32)});window.__beeps=(window.__beeps||0)+1;return true}
+let sound=true;try{sound=localStorage.getItem('localia-sonido')!=='no'}catch(e){}
+function bell(){const b=$('bell');b.textContent=sound?'🔔':'🔕';b.title=b.ariaLabel=sound?'Sonido activado. Tocá para apagarlo.':'Sonido apagado. Tocá para prenderlo.'}
+$('bell').addEventListener('click',()=>{sound=!sound;try{localStorage.setItem('localia-sonido',sound?'si':'no')}catch(e){}bell();if(sound){unlock();setTimeout(beep,120)}});bell();
+let started2=false;
 function err(t){const e=$('err');e.textContent=t||'';e.style.display=t?'block':'none'}
 function add(m){
  if(m.id<=last)return;last=m.id;
@@ -69,7 +76,7 @@ async function poll(){
   if(!started){started=true;document.title='Chat con '+j.business;$('biz').textContent=j.business;$('av').textContent=(j.business||'·').trim().charAt(0).toUpperCase();maxFile=j.maxFile||maxFile;
    const hi=document.createElement('div');hi.className='hello';hi.textContent=`Hola ${j.me}. Este es tu chat privado con ${j.business}. Guardá este link: es tu acceso, no lo compartas.`;list.appendChild(hi)}
   $('sub').textContent='Chat privado';err('');
-  const near=list.scrollHeight-list.scrollTop-list.clientHeight<120;const n=j.messages.length;j.messages.forEach(add);if(n&&near)list.scrollTop=list.scrollHeight;
+  const near=list.scrollHeight-list.scrollTop-list.clientHeight<120;const n=j.messages.length;const fresh=started2&&j.messages.some(m=>m.from==='owner'&&m.id>last);j.messages.forEach(add);started2=true;if(fresh&&sound)beep();if(n&&near)list.scrollTop=list.scrollHeight;
  }catch(e){$('sub').textContent='Reconectando…'}
 }
 async function sendText(){

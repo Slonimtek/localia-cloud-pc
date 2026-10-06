@@ -52,11 +52,12 @@ Cada PC trae un chat propio para que su dueño atienda a sus clientes.
 - **Bandeja del dueño:** `https://pc-<id>.<base>/__localia/chat/`. Adentro de la PC se abre con el botón "Mis chats" de la página de Inicio, sin iniciar sesión. Desde afuera, con la sesión del portal (panel o botón flotante). Varias conversaciones a la vez, con contactos (nombre, WhatsApp, notas), no leídos y búsqueda.
 - **Invitación:** el dueño crea el contacto y le manda su link personal `https://localia.<base>/c/<pc>-<clave>`, con el botón "Enviar por WhatsApp" (abre `wa.me` con el mensaje armado) o copiándolo.
 - **Cliente:** abre el link en el navegador y chatea, sin cuenta ni contraseña: el link es su llave. Texto, fotos y archivos (hasta 25 MB).
+- **Aviso sonoro:** suena cuando llega un mensaje y se apaga desde Ajustes de la bandeja o desde el botón flotante (queda guardado por PC). La PC virtual no tiene parlantes: al dueño le suena el botón flotante, que corre en su navegador real, y además muestra cuántos mensajes hay sin leer. El cliente tiene su propia campana en el chat.
 - **Control:** el dueño puede bloquear un contacto (su link deja de funcionar) o borrarlo con su conversación y sus adjuntos.
 - **Datos:** `/var/lib/localia/chat/<pc>.json` y los adjuntos en `/var/lib/localia/chat/<pc>/`, en el servidor del portal.
 - **Seguridad:** adentro de la PC, el portal reconoce a la PC por su IP pública (propia de cada PC, informada por Caddy) y solo para el chat, nunca para el escritorio. Los POST exigen un header propio. Un contacto solo ve su conversación y sus archivos.
 - **Código:** `portal/chat.js` y `portal/chat-ui/` (`bandeja.html`, `cliente.html`).
-- **Pendiente:** los mensajes se actualizan cada 3 s (sin aviso sonoro); no hay link general para que escriba alguien sin invitación.
+- **Pendiente:** los mensajes se actualizan cada 3 s; no hay link general para que escriba alguien sin invitación.
 
 ## Modo simple (en la rama, todavía sin imagen)
 

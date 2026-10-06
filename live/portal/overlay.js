@@ -4,7 +4,13 @@
 (function () {
   var embedded = window.top !== window;
   var N = { US: 'Estados Unidos', BR: 'Brasil', AR: 'Argentina', UY: 'Uruguay', IL: 'Israel', ES: 'España', CL: 'Chile', MX: 'México', PE: 'Perú', CO: 'Colombia', PY: 'Paraguay' };
-  var st = null, open = false, busy = false, msg = '', files = null;
+  var st = null, open = false, busy = false, msg = '', files = null, chat = { unread: 0, lastIn: null, sound: true };
+  // Aviso sonoro: suena en el navegador del dueño (la PC virtual no tiene parlantes). El navegador pide un clic o tecla antes de dejar sonar.
+  var ac = null;
+  function unlock() { try { ac = ac || new (window.AudioContext || window.webkitAudioContext)(); if (ac.state === 'suspended') ac.resume(); } catch (e) {} }
+  ['pointerdown', 'keydown', 'touchstart'].forEach(function (ev) { document.addEventListener(ev, unlock, { capture: true, passive: true }); });
+  function beep() { if (!ac || ac.state !== 'running') return; var t = ac.currentTime; [[880, 0], [1175, .16]].forEach(function (p) { var o = ac.createOscillator(), g = ac.createGain(); o.type = 'sine'; o.frequency.value = p[0]; g.gain.setValueAtTime(.0001, t + p[1]); g.gain.exponentialRampToValueAtTime(.25, t + p[1] + .02); g.gain.exponentialRampToValueAtTime(.0001, t + p[1] + .3); o.connect(g); g.connect(ac.destination); o.start(t + p[1]); o.stop(t + p[1] + .32); }); window.__beeps = (window.__beeps || 0) + 1; }
+  function pollChat() { return fetch('/__localia/chat/api/unread', { credentials: 'same-origin', cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) { if (!j) return; var fresh = chat.lastIn !== null && j.lastIn > chat.lastIn; var ch = j.unread !== chat.unread || j.sound !== chat.sound; chat = { unread: j.unread, lastIn: j.lastIn, sound: j.sound }; if (fresh && j.sound) beep(); if (ch || fresh) render(); }).catch(function () {}); }
   var css = document.createElement('style');
   css.textContent =
     '#lcl{position:fixed;top:10px;right:10px;z-index:2147483000;font:14px/1.35 system-ui,-apple-system,"Segoe UI",sans-serif;color:#e6edf6}' +
@@ -29,15 +35,16 @@
   function render() {
     if (!st) return;
     var id = st.identity, where = id && id.online ? (id.city || '') + ', ' + (N[id.country] || id.country) : name(st.active);
-    var h_ = embedded ? '<div class="pill" data-a="toggle">📁 <span class="txt"><b>Archivos</b> ▴</span></div>'
-      : '<div class="pill" data-a="toggle"><span class="dot" style="' + (id && id.online === false ? 'background:#f07068' : '') + '"></span><span class="txt">' + (st.direct ? '📁 <b>Archivos y opciones</b>' : 'Te ven en <b>' + h(where) + '</b>') + ' ▾</span></div>';
+    var nb = chat.unread ? ' <span style="background:#e2b04e;color:#0c1a2c;border-radius:999px;padding:0 7px;font-weight:700">💬 ' + chat.unread + '</span>' : '';
+    var h_ = embedded ? '<div class="pill" data-a="toggle">📁 <span class="txt"><b>Archivos y chats</b>' + nb + ' ▴</span></div>'
+      : '<div class="pill" data-a="toggle"><span class="dot" style="' + (id && id.online === false ? 'background:#f07068' : '') + '"></span><span class="txt">' + (st.direct ? '📁 <b>Archivos y opciones</b>' : 'Te ven en <b>' + h(where) + '</b>') + nb + ' ▾</span></div>';
     if (open) {
       h_ += '<div class="menu"><div class="k">Localía · ' + h(st.name) + '</div>';
       if (!embedded && st.exits.length > 1) {
         st.exits.forEach(function (e) { h_ += '<button data-a="exit" data-c="' + h(e.code) + '" class="' + (e.code === st.active ? 'on' : '') + '"><span class="code">' + h(e.code) + '</span>' + h(e.name) + ' <span style="opacity:.6">· ' + h(e.city) + '</span></button>'; });
         h_ += '<hr>';
       }
-      h_ += '<button data-a="chat">💬 Mis chats</button><button data-a="up">⬆️ Subir un archivo desde mi compu</button><button data-a="down">⬇️ Bajar archivos a mi compu</button>';
+      h_ += '<button data-a="chat">💬 Mis chats' + (chat.unread ? ' <b>(' + chat.unread + ' sin leer)</b>' : '') + '</button><button data-a="sound">' + (chat.sound ? '🔔 Sonido de mensajes: prendido' : '🔕 Sonido de mensajes: apagado') + '</button><button data-a="up">⬆️ Subir un archivo desde mi compu</button><button data-a="down">⬇️ Bajar archivos a mi compu</button>';
       if (files) {
         h_ += '<div class="fl">' + (files.length ? files.map(function (f) { return '<a class="f" href="/__localia/file/' + encodeURIComponent(f.name) + '" download="' + h(f.name) + '"><span>' + h(f.name) + '</span><small>' + size(f.size) + '</small></a>'; }).join('')
           : '<div class="msg">Todavía no hay nada. Lo que bajes adentro de la PC (un comprobante, un PDF) aparece acá.</div>') + '</div>';
@@ -75,6 +82,7 @@
     var t = e.target.closest('[data-a]'); if (!t || busy) return; var a = t.getAttribute('data-a');
     if (a === 'toggle') { open = !open; msg = ''; files = null; render(); }
     if (a === 'chat') window.open('/__localia/chat/', '_blank');
+    if (a === 'sound') { var on = !chat.sound; api('chat/api/settings', { sound: on }).then(function (j) { chat.sound = j.sound; if (j.sound) { unlock(); setTimeout(beep, 150); } render(); }).catch(function () {}); }
     if (a === 'up') pick.click();
     if (a === 'down') { msg = ''; listFiles(); }
     if (a === 'mode') {
@@ -95,4 +103,5 @@
   document.addEventListener('click', function (e) { if (open && !busy && !box.contains(e.target)) { open = false; render(); } }, true);
   load().then(function () { if (!embedded && (!st || !st.identity)) check(); });
   setInterval(load, 30000);
+  pollChat(); setInterval(pollChat, 4000);
 })();
