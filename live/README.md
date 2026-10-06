@@ -45,6 +45,19 @@ Desde el 04/10/2026 el modelo es **sin salidas por país**: el cliente elige la 
 - **Armar la imagen:** en una máquina Debian 12 nueva, copiar `pc-image/*` a `/tmp` y correr `bake.sh`, `localia-apps.sh`, `localia-simple.sh`, `pc-firewall.sh <ip privada del portal>` y al final `finalize.sh`; apagar, sacar un snapshot y poner su ID en `HCLOUD_IMAGE`.
 - **Desplegar el portal:** copiar `portal/` a `/opt/localia/portal` del servidor y `systemctl restart localia-portal`.
 
+## Chat privado de cada PC
+
+Cada PC trae un chat propio para que su dueño atienda a sus clientes.
+
+- **Bandeja del dueño:** adentro de la PC, en `http://10.60.1.1:3001/chat/` (botón "Mis chats" de la página de Inicio). También desde el panel del portal y desde el botón flotante, con la sesión del portal. Varias conversaciones a la vez, con contactos (nombre, WhatsApp, notas), no leídos y búsqueda.
+- **Invitación:** el dueño crea el contacto y le manda su link personal `https://localia.<base>/c/<pc>-<clave>`, con el botón "Enviar por WhatsApp" (abre `wa.me` con el mensaje armado) o copiándolo.
+- **Cliente:** abre el link en el navegador y chatea, sin cuenta ni contraseña: el link es su llave. Texto, fotos y archivos (hasta 25 MB).
+- **Control:** el dueño puede bloquear un contacto (su link deja de funcionar) o borrarlo con su conversación y sus adjuntos.
+- **Datos:** `/var/lib/localia/chat/<pc>.json` y los adjuntos en `/var/lib/localia/chat/<pc>/`, en el servidor del portal.
+- **Seguridad:** la bandeja interna reconoce a la PC por su IP privada, exige Host fijo y un header propio en los POST. Un contacto solo ve su conversación y sus archivos.
+- **Código:** `portal/chat.js` y `portal/chat-ui/` (`bandeja.html`, `cliente.html`).
+- **Pendiente:** adentro de la PC la bandeja va por HTTP sobre la red privada y el navegador muestra "No es seguro"; los mensajes se actualizan cada 3 s (sin aviso sonoro); no hay link general para que escriba alguien sin invitación.
+
 ## Modo simple (en la rama, todavía sin imagen)
 
 Pensado para usuarios no técnicos: la PC abre **directo en el navegador**, sin escritorio ni menús, en una página de Inicio con accesos grandes a bancos, trámites, tele y compras del país por el que sale.

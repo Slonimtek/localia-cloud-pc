@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Chat</title>
+<link rel="icon" href="/favicon.ico" sizes="48x48"><link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<style>
+:root{--bg:#eef2f7;--surface:#fff;--line:#d8e0eb;--ink:#0c1a2c;--ink-2:#33455e;--muted:#5f718a;--sky:#1c6cb5;--mine:#dcebfb;--bad:#c2352d}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;display:flex;flex-direction:column;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{flex:none;display:flex;align-items:center;gap:12px;padding:12px 16px;padding-top:max(12px,env(safe-area-inset-top));background:#0c1a2c;color:#fff}
+.av{flex:none;width:40px;height:40px;border-radius:50%;background:#2a82d2;display:grid;place-items:center;font-weight:700;font-size:18px}
+header b{display:block;font-size:17px;line-height:1.2}
+header small{color:#9fb2c9;font-size:13px}
+main{flex:1;overflow-y:auto;padding:16px 12px;display:flex;flex-direction:column;gap:6px;overscroll-behavior:contain}
+.hello{align-self:center;max-width:420px;margin:8px 0 12px;padding:12px 16px;border-radius:14px;background:var(--surface);border:1px dashed var(--line);color:var(--ink-2);font-size:14.5px;text-align:center}
+.day{align-self:center;margin:10px 0 4px;padding:3px 10px;border-radius:999px;background:#dfe6ef;color:var(--muted);font-size:12px}
+.m{max-width:min(78%,520px);padding:8px 12px;border-radius:16px;background:var(--surface);box-shadow:0 1px 1px rgba(12,26,44,.08);overflow-wrap:anywhere;white-space:pre-wrap}
+.m.me{align-self:flex-end;background:var(--mine);border-bottom-right-radius:5px}
+.m.them{align-self:flex-start;border-bottom-left-radius:5px}
+.m time{display:block;margin-top:2px;font-size:11px;color:var(--muted);text-align:right}
+.m img{display:block;max-width:100%;max-height:300px;border-radius:10px;margin-bottom:4px}
+.m a.file{display:flex;align-items:center;gap:8px;color:var(--ink);text-decoration:none;font-weight:600}
+.m a.file small{font-weight:400;color:var(--muted)}
+footer{flex:none;display:flex;align-items:flex-end;gap:8px;padding:10px 12px;padding-bottom:max(10px,env(safe-area-inset-bottom));background:var(--surface);border-top:1px solid var(--line)}
+textarea{flex:1;min-width:0;resize:none;max-height:140px;padding:11px 14px;border-radius:20px;border:1px solid var(--line);font:inherit;color:var(--ink);background:#f7f9fc}
+button{flex:none;width:44px;height:44px;border-radius:50%;border:0;cursor:pointer;font-size:19px;display:grid;place-items:center}
+#att{background:#eaf0f7;color:var(--ink-2)}
+#snd{background:var(--sky);color:#fff}
+button:disabled{opacity:.5;cursor:default}
+textarea:focus-visible,button:focus-visible{outline:3px solid #9ec5ec;outline-offset:1px}
+#err{flex:none;display:none;padding:8px 16px;background:#fbe4e2;color:#7d1f19;font-size:14px}
+</style>
+</head>
+<body>
+<header><div class="av" id="av">·</div><div><b id="biz">Chat</b><small id="sub">Conectando…</small></div></header>
+<div id="err" role="alert"></div>
+<main id="list" aria-live="polite"></main>
+<footer>
+ <button id="att" type="button" aria-label="Adjuntar una foto o un archivo" title="Adjuntar">📎</button>
+ <textarea id="txt" rows="1" placeholder="Escribí un mensaje" aria-label="Mensaje" maxlength="4000"></textarea>
+ <button id="snd" type="button" aria-label="Enviar" title="Enviar">➤</button>
+</footer>
+<input type="file" id="pick" hidden>
+<script>
+const token=location.pathname.split('/').filter(Boolean)[1];const API='/api/chat/c/'+encodeURIComponent(token)+'/';
+const $=id=>document.getElementById(id);const list=$('list'),txt=$('txt');
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const size=n=>n>1048576?(n/1048576).toFixed(1).replace('.',',')+' MB':Math.max(1,Math.round(n/1024))+' KB';
+let last=0,lastDay='',maxFile=25*1048576,started=false,busy=false;
+function err(t){const e=$('err');e.textContent=t||'';e.style.display=t?'block':'none'}
+function add(m){
+ if(m.id<=last)return;last=m.id;
+ const d=new Date(m.at);const day=d.toLocaleDateString('es-UY',{weekday:'long',day:'numeric',month:'long'});
+ if(day!==lastDay){lastDay=day;const x=document.createElement('div');x.className='day';x.textContent=day;list.appendChild(x)}
+ const el=document.createElement('div');el.className='m '+(m.from==='client'?'me':'them');
+ let h='';
+ if(m.file){const u=API+'file/'+m.id;h+=m.file.image?`<a href="${u}" target="_blank" rel="noopener"><img src="${u}" alt="${esc(m.file.name)}" loading="lazy"></a>`:`<a class="file" href="${u}" download="${esc(m.file.name)}">📎 <span>${esc(m.file.name)} <small>· ${size(m.file.size)}</small></span></a>`}
+ if(m.text)h+=esc(m.text);
+ el.innerHTML=h+`<time>${d.toLocaleTimeString('es-UY',{hour:'2-digit',minute:'2-digit'})}</time>`;
+ list.appendChild(el);
+}
+async function poll(){
+ try{const r=await fetch(API+'state?after='+last,{cache:'no-store'});const j=await r.json();
+  if(!r.ok){err(j.error||'Este link de chat ya no está disponible.');$('sub').textContent='Sin conexión';return}
+  if(!started){started=true;document.title='Chat con '+j.business;$('biz').textContent=j.business;$('av').textContent=(j.business||'·').trim().charAt(0).toUpperCase();maxFile=j.maxFile||maxFile;
+   const hi=document.createElement('div');hi.className='hello';hi.textContent=`Hola ${j.me}. Este es tu chat privado con ${j.business}. Guardá este link: es tu acceso, no lo compartas.`;list.appendChild(hi)}
+  $('sub').textContent='Chat privado';err('');
+  const near=list.scrollHeight-list.scrollTop-list.clientHeight<120;const n=j.messages.length;j.messages.forEach(add);if(n&&near)list.scrollTop=list.scrollHeight;
+ }catch(e){$('sub').textContent='Reconectando…'}
+}
+async function sendText(){
+ const v=txt.value.trim();if(!v||busy)return;busy=true;$('snd').disabled=true;
+ try{const r=await fetch(API+'send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:v})});const j=await r.json();
+  if(!r.ok)err(j.error||'No se pudo enviar.');else{txt.value='';grow();err('');await poll();list.scrollTop=list.scrollHeight}
+ }catch(e){err('No se pudo enviar. Revisá tu conexión.')}
+ busy=false;$('snd').disabled=false;txt.focus();
+}
+function grow(){txt.style.height='auto';txt.style.height=Math.min(140,txt.scrollHeight)+'px'}
+txt.addEventListener('input',grow);
+txt.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing&&matchMedia('(pointer:fine)').matches){e.preventDefault();sendText()}});
+$('snd').addEventListener('click',sendText);
+$('att').addEventListener('click',()=>$('pick').click());
+$('pick').addEventListener('change',async()=>{
+ const f=$('pick').files[0];$('pick').value='';if(!f)return;
+ if(f.size>maxFile)return err(`Ese archivo es muy grande (máximo ${Math.round(maxFile/1048576)} MB).`);
+ $('att').disabled=true;$('sub').textContent='Subiendo "'+f.name+'"…';
+ try{const r=await fetch(API+'upload?name='+encodeURIComponent(f.name),{method:'POST',headers:{'Content-Type':'application/octet-stream'},body:f});const j=await r.json();
+  if(!r.ok)err(j.error||'No se pudo subir.');else{err('');await poll();list.scrollTop=list.scrollHeight}
+ }catch(e){err('No se pudo subir. Revisá tu conexión.')}
+ $('att').disabled=false;$('sub').textContent='Chat privado';
+});
+poll().then(()=>{list.scrollTop=list.scrollHeight});setInterval(poll,3000);
+</script>
+</body>
+</html>

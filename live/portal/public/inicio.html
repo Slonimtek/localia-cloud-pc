@@ -50,6 +50,7 @@ h2{font:700 13px "JetBrains Mono",monospace;letter-spacing:.12em;text-transform:
  </div>
  <div class="warn" id="w">Ahora esta PC no tiene internet. Estamos reintentando.</div>
  <form id="f" autocomplete="off"><input type="text" id="q" placeholder="Buscá algo o escribí una dirección" aria-label="Buscar o escribir una dirección"><button class="btn" type="submit">Ir</button></form>
+ <a class="tile" id="chat" href="#" target="_blank" rel="noopener" style="display:none;margin:0 0 6px;max-width:360px;border-color:var(--sky)"><span class="ic" aria-hidden="true">💬</span><span>Mis chats<br><small style="font-weight:400;color:var(--muted)">Atendé a tus clientes desde acá</small></span></a>
  <div id="tiles"></div>
  <div class="help">
   <b>¿Cómo paso archivos entre mi compu y esta PC?</b>
@@ -100,6 +101,7 @@ document.getElementById('tiles').addEventListener('click',e=>{const b=e.target.c
 async function go(){
  const t=document.getElementById('t'),s=document.getElementById('s'),st=document.getElementById('st'),w=document.getElementById('w');
  try{const r=await fetch('/api/donde',{cache:'no-store'});const j=await r.json();const g=j.geo||{};
+  if(j.chat&&/[?&]pc=/.test(location.search)){const ch=document.getElementById('chat');ch.href=j.chat;ch.style.display='flex'}
   const vpn=j.vpn!==false;if(vpn&&!g.country)throw new Error('sin país');
   document.getElementById('sw').style.display=vpn?'':'none';
   t.innerHTML=vpn?`Te ven en <em>${esc(N[g.country]||g.country)}</em>`:'Tu PC está <em>lista</em>';

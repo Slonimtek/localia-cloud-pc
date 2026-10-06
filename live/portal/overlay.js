@@ -37,7 +37,7 @@
         st.exits.forEach(function (e) { h_ += '<button data-a="exit" data-c="' + h(e.code) + '" class="' + (e.code === st.active ? 'on' : '') + '"><span class="code">' + h(e.code) + '</span>' + h(e.name) + ' <span style="opacity:.6">· ' + h(e.city) + '</span></button>'; });
         h_ += '<hr>';
       }
-      h_ += '<button data-a="up">⬆️ Subir un archivo desde mi compu</button><button data-a="down">⬇️ Bajar archivos a mi compu</button>';
+      h_ += '<button data-a="chat">💬 Mis chats</button><button data-a="up">⬆️ Subir un archivo desde mi compu</button><button data-a="down">⬇️ Bajar archivos a mi compu</button>';
       if (files) {
         h_ += '<div class="fl">' + (files.length ? files.map(function (f) { return '<a class="f" href="/__localia/file/' + encodeURIComponent(f.name) + '" download="' + h(f.name) + '"><span>' + h(f.name) + '</span><small>' + size(f.size) + '</small></a>'; }).join('')
           : '<div class="msg">Todavía no hay nada. Lo que bajes adentro de la PC (un comprobante, un PDF) aparece acá.</div>') + '</div>';
@@ -74,6 +74,7 @@
   box.addEventListener('click', function (e) {
     var t = e.target.closest('[data-a]'); if (!t || busy) return; var a = t.getAttribute('data-a');
     if (a === 'toggle') { open = !open; msg = ''; files = null; render(); }
+    if (a === 'chat') window.open('/__localia/chat/', '_blank');
     if (a === 'up') pick.click();
     if (a === 'down') { msg = ''; listFiles(); }
     if (a === 'mode') {

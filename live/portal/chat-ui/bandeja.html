@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Mis chats · Localía</title>
+<style>
+:root{--bg:#eef2f7;--surface:#fff;--line:#d8e0eb;--ink:#0c1a2c;--ink-2:#33455e;--muted:#5f718a;--sky:#1c6cb5;--stamp:#5a3ea6;--mine:#dcebfb;--ok:#137f55;--bad:#c2352d;--wa:#128c4a}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;display:grid;grid-template-columns:340px 1fr;background:var(--bg);color:var(--ink);font:15.5px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+button,input,textarea{font:inherit;color:inherit}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-weight:600;font-size:14.5px;text-decoration:none;color:var(--ink)}
+.btn.p{background:var(--sky);border-color:var(--sky);color:#fff}
+.btn.wa{background:var(--wa);border-color:var(--wa);color:#fff}
+.btn.danger{color:var(--bad)}
+.btn:disabled{opacity:.5;cursor:default}
+.btn:focus-visible,input:focus-visible,textarea:focus-visible,.ct:focus-visible{outline:3px solid #9ec5ec;outline-offset:1px}
+/* lista de contactos */
+aside{display:flex;flex-direction:column;min-height:0;background:var(--surface);border-right:1px solid var(--line)}
+.side-head{padding:16px 16px 12px;border-bottom:1px solid var(--line)}
+.side-head h1{margin:0 0 2px;font-size:20px}
+.side-head p{margin:0 0 12px;color:var(--muted);font-size:13.5px}
+.side-head .row{display:flex;gap:8px}
+#q{width:100%;margin-top:10px;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:#f7f9fc}
+#cts{flex:1;overflow-y:auto}
+.ct{display:flex;gap:10px;width:100%;padding:12px 16px;border:0;border-bottom:1px solid #eef2f7;background:none;text-align:left;cursor:pointer}
+.ct:hover{background:#f5f8fc}.ct.on{background:#e8f1fb}
+.av{flex:none;width:40px;height:40px;border-radius:50%;background:#cfe0f3;color:#1c4f85;display:grid;place-items:center;font-weight:700}
+.ct .mid{flex:1;min-width:0}
+.ct b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ct .mid span{display:block;color:var(--muted);font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ct .end{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:4px;font-size:12px;color:var(--muted)}
+.badge{min-width:20px;padding:1px 6px;border-radius:999px;background:var(--sky);color:#fff;font-weight:700;text-align:center}
+.tag{padding:1px 7px;border-radius:999px;background:#f3ead0;color:#7a5a08;font-size:11.5px}
+.empty{padding:28px 20px;color:var(--muted);text-align:center}
+/* conversación */
+section{display:flex;flex-direction:column;min-width:0;min-height:0}
+.conv-head{flex:none;display:flex;align-items:center;gap:12px;padding:12px 18px;background:var(--surface);border-bottom:1px solid var(--line)}
+.conv-head .who{flex:1;min-width:0}
+.conv-head b{display:block;font-size:17px}
+.conv-head small{color:var(--muted)}
+.conv-head b,.conv-head small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.conv-head .btn{flex:none}
+#list{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:6px}
+.day{align-self:center;margin:10px 0 4px;padding:3px 10px;border-radius:999px;background:#dfe6ef;color:var(--muted);font-size:12px}
+.m{max-width:min(70%,560px);padding:8px 12px;border-radius:16px;background:var(--surface);box-shadow:0 1px 1px rgba(12,26,44,.08);overflow-wrap:anywhere;white-space:pre-wrap}
+.m.me{align-self:flex-end;background:var(--mine);border-bottom-right-radius:5px}
+.m.them{align-self:flex-start;border-bottom-left-radius:5px}
+.m time{display:block;margin-top:2px;font-size:11px;color:var(--muted);text-align:right}
+.m img{display:block;max-width:100%;max-height:280px;border-radius:10px;margin-bottom:4px}
+.m a.file{display:flex;gap:8px;color:var(--ink);text-decoration:none;font-weight:600}
+.m a.file small{font-weight:400;color:var(--muted)}
+.invite{align-self:center;max-width:520px;margin:18px 0;padding:18px 20px;border-radius:16px;background:var(--surface);border:1px dashed var(--line);text-align:center}
+.invite p{margin:0 0 12px;color:var(--ink-2)}
+.invite .row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.invite code{display:block;margin:0 0 12px;padding:8px 10px;border-radius:8px;background:#f1f4f9;font-size:12.5px;overflow-wrap:anywhere}
+footer{flex:none;display:flex;align-items:flex-end;gap:8px;padding:10px 14px;background:var(--surface);border-top:1px solid var(--line)}
+#txt{flex:1;min-width:0;resize:none;max-height:140px;padding:11px 14px;border-radius:20px;border:1px solid var(--line);background:#f7f9fc}
+.round{flex:none;width:44px;height:44px;border-radius:50%;border:0;cursor:pointer;font-size:19px;display:grid;place-items:center;background:#eaf0f7}
+.round.p{background:var(--sky);color:#fff}
+.blank{flex:1;display:grid;place-items:center;color:var(--muted);text-align:center;padding:24px}
+.blank h2{color:var(--ink);margin:0 0 6px}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);padding:10px 16px;border-radius:999px;background:#0c1a2c;color:#fff;font-size:14px;display:none;z-index:30}
+/* diálogo */
+dialog{border:0;border-radius:18px;padding:22px;width:min(440px,92vw);box-shadow:0 30px 80px rgba(12,26,44,.35)}
+dialog::backdrop{background:rgba(12,26,44,.45)}
+dialog h2{margin:0 0 14px;font-size:20px}
+dialog label{display:block;margin-bottom:12px;font-size:13.5px;color:var(--ink-2);font-weight:600}
+dialog input,dialog textarea{display:block;width:100%;margin-top:5px;padding:10px 12px;border-radius:10px;border:1px solid var(--line);font-weight:400}
+dialog .hint{margin:-6px 0 12px;color:var(--muted);font-size:13px}
+dialog .row{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:6px}
+.derr{color:var(--bad);font-size:14px;margin:0 0 10px}
+@media (max-width:760px){.conv-head{padding:10px 12px;gap:8px}.conv-head .btn{padding:8px 11px;font-size:13.5px}.conv-head .av{display:none}body{grid-template-columns:1fr}body.open aside{display:none}body:not(.open) section{display:none}#back{display:inline-flex!important}}
+</style>
+</head>
+<body>
+<aside>
+ <div class="side-head">
+  <h1 id="biz">Mis chats</h1>
+  <p>Cada contacto tiene su link privado. Mandáselo y te escribe desde su navegador.</p>
+  <div class="row"><button class="btn p" id="new" style="flex:1">+ Nuevo contacto</button><button class="btn" id="cfg" title="Cambiar el nombre que ven tus clientes" aria-label="Ajustes">Ajustes</button></div>
+  <input id="q" type="search" placeholder="Buscar contacto" aria-label="Buscar contacto">
+ </div>
+ <div id="cts"></div>
+</aside>
+<section id="conv"><div class="blank"><div><h2>Elegí un contacto</h2><p>O creá uno nuevo para invitarlo a chatear.</p></div></div></section>
+<div id="toast" role="status"></div>
+<input type="file" id="pick" hidden>
+<dialog id="dlg"></dialog>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const size=n=>n>1048576?(n/1048576).toFixed(1).replace('.',',')+' MB':Math.max(1,Math.round(n/1024))+' KB';
+const S={name:'',contacts:[],sel:null,last:0,lastDay:'',maxFile:25*1048576,busy:false};
+async function api(p,opts){const r=await fetch('api/'+p,opts&&opts.body!==undefined?{method:'POST',headers:{'Content-Type':opts.raw?'application/octet-stream':'application/json','X-Localia':'1'},body:opts.raw?opts.body:JSON.stringify(opts.body)}:{cache:'no-store'});const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||'No se pudo completar.');return j}
+function toast(t){const e=$('#toast');e.textContent=t;e.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>e.style.display='none',2600)}
+async function copy(t){try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(t);return true}}catch(e){}
+ const a=document.createElement('textarea');a.value=t;a.style.cssText='position:fixed;opacity:0';(document.querySelector('dialog[open]')||document.body).appendChild(a);a.select();let ok=false;try{ok=document.execCommand('copy')}catch(e){}a.remove();return ok}
+const cur=()=>S.contacts.find(c=>c.id===S.sel);
+const when=at=>{if(!at)return '';const d=new Date(at),n=new Date();return d.toDateString()===n.toDateString()?d.toLocaleTimeString('es-UY',{hour:'2-digit',minute:'2-digit'}):d.toLocaleDateString('es-UY',{day:'numeric',month:'short'})};
+const inviteText=c=>`Hola ${c.name}, soy ${S.name}. Te invito a chatear conmigo por acá. Es privado y no hay que instalar nada: ${c.invite}`;
+const waUrl=c=>`https://wa.me/${c.phone.replace(/\D/g,'')}?text=${encodeURIComponent(inviteText(c))}`;
+
+function renderList(){
+ const q=$('#q').value.trim().toLowerCase();const list=S.contacts.filter(c=>!q||c.name.toLowerCase().includes(q)||c.phone.includes(q));
+ const unread=S.contacts.reduce((a,c)=>a+c.unread,0);document.title=(unread?`(${unread}) `:'')+'Mis chats · Localía';
+ $('#cts').innerHTML=list.length?list.map(c=>`<button class="ct${c.id===S.sel?' on':''}" data-id="${c.id}"><span class="av" aria-hidden="true">${esc(c.name.charAt(0).toUpperCase())}</span><span class="mid"><b>${esc(c.name)}</b><span>${c.blocked?'Bloqueado':c.lastText?esc(c.lastText):c.joined?'Abrió el chat':'Invitación sin abrir'}</span></span><span class="end">${when(c.lastAt)}${c.unread&&c.id!==S.sel?`<span class="badge">${c.unread}</span>`:!c.joined?'<span class="tag">invitado</span>':''}</span></button>`).join('')
+  :`<div class="empty">${S.contacts.length?'Ningún contacto coincide.':'Todavía no tenés contactos. Tocá "Nuevo contacto" para invitar al primero.'}</div>`;
+}
+function inviteBox(c){return `<div class="invite"><p>${c.joined?'Link privado de este contacto:':`<b>${esc(c.name)}</b> todavía no abrió el chat. Mandale su invitación:`}</p><code>${esc(c.invite)}</code><div class="row">${c.phone?`<a class="btn wa" href="${esc(waUrl(c))}" target="_blank" rel="noopener">Enviar por WhatsApp</a>`:''}<button class="btn" data-a="copy-inv">Copiar invitación</button><button class="btn" data-a="copy-link">Copiar solo el link</button></div></div>`}
+function renderConv(){
+ const c=cur();if(!c){$('#conv').innerHTML='<div class="blank"><div><h2>Elegí un contacto</h2><p>O creá uno nuevo para invitarlo a chatear.</p></div></div>';return}
+ $('#conv').innerHTML=`<div class="conv-head"><button class="btn" id="back" style="display:none" data-a="back">←</button><span class="av" aria-hidden="true">${esc(c.name.charAt(0).toUpperCase())}</span><div class="who"><b>${esc(c.name)}</b><small>${esc(c.phone||'Sin teléfono')}${c.notes?' · '+esc(c.notes):''}</small></div><button class="btn" data-a="invite">Invitación</button><button class="btn" data-a="edit">Editar</button></div>
+  <div id="list" aria-live="polite">${c.joined?'':inviteBox(c)}</div>
+  <footer><button class="round" data-a="attach" aria-label="Adjuntar una foto o un archivo" title="Adjuntar">📎</button><textarea id="txt" rows="1" placeholder="Escribí un mensaje" aria-label="Mensaje" maxlength="4000"></textarea><button class="round p" data-a="send" aria-label="Enviar" title="Enviar">➤</button></footer>`;
+ S.last=0;S.lastDay='';loadMsgs(true);$('#txt').focus();
+}
+function addMsg(m){
+ if(m.id<=S.last)return;S.last=m.id;const list=$('#list');if(!list)return;
+ const d=new Date(m.at);const day=d.toLocaleDateString('es-UY',{weekday:'long',day:'numeric',month:'long'});
+ if(day!==S.lastDay){S.lastDay=day;const x=document.createElement('div');x.className='day';x.textContent=day;list.appendChild(x)}
+ const el=document.createElement('div');el.className='m '+(m.from==='owner'?'me':'them');let h='';
+ if(m.file){const u='api/file/'+m.id;h+=m.file.image?`<a href="${u}" target="_blank" rel="noopener"><img src="${u}" alt="${esc(m.file.name)}" loading="lazy"></a>`:`<a class="file" href="${u}" download="${esc(m.file.name)}">📎 <span>${esc(m.file.name)} <small>· ${size(m.file.size)}</small></span></a>`}
+ if(m.text)h+=esc(m.text);
+ el.innerHTML=h+`<time>${d.toLocaleTimeString('es-UY',{hour:'2-digit',minute:'2-digit'})}</time>`;list.appendChild(el);
+}
+async function loadMsgs(first){
+ const id=S.sel;if(!id)return;
+ try{const j=await api(`messages?contact=${id}&after=${S.last}`);if(id!==S.sel)return;const list=$('#list');if(!list)return;
+  const near=first||list.scrollHeight-list.scrollTop-list.clientHeight<120;j.messages.forEach(addMsg);if(j.messages.length&&near)list.scrollTop=list.scrollHeight;
+  const c=cur();if(c)c.unread=0;
+ }catch(e){}
+}
+async function loadState(){
+ try{const j=await api('state');const was=cur();S.name=j.name;S.contacts=j.contacts;S.maxFile=j.maxFile||S.maxFile;$('#biz').textContent=j.name;renderList();
+  const c=cur();if(S.sel&&!c){S.sel=null;renderConv()}else if(c&&was&&!was.joined&&c.joined){const b=document.querySelector('#list .invite');if(b)b.remove()}
+ }catch(e){}
+}
+async function sendText(){
+ const t=$('#txt');const v=t.value.trim();if(!v||S.busy||!S.sel)return;S.busy=true;
+ try{const j=await api('send',{body:{contact:S.sel,text:v}});t.value='';t.style.height='auto';await loadMsgs(true);const c=cur();if(c){c.lastText=v.slice(0,80);c.lastAt=j.message.at;renderList()}}catch(e){toast(e.message)}
+ S.busy=false;t.focus();
+}
+function contactDialog(c){
+ const d=$('#dlg');d.innerHTML=`<h2>${c?'Editar contacto':'Nuevo contacto'}</h2><p class="derr" id="derr" hidden></p>
+  <label>Nombre<input id="fn" maxlength="60" value="${esc(c?c.name:'')}" autocomplete="off"></label>
+  <label>WhatsApp (con código de país)<input id="fp" inputmode="tel" maxlength="30" placeholder="+598 99 123 456" value="${esc(c?c.phone:'')}" autocomplete="off"></label>
+  <p class="hint">Se usa solo para mandarle la invitación por WhatsApp.</p>
+  <label>Notas (solo las ves vos)<textarea id="fo" rows="2" maxlength="500">${esc(c?c.notes:'')}</textarea></label>
+  <div class="row">${c?`<button class="btn danger" data-a="del">Borrar</button><button class="btn" data-a="block">${c.blocked?'Desbloquear':'Bloquear'}</button><span style="flex:1"></span>`:''}<button class="btn" data-a="close">Cancelar</button><button class="btn p" data-a="save">${c?'Guardar':'Crear e invitar'}</button></div>`;
+ d.dataset.id=c?c.id:'';d.showModal();$('#fn').focus();
+}
+function derr(t){const e=$('#derr');e.textContent=t;e.hidden=!t}
+document.addEventListener('click',async e=>{
+ const ct=e.target.closest('.ct');if(ct){S.sel=ct.dataset.id;history.replaceState(null,'','#'+S.sel);document.body.classList.add('open');renderList();renderConv();return}
+ const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a;const c=cur();const d=$('#dlg');
+ if(a==='back'){document.body.classList.remove('open');S.sel=null;renderList();renderConv()}
+ if(a==='send')sendText();
+ if(a==='attach')$('#pick').click();
+ if(a==='edit'&&c)contactDialog(c);
+ if(a==='invite'&&c){d.innerHTML=`<h2>Invitación de ${esc(c.name)}</h2>${inviteBox(c)}<div class="row"><button class="btn" data-a="close">Cerrar</button></div>`;d.showModal()}
+ if(a==='copy-inv'&&c)toast(await copy(inviteText(c))?'Invitación copiada':'No se pudo copiar. Seleccioná el link y copialo a mano.');
+ if(a==='copy-link'&&c)toast(await copy(c.invite)?'Link copiado':'No se pudo copiar. Seleccioná el link y copialo a mano.');
+ if(a==='close')d.close();
+ if(a==='save'){const id=d.dataset.id;const bd={name:$('#fn').value,phone:$('#fp').value,notes:$('#fo').value};
+  try{const j=await api(id?'contacts/'+id:'contacts',{body:bd});d.close();await loadState();if(!id){S.sel=j.contact.id;document.body.classList.add('open')}renderList();renderConv()}catch(x){derr(x.message)}}
+ if(a==='block'){try{const k=S.contacts.find(x=>x.id===d.dataset.id);await api('contacts/'+k.id,{body:{blocked:!k.blocked}});d.close();await loadState();toast(k.blocked?'Contacto desbloqueado':'Contacto bloqueado: su link dejó de funcionar')}catch(x){derr(x.message)}}
+ if(a==='del'){if(b.dataset.sure!=='1'){b.dataset.sure='1';b.textContent='¿Seguro? Se borra la conversación';return}
+  try{await api('contacts/'+d.dataset.id+'/delete',{body:{}});d.close();S.sel=null;document.body.classList.remove('open');await loadState();renderConv();toast('Contacto borrado')}catch(x){derr(x.message)}}
+ if(a==='save-cfg'){try{await api('settings',{body:{name:$('#fb').value}});d.close();await loadState();toast('Listo')}catch(x){derr(x.message)}}
+});
+$('#new').addEventListener('click',()=>contactDialog(null));
+$('#cfg').addEventListener('click',()=>{const d=$('#dlg');d.innerHTML=`<h2>Ajustes del chat</h2><p class="derr" id="derr" hidden></p><label>Nombre que ven tus clientes<input id="fb" maxlength="60" value="${esc(S.name)}"></label><p class="hint">Por ejemplo, tu nombre o el de tu negocio.</p><div class="row"><button class="btn" data-a="close">Cancelar</button><button class="btn p" data-a="save-cfg">Guardar</button></div>`;d.showModal();$('#fb').focus()});
+$('#q').addEventListener('input',renderList);
+document.addEventListener('input',e=>{if(e.target.id==='txt'){e.target.style.height='auto';e.target.style.height=Math.min(140,e.target.scrollHeight)+'px'}});
+document.addEventListener('keydown',e=>{if(e.target.id==='txt'&&e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();sendText()}});
+$('#pick').addEventListener('change',async()=>{
+ const f=$('#pick').files[0];$('#pick').value='';if(!f||!S.sel)return;
+ if(f.size>S.maxFile)return toast(`Ese archivo es muy grande (máximo ${Math.round(S.maxFile/1048576)} MB).`);
+ toast('Subiendo "'+f.name+'"…');
+ try{const j=await api(`upload?contact=${S.sel}&name=${encodeURIComponent(f.name)}`,{body:f,raw:true});await loadMsgs(true);toast('Enviado')}catch(x){toast(x.message)}
+});
+// Al recargar se vuelve a la conversación que estaba abierta
+loadState().then(()=>{const h=location.hash.slice(1);if(h&&S.contacts.some(c=>c.id===h)){S.sel=h;document.body.classList.add('open');renderList();renderConv()}});setInterval(()=>{loadState();loadMsgs()},3000);
+</script>
+</body>
+</html>

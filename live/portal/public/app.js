@@ -178,6 +178,7 @@ function pcCardFull(pc){const e=ex(pc.active);const busy=['pending','stopping','
   <p style="margin-top:12px;font-size:14.5px">${ico.globe} <b>Así te ven ahora:</b> ${idLine(pc)}</p></div>
   <div class="pcd-act">${provisioning?`<a class="btn btn-primary" href="#armando/${pc.id}">Ver cómo se arma</a>`:`<a class="btn btn-primary" href="#pc/${pc.id}" ${pc.state!=='running'?'':''}>${ico.monitor} Abrir mi PC</a>`}
    ${pc.state==='stopped'?`<button class="btn btn-ghost btn-sm" data-act="pc-start" data-id="${pc.id}">${ico.power} Prender</button>`:`<button class="btn btn-ghost btn-sm" data-act="pc-stop" data-id="${pc.id}" ${pc.state!=='running'||busy?'disabled':''}>${ico.power} Apagar</button>`}
+   <a class="btn btn-ghost btn-sm" href="https://${pc.host}/__localia/chat/" target="_blank" rel="noopener">💬 Chats</a>
    <button class="btn btn-ghost btn-sm" data-act="pc-reboot" data-id="${pc.id}" ${pc.state!=='running'?'disabled':''}>${ico.restart} Reiniciar</button>
    <button class="btn btn-ghost btn-sm" data-act="pc-check" data-id="${pc.id}" ${pc.state!=='running'?'disabled':''}>${ico.shield} Verificar IP</button>
    <button class="btn btn-ghost btn-sm" data-act="pc-delete" data-id="${pc.id}">${ico.trash} Borrar</button></div></div>

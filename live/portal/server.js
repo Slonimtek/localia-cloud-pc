@@ -262,6 +262,8 @@ async function provision(pc) {
   } catch (e) { P.error = String(e.message || e); mark('error', 'No se pudo crear la PC: ' + P.error); ev(pc, 'Error al crear: ' + P.error, 'bad'); }
 }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
+// Chat privado de cada PC (ver chat.js)
+const chat = require('./chat')({ DATA, PORTAL_HOST, send, body, log: ev, getPc: id => db.pcs.find(x => x.id === id && x.status !== 'deleted') });
 
 // ---------- página "¿desde dónde me ven?" (la abre la PC al prender) ----------
 function clientIp(req) { return String(req.headers['x-real-ip'] || req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim().replace('::ffff:', ''); }
@@ -270,7 +272,7 @@ function clientIp(req) { return String(req.headers['x-real-ip'] || req.headers['
 async function api(req, res, url) {
   const u = userOf(req); const p = url.pathname; const m = req.method;
   if (p === '/api/caddy/ask') { const d = url.searchParams.get('domain') || ''; const ok = d === PORTAL_HOST || (d.endsWith('.' + BASE) && db.pcs.some(x => `pc-${x.id}.${BASE}` === d && x.status !== 'deleted')); res.writeHead(ok ? 200 : 403); return res.end(); }
-  if (p === '/api/donde') { const ip = clientIp(req); return send(res, 200, { ip, geo: await geo(ip), vpn: !DIRECT }); }
+  if (p === '/api/donde') { const ip = clientIp(req); return send(res, 200, { ip, geo: await geo(ip), vpn: !DIRECT, chat: `http://${INTERNAL_HOST}:${INTERNAL_PORT}/chat/` }); }
   if (p === '/api/config') return send(res, 200, { base: BASE, portal: PORTAL_HOST, exits: EXITS.map(x => ({ code: x.code, name: x.name, city: x.city, tz: x.tz, kind: x.kind, country: x.country || x.code, soon: !!x.soon, available: !x.soon && (x.kind !== 'home' || !!(db.exitPeers || {})[x.code]) && !exitOff(x.code) })), tiers: TIERS, cloud: { name: cloud.name, label: cloud.label, place: cloud.place }, direct: DIRECT, limits: { perUser: MAX_PCS_PER_USER, total: MAX_PCS_TOTAL }, idleStopMin: IDLE_STOP_MIN });
   if (p === '/api/signup' && m === 'POST') {
     const b = await body(req); const email = String(b.email || '').trim().toLowerCase();
@@ -428,6 +430,8 @@ const esc = v => String(v == null ? '' : v).replace(/[&<>"]/g, c => ({ '&': '&am
 const ICON_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#0c1a2c"/><path d="M32 9c-10.5 0-19 8.2-19 18.4C13 40.4 32 55 32 55s19-14.6 19-27.6C51 17.2 42.5 9 32 9z" fill="#2a82d2"/><rect x="21.5" y="18.5" width="21" height="14" rx="3" fill="#fff"/><rect x="27.5" y="35" width="9" height="3" rx="1.5" fill="#fff"/></svg>';
 async function directApi(req, res, url, pc) {
   const p = url.pathname.replace('/__localia/', '');
+  if (p === 'chat') { res.writeHead(302, { Location: '/__localia/chat/' }); return res.end(); }
+  if (p.startsWith('chat/')) return await chat.owner(req, res, p.slice(5), pc);   // bandeja del dueño, con la sesión del portal
   if (p === 'manifest.webmanifest') {
     const m = { name: `${pc.name} · Localía`, short_name: pc.name, start_url: `/?${KASM_PARAMS}`, scope: '/', display: 'standalone', background_color: '#0a1629', theme_color: '#0c1a2c', icons: [{ src: '/__localia/icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' }] };
     res.writeHead(200, { 'Content-Type': 'application/manifest+json' }); return res.end(JSON.stringify(m));
@@ -516,6 +520,7 @@ const server = http.createServer(async (req, res) => {
       return proxy.web(req, res, { target: `http://${g.pc.privateIp}:6901` });
     }
     const url = new URL(req.url, `https://${host || PORTAL_HOST}`);
+    if (url.pathname.startsWith('/c/') || url.pathname.startsWith('/api/chat/c/')) return await chat.client(req, res, url);   // chat del cliente: su link es la llave
     if (url.pathname.startsWith('/api/')) return await api(req, res, url);
     if (url.pathname === '/exit/install.sh') return await exitInstall(req, res, url);
     if (url.pathname === '/exit/register' && req.method === 'POST') return await exitRegister(req, res, url);
@@ -534,6 +539,16 @@ server.on('upgrade', (req, socket, head) => {
 const INTERNAL_HOST = ENV.INTERNAL_HOST || '10.60.1.10', INTERNAL_PORT = +(ENV.INTERNAL_PORT || 3001);
 const internal = http.createServer(async (req, res) => {
   try {
+    // Bandeja de chats abierta desde el navegador de la propia PC: se identifica por su IP privada.
+    // Host fijo (anti DNS-rebinding); los POST exigen el header X-Localia (lo valida chat.js), así una web cualquiera no puede escribir por el dueño.
+    const cu = new URL(req.url, 'http://internal');
+    if (cu.pathname === '/chat' || cu.pathname.startsWith('/chat/')) {
+      const from = String(req.socket.remoteAddress || '').replace('::ffff:', '');
+      const own = db.pcs.find(x => x.privateIp === from && x.status !== 'deleted');
+      if (!own || req.headers.host !== `${INTERNAL_HOST}:${INTERNAL_PORT}`) return send(res, 403, { error: 'forbidden' });
+      if (cu.pathname === '/chat') { res.writeHead(302, { Location: '/chat/' }); return res.end(); }
+      return await chat.owner(req, res, cu.pathname.slice(6), own);
+    }
     const pc = db.pcs.find(x => x.id === req.headers['x-localia-pc'] && x.status !== 'deleted');
     if (!pc || !pc.token || req.headers['x-localia-token'] !== pc.token) return send(res, 403, { error: 'forbidden' });
     const peer = String(req.socket.remoteAddress || '').replace('::ffff:', '');
