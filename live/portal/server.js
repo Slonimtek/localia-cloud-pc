@@ -205,7 +205,7 @@ systemctl restart localia-rdp-bridge || true
 }
 async function createInstance(pc) {
   const r = await cloud.create({ id: pc.id, tier: TIERS[pc.tier], userData: userData(pc), location: DIRECT ? pc.active : undefined, publicIp: DIRECT });
-  pc.instanceId = r.instanceId; pc.privateIp = r.privateIp; pc.ec2 = r.state; pc.cloud = cloud.name;
+  pc.instanceId = r.instanceId; pc.privateIp = r.privateIp; pc.publicIp = r.publicIp || null; pc.ec2 = r.state; pc.cloud = cloud.name;
   for (let k = 0; !pc.privateIp && k < 20; k++) { await sleep(2000); const d = (await describe([pc.instanceId]))[pc.instanceId]; if (d && d.privateIp) pc.privateIp = d.privateIp; }
   if (!pc.privateIp) throw new Error('la máquina no recibió IP privada');
 }
@@ -219,7 +219,7 @@ function pubPc(pc, live) {
 }
 async function refreshPc(pc) {
   const m = await describe([pc.instanceId].filter(Boolean)); const d = m[pc.instanceId];
-  if (d) { pc.ec2 = d.state; if (d.privateIp) pc.privateIp = d.privateIp; } else if (pc.instanceId) pc.ec2 = 'terminated';
+  if (d) { pc.ec2 = d.state; if (d.privateIp) pc.privateIp = d.privateIp; if (d.publicIp) pc.publicIp = d.publicIp; } else if (pc.instanceId) pc.ec2 = 'terminated';
   if (pc.ec2 === 'running') { const h = await agent(pc, '/health', {}, 3000); pc.desktop = h.status === 200 ? h.json.desktop : 'booting'; pc.tz = h.json && h.json.tz; } else pc.desktop = null;
   save(); return pc;
 }
@@ -272,7 +272,8 @@ function clientIp(req) { return String(req.headers['x-real-ip'] || req.headers['
 async function api(req, res, url) {
   const u = userOf(req); const p = url.pathname; const m = req.method;
   if (p === '/api/caddy/ask') { const d = url.searchParams.get('domain') || ''; const ok = d === PORTAL_HOST || (d.endsWith('.' + BASE) && db.pcs.some(x => `pc-${x.id}.${BASE}` === d && x.status !== 'deleted')); res.writeHead(ok ? 200 : 403); return res.end(); }
-  if (p === '/api/donde') { const ip = clientIp(req); return send(res, 200, { ip, geo: await geo(ip), vpn: !DIRECT, chat: `http://${INTERNAL_HOST}:${INTERNAL_PORT}/chat/` }); }
+  if (p === '/api/donde') { const ip = clientIp(req); const mine = DIRECT && db.pcs.find(x => x.publicIp === ip && x.status !== 'deleted');   // ¿la página se abrió desde una PC nuestra?
+    return send(res, 200, { ip, geo: await geo(ip), vpn: !DIRECT, chat: mine ? `https://pc-${mine.id}.${BASE}/__localia/chat/` : null }); }
   if (p === '/api/config') return send(res, 200, { base: BASE, portal: PORTAL_HOST, exits: EXITS.map(x => ({ code: x.code, name: x.name, city: x.city, tz: x.tz, kind: x.kind, country: x.country || x.code, soon: !!x.soon, available: !x.soon && (x.kind !== 'home' || !!(db.exitPeers || {})[x.code]) && !exitOff(x.code) })), tiers: TIERS, cloud: { name: cloud.name, label: cloud.label, place: cloud.place }, direct: DIRECT, limits: { perUser: MAX_PCS_PER_USER, total: MAX_PCS_TOTAL }, idleStopMin: IDLE_STOP_MIN });
   if (p === '/api/signup' && m === 'POST') {
     const b = await body(req); const email = String(b.email || '').trim().toLowerCase();
@@ -508,6 +509,13 @@ const server = http.createServer(async (req, res) => {
   try {
     const host = String(req.headers.host || '').split(':')[0];
     if (host.startsWith('pc-')) {
+      // Bandeja de chats abierta desde el navegador de la propia PC (modo directo): la PC se reconoce por su IP pública,
+      // que es solo suya y la informa Caddy (X-Real-IP). Vale únicamente para el chat, nunca para el escritorio.
+      const own = DIRECT && pcForHost(req.headers.host); const cu = new URL(req.url, `https://${host}`);
+      if (own && own.publicIp && clientIp(req) === own.publicIp && (cu.pathname === '/__localia/chat' || cu.pathname.startsWith('/__localia/chat/'))) {
+        if (cu.pathname === '/__localia/chat') { res.writeHead(302, { Location: '/__localia/chat/' }); return res.end(); }
+        return await chat.owner(req, res, cu.pathname.slice('/__localia/chat/'.length), own);
+      }
       const g = desktopGate(req);
       if (g.err) {
         const pcm = pcForHost(req.headers.host);
@@ -539,16 +547,6 @@ server.on('upgrade', (req, socket, head) => {
 const INTERNAL_HOST = ENV.INTERNAL_HOST || '10.60.1.10', INTERNAL_PORT = +(ENV.INTERNAL_PORT || 3001);
 const internal = http.createServer(async (req, res) => {
   try {
-    // Bandeja de chats abierta desde el navegador de la propia PC: se identifica por su IP privada.
-    // Host fijo (anti DNS-rebinding); los POST exigen el header X-Localia (lo valida chat.js), así una web cualquiera no puede escribir por el dueño.
-    const cu = new URL(req.url, 'http://internal');
-    if (cu.pathname === '/chat' || cu.pathname.startsWith('/chat/')) {
-      const from = String(req.socket.remoteAddress || '').replace('::ffff:', '');
-      const own = db.pcs.find(x => x.privateIp === from && x.status !== 'deleted');
-      if (!own || req.headers.host !== `${INTERNAL_HOST}:${INTERNAL_PORT}`) return send(res, 403, { error: 'forbidden' });
-      if (cu.pathname === '/chat') { res.writeHead(302, { Location: '/chat/' }); return res.end(); }
-      return await chat.owner(req, res, cu.pathname.slice(6), own);
-    }
     const pc = db.pcs.find(x => x.id === req.headers['x-localia-pc'] && x.status !== 'deleted');
     if (!pc || !pc.token || req.headers['x-localia-token'] !== pc.token) return send(res, 403, { error: 'forbidden' });
     const peer = String(req.socket.remoteAddress || '').replace('::ffff:', '');
@@ -569,6 +567,7 @@ const internal = http.createServer(async (req, res) => {
 // ---------- tareas de fondo ----------
 async function boot() {
   await syncExitPeers();
+  Promise.all(db.pcs.filter(x => x.status !== 'deleted').map(refreshPc)).catch(() => {});   // estado e IPs al día al arrancar
   for (const pc of db.pcs.filter(x => x.status !== 'deleted' && x.privateIp)) { await routePc(pc, pc.active); await ensureRdpDnat(pc); }  // reglas perdidas si se reinició el gateway
   server.listen(PORT, '127.0.0.1', () => console.log(`Localía portal en :${PORT} · https://${PORTAL_HOST}`));
   internal.listen(INTERNAL_PORT, INTERNAL_HOST, () => console.log(`API interna para PCs en ${INTERNAL_HOST}:${INTERNAL_PORT}`));

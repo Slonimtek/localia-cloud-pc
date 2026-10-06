@@ -53,6 +53,7 @@ function hetzner(ENV) {
     return { status: r.status, json: j };
   }
   const privIp = s => { const n = (s.private_net || []).find(x => String(x.network) === String(ENV.HCLOUD_NETWORK)) || (s.private_net || [])[0]; return n ? n.ip : undefined; };
+  const pubIp = s => (s.public_net && s.public_net.ipv4 && s.public_net.ipv4.ip) || undefined;
   const action = (id, a) => call('POST', `/servers/${id}/actions/${a}`);
   return {
     name: 'hetzner', label: 'Hetzner', place: ENV.HCLOUD_PLACE || 'Alemania', billsWhenOff: true,
@@ -76,7 +77,7 @@ function hetzner(ENV) {
       await Promise.all(ids.map(async id => {
         const r = await call('GET', `/servers/${id}`).catch(() => null);
         if (!r) return; if (r.status === 404) { m[id] = { state: 'terminated' }; return; }
-        const s = r.json.server; m[id] = { state: HZ_STATE[s.status] || 'unknown', privateIp: privIp(s), type: s.server_type && s.server_type.name, launched: s.created };
+        const s = r.json.server; m[id] = { state: HZ_STATE[s.status] || 'unknown', privateIp: privIp(s), publicIp: pubIp(s), type: s.server_type && s.server_type.name, launched: s.created };
       }));
       return m;
     },
@@ -90,7 +91,7 @@ function hetzner(ENV) {
         labels: { app: 'localia-pc', pcid: id },
       });
       if (r.status === 404) throw new Error('Hetzner: no existe la imagen, la red o el tipo de máquina configurado');
-      const s = r.json.server; return { instanceId: String(s.id), privateIp: privIp(s), state: 'pending' };   // la IP privada puede llegar unos segundos después (describe)
+      const s = r.json.server; return { instanceId: String(s.id), privateIp: privIp(s), publicIp: pubIp(s), state: 'pending' };   // la IP privada puede llegar unos segundos después (describe)
     },
     start: id => action(id, 'poweron'),
     stop: id => action(id, 'shutdown'),   // apagado ordenado; los archivos quedan
