@@ -263,7 +263,7 @@ async function provision(pc) {
 }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 // Chat privado de cada PC (ver chat.js)
-const chat = require('./chat')({ DATA, PORTAL_HOST, send, body, log: ev, getPc: id => db.pcs.find(x => x.id === id && x.status !== 'deleted') });
+const chat = require('./chat')({ DATA, PORTAL_HOST, send, body, log: ev, clientIp: req => clientIp(req), listPcs: () => db.pcs.filter(x => x.status !== 'deleted'), getPc: id => db.pcs.find(x => x.id === id && x.status !== 'deleted') });
 
 // ---------- página "¿desde dónde me ven?" (la abre la PC al prender) ----------
 function clientIp(req) { return String(req.headers['x-real-ip'] || req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim().replace('::ffff:', ''); }
@@ -528,7 +528,7 @@ const server = http.createServer(async (req, res) => {
       return proxy.web(req, res, { target: `http://${g.pc.privateIp}:6901` });
     }
     const url = new URL(req.url, `https://${host || PORTAL_HOST}`);
-    if (url.pathname.startsWith('/c/') || url.pathname.startsWith('/api/chat/c/')) return await chat.client(req, res, url);   // chat del cliente: su link es la llave
+    if (url.pathname.startsWith('/c/') || url.pathname.startsWith('/chat/') || url.pathname.startsWith('/api/chat/')) return await chat.client(req, res, url);   // chat del cliente: su link es la llave
     if (url.pathname.startsWith('/api/')) return await api(req, res, url);
     if (url.pathname === '/exit/install.sh') return await exitInstall(req, res, url);
     if (url.pathname === '/exit/register' && req.method === 'POST') return await exitRegister(req, res, url);

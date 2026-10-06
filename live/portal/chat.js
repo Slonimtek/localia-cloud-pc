@@ -2,11 +2,12 @@
 // El dueño de la PC carga un contacto y le manda una invitación (un link personal, pensado para WhatsApp).
 // El cliente abre el link y chatea desde el navegador, sin cuenta ni contraseña: el link es su llave.
 // El dueño atiende todas las conversaciones desde la bandeja, adentro de su PC.
+// Además cada PC tiene un link general (/chat/<clave>): quien entra deja nombre y WhatsApp y queda como contacto nuevo.
 // Datos: un archivo JSON por PC en DATA/chat/<pc>.json y los adjuntos en DATA/chat/<pc>/.
 'use strict';
 const fs = require('fs'), path = require('path'), crypto = require('crypto');
 
-module.exports = ({ DATA, PORTAL_HOST, send, body, getPc, log }) => {
+module.exports = ({ DATA, PORTAL_HOST, send, body, getPc, listPcs, clientIp, log }) => {
   const DIR = path.join(DATA, 'chat'); fs.mkdirSync(DIR, { recursive: true });
   const UI = path.join(__dirname, 'chat-ui');
   const MAX_FILE = 25 * 1024 * 1024, MAX_TEXT = 4000, MAX_CONTACTS = 500;
@@ -21,6 +22,12 @@ module.exports = ({ DATA, PORTAL_HOST, send, body, getPc, log }) => {
   }
   function save(id) { clearTimeout(timers[id]); timers[id] = setTimeout(() => { const f = path.join(DIR, id + '.json'); fs.writeFileSync(f + '.tmp', JSON.stringify(cache[id])); fs.renameSync(f + '.tmp', f); }, 150); }
   const clean = (v, n) => String(v == null ? '' : v).replace(/[\u0000-\u0008\u000b-\u001f\u007f]/g, '').trim().slice(0, n);
+  // Link general de la PC: la clave se crea sola la primera vez; el dueño puede cambiarla o cerrar el link.
+  function generalKey(pcId) { const c = load(pcId); if (!c.key) { c.key = crypto.randomBytes(6).toString('hex'); save(pcId); } return c.key; }
+  const generalUrl = pcId => `https://${PORTAL_HOST}/chat/${generalKey(pcId)}`;
+  function byKey(key) { if (!/^[a-f0-9]{12}$/.test(String(key || ''))) return null; const pc = listPcs().find(p => load(p.id).key === key); if (!pc || load(pc.id).open === false) return null; return { pc, c: load(pc.id) }; }
+  const joins = new Map();   // altas por el link general: por IP (5 por hora) y por PC (60 por día)
+  function joinLimit(k, max, ms) { const t = Date.now(); const a = (joins.get(k) || []).filter(x => t - x < ms); if (a.length >= max) { joins.set(k, a); return true; } a.push(t); joins.set(k, a); return false; }
   const inviteUrl = ct => `https://${PORTAL_HOST}/c/${ct.token}`;
   const pubMsg = m => ({ id: m.id, from: m.from, text: m.text || '', at: m.at, file: m.file ? { name: m.file.name, size: m.file.size, image: !!m.file.image } : null });
   function addMessage(pcId, ct, from, text, file) {
@@ -65,11 +72,12 @@ module.exports = ({ DATA, PORTAL_HOST, send, body, getPc, log }) => {
     const c = load(pc.id); const url = new URL(req.url, 'http://x'); const m = req.method;
     if (sub === '') return page(res, 'bandeja.html');
     if (m === 'POST' && req.headers['x-localia'] !== '1') return send(res, 403, { error: 'No permitido.' });
-    const pubCt = ct => ({ id: ct.id, name: ct.name, phone: ct.phone, notes: ct.notes || '', blocked: !!ct.blocked, joined: !!ct.joinedAt, createdAt: ct.createdAt, lastAt: ct.lastAt || null, lastText: ct.lastText || '', unread: ct.unread || 0, invite: inviteUrl(ct) });
-    if (sub === 'api/state' && m === 'GET') return send(res, 200, { name: c.name || pc.name, pcName: pc.name, contacts: c.contacts.map(pubCt).sort((a, b) => String(b.lastAt || b.createdAt).localeCompare(String(a.lastAt || a.createdAt))), maxFile: MAX_FILE, sound: c.sound !== false, lastIn: c.lastIn || 0 });
+    const pubCt = ct => ({ id: ct.id, name: ct.name, phone: ct.phone, notes: ct.notes || '', blocked: !!ct.blocked, joined: !!ct.joinedAt, via: ct.via || 'invite', createdAt: ct.createdAt, lastAt: ct.lastAt || null, lastText: ct.lastText || '', unread: ct.unread || 0, invite: inviteUrl(ct) });
+    if (sub === 'api/state' && m === 'GET') return send(res, 200, { name: c.name || pc.name, pcName: pc.name, contacts: c.contacts.map(pubCt).sort((a, b) => String(b.lastAt || b.createdAt).localeCompare(String(a.lastAt || a.createdAt))), maxFile: MAX_FILE, sound: c.sound !== false, lastIn: c.lastIn || 0, general: { open: c.open !== false, url: generalUrl(pc.id) } });
     // Resumen liviano para el aviso sonoro y el contador del botón flotante
     if (sub === 'api/unread' && m === 'GET') return send(res, 200, { unread: c.contacts.reduce((a, x) => a + (x.unread || 0), 0), lastIn: c.lastIn || 0, sound: c.sound !== false });
-    if (sub === 'api/settings' && m === 'POST') { const b = await body(req); if (b.name !== undefined) c.name = clean(b.name, 60); if (b.sound !== undefined) c.sound = !!b.sound; save(pc.id); return send(res, 200, { name: c.name || pc.name, sound: c.sound !== false }); }
+    if (sub === 'api/settings' && m === 'POST') { const b = await body(req); if (b.name !== undefined) c.name = clean(b.name, 60); if (b.sound !== undefined) c.sound = !!b.sound; if (b.open !== undefined) c.open = !!b.open; if (b.newKey === true) c.key = crypto.randomBytes(6).toString('hex');   // el link anterior deja de funcionar
+      save(pc.id); return send(res, 200, { name: c.name || pc.name, sound: c.sound !== false, general: { open: c.open !== false, url: generalUrl(pc.id) } }); }
     if (sub === 'api/contacts' && m === 'POST') {
       const b = await body(req); const name = clean(b.name, 60); const phone = clean(b.phone, 30).replace(/[^\d+]/g, '');
       if (!name) return send(res, 400, { error: 'Poné el nombre del contacto.' });
@@ -117,8 +125,28 @@ module.exports = ({ DATA, PORTAL_HOST, send, body, getPc, log }) => {
     return { pc, c, ct };
   }
   async function client(req, res, url) {
-    const m = req.method; const pm = url.pathname.match(/^\/c\/([^/]+)\/?$/);
-    if (pm) { if (!byToken(pm[1])) { res.writeHead(404, { 'Content-Type': 'text/html; charset=utf-8' }); return res.end('<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Localía</title><p style="font:17px system-ui;padding:32px;max-width:480px;margin:auto">Este link de chat ya no está disponible. Pedile uno nuevo a quien te lo mandó.</p>'); } return page(res, 'cliente.html'); }
+    const m = req.method;
+    const gone = () => { res.writeHead(404, { 'Content-Type': 'text/html; charset=utf-8' }); res.end('<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Localía</title><p style="font:17px system-ui;padding:32px;max-width:480px;margin:auto">Este link de chat ya no está disponible. Pedile uno nuevo a quien te lo pasó.</p>'); };
+    // ----- link general de la PC: la persona deja sus datos y queda como contacto nuevo -----
+    const gp = url.pathname.match(/^\/chat\/([^/]+)\/?$/); if (gp) return byKey(gp[1]) ? page(res, 'entrada.html') : gone();
+    const ga = url.pathname.match(/^\/api\/chat\/g\/([^/]+)\/(info|join)$/);
+    if (ga) {
+      const g = byKey(ga[1]); if (!g) return send(res, 404, { error: 'Este link de chat ya no está disponible.' });
+      if (ga[2] === 'info' && m === 'GET') return send(res, 200, { business: g.c.name || g.pc.name });
+      if (ga[2] === 'join' && m === 'POST') {
+        const b = await body(req); const name = clean(b.name, 60); const phone = clean(b.phone, 30).replace(/[^\d+]/g, '');
+        if (name.length < 2) return send(res, 400, { error: 'Poné tu nombre.' });
+        if (phone.replace(/\D/g, '').length < 7) return send(res, 400, { error: 'Poné tu WhatsApp con el código de país.' });
+        if (g.c.contacts.length >= MAX_CONTACTS) return send(res, 429, { error: 'En este momento no se pueden sumar más personas. Probá más tarde.' });
+        if (joinLimit('ip:' + clientIp(req), 5, 3600e3) || joinLimit('pc:' + g.pc.id, 60, 86400e3)) return send(res, 429, { error: 'Hubo muchos ingresos seguidos. Probá de nuevo en un rato.' });
+        const ct = { id: crypto.randomBytes(5).toString('hex'), name, phone, notes: '', token: g.pc.id + '-' + crypto.randomBytes(16).toString('hex'), createdAt: now(), joinedAt: now(), via: 'link', unread: 0 };
+        g.c.contacts.push(ct); save(g.pc.id); if (log) log(g.pc, `Chat: "${name}" entró por el link general`);
+        return send(res, 200, { token: ct.token });
+      }
+      return send(res, 404, { error: 'No existe.' });
+    }
+    const pm = url.pathname.match(/^\/c\/([^/]+)\/?$/);
+    if (pm) { if (!byToken(pm[1])) return gone(); return page(res, 'cliente.html'); }
     const am = url.pathname.match(/^\/api\/chat\/c\/([^/]+)\/(.+)$/); const s = am && byToken(am[1]);
     if (!s) return send(res, 404, { error: 'Este link de chat ya no está disponible.' });
     const { pc, c, ct } = s; const act = am[2];

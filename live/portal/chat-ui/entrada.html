@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Chat</title>
+<link rel="icon" href="/favicon.ico" sizes="48x48"><link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<style>
+:root{--bg:#eef2f7;--surface:#fff;--line:#d8e0eb;--ink:#0c1a2c;--ink-2:#33455e;--muted:#5f718a;--sky:#1c6cb5;--bad:#c2352d}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:flex;flex-direction:column;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{display:flex;align-items:center;gap:12px;padding:12px 16px;padding-top:max(12px,env(safe-area-inset-top));background:#0c1a2c;color:#fff}
+.av{flex:none;width:40px;height:40px;border-radius:50%;background:#2a82d2;display:grid;place-items:center;font-weight:700;font-size:18px}
+header b{display:block;font-size:17px;line-height:1.2}
+header small{color:#9fb2c9;font-size:13px}
+main{flex:1;display:grid;place-items:start center;padding:28px 16px}
+form{width:100%;max-width:420px;padding:24px 22px;border-radius:18px;background:var(--surface);border:1px solid var(--line);box-shadow:0 20px 50px -28px rgba(12,26,44,.35)}
+h1{margin:0 0 6px;font-size:23px;line-height:1.2;text-wrap:balance}
+p{margin:0 0 18px;color:var(--ink-2)}
+label{display:block;margin-bottom:14px;font-size:14px;font-weight:600;color:var(--ink-2)}
+input{display:block;width:100%;margin-top:6px;padding:12px 14px;border-radius:12px;border:1px solid var(--line);font:inherit;font-weight:400;color:var(--ink);background:#f7f9fc}
+button{width:100%;padding:13px;border:0;border-radius:999px;background:var(--sky);color:#fff;font:inherit;font-weight:700;cursor:pointer}
+button:disabled{opacity:.55;cursor:default}
+input:focus-visible,button:focus-visible{outline:3px solid #9ec5ec;outline-offset:1px}
+#err{display:none;margin:0 0 14px;padding:10px 12px;border-radius:10px;background:#fbe4e2;color:#7d1f19;font-size:14.5px}
+.fine{margin:14px 0 0;font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body>
+<header><div class="av" id="av">·</div><div><b id="biz">Chat</b><small>Chat privado</small></div></header>
+<main>
+ <form id="f" autocomplete="on" novalidate>
+  <h1 id="t">Empezá a chatear</h1>
+  <p>Dejá tus datos y escribí. No hay que instalar nada ni crear una cuenta.</p>
+  <div id="err" role="alert"></div>
+  <label>Tu nombre<input id="n" name="name" maxlength="60" autocomplete="name" required></label>
+  <label>Tu WhatsApp (con código de país)<input id="p" name="tel" type="tel" inputmode="tel" maxlength="30" autocomplete="tel" placeholder="+598 99 123 456" required></label>
+  <button id="go" type="submit">Empezar a chatear</button>
+  <p class="fine">Tus datos y tus mensajes los ve solo <span id="biz2">quien te atiende</span>.</p>
+ </form>
+</main>
+<script>
+const key=location.pathname.split('/').filter(Boolean)[1];const $=id=>document.getElementById(id);const K='localia-chat-'+key;
+function err(t){const e=$('err');e.textContent=t||'';e.style.display=t?'block':'none'}
+(async()=>{
+ // Si ya entró antes desde este navegador, vuelve directo a su conversación
+ let tok=null;try{tok=localStorage.getItem(K)}catch(e){}
+ if(tok){try{const r=await fetch('/api/chat/c/'+encodeURIComponent(tok)+'/state?after=999999999',{cache:'no-store'});if(r.ok)return location.replace('/c/'+tok);localStorage.removeItem(K)}catch(e){}}
+ try{const r=await fetch('/api/chat/g/'+encodeURIComponent(key)+'/info',{cache:'no-store'});const j=await r.json();if(!r.ok)return err(j.error||'Este link de chat ya no está disponible.');
+  document.title='Chat con '+j.business;$('biz').textContent=j.business;$('biz2').textContent=j.business;$('t').textContent='Escribile a '+j.business;$('av').textContent=(j.business||'·').trim().charAt(0).toUpperCase()}catch(e){}
+})();
+$('f').addEventListener('submit',async e=>{e.preventDefault();err('');
+ const name=$('n').value.trim(),phone=$('p').value.trim();
+ if(name.length<2){$('n').focus();return err('Poné tu nombre.')}
+ if(phone.replace(/\D/g,'').length<7){$('p').focus();return err('Poné tu WhatsApp con el código de país.')}
+ $('go').disabled=true;$('go').textContent='Entrando…';
+ try{const r=await fetch('/api/chat/g/'+encodeURIComponent(key)+'/join',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,phone})});const j=await r.json();
+  if(!r.ok)throw new Error(j.error||'No se pudo entrar.');
+  try{localStorage.setItem(K,j.token)}catch(x){}
+  location.replace('/c/'+j.token);
+ }catch(x){err(x.message||'No se pudo entrar. Revisá tu conexión.');$('go').disabled=false;$('go').textContent='Empezar a chatear'}
+});
+</script>
+</body>
+</html>

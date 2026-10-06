@@ -81,6 +81,7 @@ dialog .row{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-
   <h1 id="biz">Mis chats</h1>
   <p>Cada contacto tiene su link privado. Mandáselo y te escribe desde su navegador.</p>
   <div class="row"><button class="btn p" id="new" style="flex:1">+ Nuevo contacto</button><button class="btn" id="cfg" title="Cambiar el nombre que ven tus clientes" aria-label="Ajustes">Ajustes</button></div>
+  <div id="gen" style="margin-top:10px;padding:10px 12px;border-radius:12px;background:#f1f6fc;border:1px solid #d5e3f3;font-size:13.5px"></div>
   <input id="q" type="search" placeholder="Buscar contacto" aria-label="Buscar contacto">
  </div>
  <div id="cts"></div>
@@ -93,7 +94,7 @@ dialog .row{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const size=n=>n>1048576?(n/1048576).toFixed(1).replace('.',',')+' MB':Math.max(1,Math.round(n/1024))+' KB';
-const S={name:'',contacts:[],sel:null,last:0,lastDay:'',maxFile:25*1048576,busy:false,sound:true,lastIn:null};
+const S={name:'',contacts:[],sel:null,last:0,lastDay:'',maxFile:25*1048576,busy:false,sound:true,lastIn:null,general:null};
 let ac=null;function unlock(){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume()}catch(e){}}
 ['pointerdown','keydown','touchstart'].forEach(ev=>document.addEventListener(ev,unlock,{capture:true,passive:true}));
 function beep(){if(!ac||ac.state!=='running')return false;const t=ac.currentTime;[[880,0],[1175,.16]].forEach(([f,d])=>{const o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(.0001,t+d);g.gain.exponentialRampToValueAtTime(.25,t+d+.02);g.gain.exponentialRampToValueAtTime(.0001,t+d+.3);o.connect(g);g.connect(ac.destination);o.start(t+d);o.stop(t+d+.32)});window.__beeps=(window.__beeps||0)+1;return true}
@@ -107,10 +108,12 @@ const when=at=>{if(!at)return '';const d=new Date(at),n=new Date();return d.toDa
 const inviteText=c=>`Hola ${c.name}, soy ${S.name}. Te invito a chatear conmigo por acá. Es privado y no hay que instalar nada: ${c.invite}`;
 const waUrl=c=>`https://wa.me/${c.phone.replace(/\D/g,'')}?text=${encodeURIComponent(inviteText(c))}`;
 
+function renderGen(){const g=S.general;if(!g)return;const k=g.open+'|'+g.url;if(renderGen.k===k)return;renderGen.k=k;
+ $('#gen').innerHTML=g.open?`<b>Tu link para que te escriban</b><div style="margin:4px 0 8px;color:var(--ink-2);overflow-wrap:anywhere">${esc(g.url)}</div><div style="display:flex;gap:6px"><button class="btn" data-a="copy-gen" style="padding:6px 12px;font-size:13.5px">Copiar link</button><span style="color:var(--muted);align-self:center">Ponelo en tu web o tus redes.</span></div>`:'<b>Tu link general está cerrado.</b> Solo te escriben los contactos que invites. Se abre desde Ajustes.'}
 function renderList(){
  const q=$('#q').value.trim().toLowerCase();const list=S.contacts.filter(c=>!q||c.name.toLowerCase().includes(q)||c.phone.includes(q));
  const unread=S.contacts.reduce((a,c)=>a+c.unread,0);document.title=(unread?`(${unread}) `:'')+'Mis chats · Localía';
- $('#cts').innerHTML=list.length?list.map(c=>`<button class="ct${c.id===S.sel?' on':''}" data-id="${c.id}"><span class="av" aria-hidden="true">${esc(c.name.charAt(0).toUpperCase())}</span><span class="mid"><b>${esc(c.name)}</b><span>${c.blocked?'Bloqueado':c.lastText?esc(c.lastText):c.joined?'Abrió el chat':'Invitación sin abrir'}</span></span><span class="end">${when(c.lastAt)}${c.unread&&c.id!==S.sel?`<span class="badge">${c.unread}</span>`:!c.joined?'<span class="tag">invitado</span>':''}</span></button>`).join('')
+ $('#cts').innerHTML=list.length?list.map(c=>`<button class="ct${c.id===S.sel?' on':''}" data-id="${c.id}"><span class="av" aria-hidden="true">${esc(c.name.charAt(0).toUpperCase())}</span><span class="mid"><b>${esc(c.name)}</b><span>${c.blocked?'Bloqueado':c.lastText?esc(c.lastText):c.via==='link'?'Entró por tu link':c.joined?'Abrió el chat':'Invitación sin abrir'}</span></span><span class="end">${when(c.lastAt)}${c.unread&&c.id!==S.sel?`<span class="badge">${c.unread}</span>`:!c.joined?'<span class="tag">invitado</span>':c.via==='link'&&!c.lastText?'<span class="tag">nuevo</span>':''}</span></button>`).join('')
   :`<div class="empty">${S.contacts.length?'Ningún contacto coincide.':'Todavía no tenés contactos. Tocá "Nuevo contacto" para invitar al primero.'}</div>`;
 }
 function inviteBox(c){return `<div class="invite"><p>${c.joined?'Link privado de este contacto:':`<b>${esc(c.name)}</b> todavía no abrió el chat. Mandale su invitación:`}</p><code>${esc(c.invite)}</code><div class="row">${c.phone?`<a class="btn wa" href="${esc(waUrl(c))}" target="_blank" rel="noopener">Enviar por WhatsApp</a>`:''}<button class="btn" data-a="copy-inv">Copiar invitación</button><button class="btn" data-a="copy-link">Copiar solo el link</button></div></div>`}
@@ -138,7 +141,7 @@ async function loadMsgs(first){
  }catch(e){}
 }
 async function loadState(){
- try{const j=await api('state');const was=cur();S.name=j.name;S.contacts=j.contacts;S.maxFile=j.maxFile||S.maxFile;S.sound=j.sound!==false;if(S.lastIn!==null&&j.lastIn>S.lastIn&&S.sound)beep();S.lastIn=j.lastIn;$('#biz').textContent=j.name;renderList();
+ try{const j=await api('state');const was=cur();S.name=j.name;S.contacts=j.contacts;S.maxFile=j.maxFile||S.maxFile;S.sound=j.sound!==false;S.general=j.general;renderGen();if(S.lastIn!==null&&j.lastIn>S.lastIn&&S.sound)beep();S.lastIn=j.lastIn;$('#biz').textContent=j.name;renderList();
   const c=cur();if(S.sel&&!c){S.sel=null;renderConv()}else if(c&&was&&!was.joined&&c.joined){const b=document.querySelector('#list .invite');if(b)b.remove()}
  }catch(e){}
 }
@@ -167,16 +170,18 @@ document.addEventListener('click',async e=>{
  if(a==='invite'&&c){d.innerHTML=`<h2>Invitación de ${esc(c.name)}</h2>${inviteBox(c)}<div class="row"><button class="btn" data-a="close">Cerrar</button></div>`;d.showModal()}
  if(a==='copy-inv'&&c)toast(await copy(inviteText(c))?'Invitación copiada':'No se pudo copiar. Seleccioná el link y copialo a mano.');
  if(a==='copy-link'&&c)toast(await copy(c.invite)?'Link copiado':'No se pudo copiar. Seleccioná el link y copialo a mano.');
+ if(a==='copy-gen'&&S.general)toast(await copy(S.general.url)?'Link copiado':'No se pudo copiar. Seleccioná el link y copialo a mano.');
+ if(a==='new-key'){if(b.dataset.sure!=='1'){b.dataset.sure='1';b.textContent='¿Seguro? El link actual deja de funcionar';return}try{await api('settings',{body:{newKey:true}});d.close();await loadState();toast('Listo. Tenés un link nuevo.')}catch(x){derr(x.message)}}
  if(a==='close')d.close();
  if(a==='save'){const id=d.dataset.id;const bd={name:$('#fn').value,phone:$('#fp').value,notes:$('#fo').value};
   try{const j=await api(id?'contacts/'+id:'contacts',{body:bd});d.close();await loadState();if(!id){S.sel=j.contact.id;document.body.classList.add('open')}renderList();renderConv()}catch(x){derr(x.message)}}
  if(a==='block'){try{const k=S.contacts.find(x=>x.id===d.dataset.id);await api('contacts/'+k.id,{body:{blocked:!k.blocked}});d.close();await loadState();toast(k.blocked?'Contacto desbloqueado':'Contacto bloqueado: su link dejó de funcionar')}catch(x){derr(x.message)}}
  if(a==='del'){if(b.dataset.sure!=='1'){b.dataset.sure='1';b.textContent='¿Seguro? Se borra la conversación';return}
   try{await api('contacts/'+d.dataset.id+'/delete',{body:{}});d.close();S.sel=null;document.body.classList.remove('open');await loadState();renderConv();toast('Contacto borrado')}catch(x){derr(x.message)}}
- if(a==='save-cfg'){try{const on=$('#fs').checked;await api('settings',{body:{name:$('#fb').value,sound:on}});d.close();await loadState();if(on){unlock();setTimeout(beep,150)}toast(on?'Listo. Así suena el aviso.':'Listo. Avisos sonoros apagados.')}catch(x){derr(x.message)}}
+ if(a==='save-cfg'){try{const on=$('#fs').checked;await api('settings',{body:{name:$('#fb').value,sound:on,open:$('#fo2').checked}});d.close();await loadState();if(on){unlock();setTimeout(beep,150)}toast(on?'Listo. Así suena el aviso.':'Listo. Avisos sonoros apagados.')}catch(x){derr(x.message)}}
 });
 $('#new').addEventListener('click',()=>contactDialog(null));
-$('#cfg').addEventListener('click',()=>{const d=$('#dlg');d.innerHTML=`<h2>Ajustes del chat</h2><p class="derr" id="derr" hidden></p><label>Nombre que ven tus clientes<input id="fb" maxlength="60" value="${esc(S.name)}"></label><p class="hint">Por ejemplo, tu nombre o el de tu negocio.</p><label style="display:flex;gap:10px;align-items:center;font-weight:400;font-size:15px;color:var(--ink)"><input type="checkbox" id="fs" style="width:auto;margin:0" ${S.sound?'checked':''}> Avisarme con un sonido cuando llega un mensaje</label><div class="row"><button class="btn" data-a="close">Cancelar</button><button class="btn p" data-a="save-cfg">Guardar</button></div>`;d.showModal();$('#fb').focus()});
+$('#cfg').addEventListener('click',()=>{const d=$('#dlg');d.innerHTML=`<h2>Ajustes del chat</h2><p class="derr" id="derr" hidden></p><label>Nombre que ven tus clientes<input id="fb" maxlength="60" value="${esc(S.name)}"></label><p class="hint">Por ejemplo, tu nombre o el de tu negocio.</p><label style="display:flex;gap:10px;align-items:center;font-weight:400;font-size:15px;color:var(--ink)"><input type="checkbox" id="fs" style="width:auto;margin:0" ${S.sound?'checked':''}> Avisarme con un sonido cuando llega un mensaje</label><label style="display:flex;gap:10px;align-items:center;font-weight:400;font-size:15px;color:var(--ink);margin-top:10px"><input type="checkbox" id="fo2" style="width:auto;margin:0" ${S.general&&S.general.open?'checked':''}> Aceptar personas nuevas por mi link general</label><p class="hint" style="margin-top:6px">Si lo destildás, solo te escriben los contactos que invites.</p><div class="row" style="justify-content:flex-start;margin-bottom:10px"><button class="btn" data-a="new-key" style="font-size:13.5px">Cambiar mi link general</button></div><div class="row"><button class="btn" data-a="close">Cancelar</button><button class="btn p" data-a="save-cfg">Guardar</button></div>`;d.showModal();$('#fb').focus()});
 $('#q').addEventListener('input',renderList);
 document.addEventListener('input',e=>{if(e.target.id==='txt'){e.target.style.height='auto';e.target.style.height=Math.min(140,e.target.scrollHeight)+'px'}});
 document.addEventListener('keydown',e=>{if(e.target.id==='txt'&&e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();sendText()}});
