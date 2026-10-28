@@ -16,7 +16,8 @@
     '#lcl{position:fixed;top:10px;right:10px;z-index:2147483000;font:14px/1.35 system-ui,-apple-system,"Segoe UI",sans-serif;color:#e6edf6}' +
     '#lcl .pill{display:flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;background:rgba(12,26,44,.88);border:1px solid #2c4262;box-shadow:0 6px 20px rgba(0,0,0,.35);cursor:pointer;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);user-select:none}' +
     '#lcl .pill b{color:#fff}#lcl .dot{width:8px;height:8px;border-radius:50%;background:#43c690;flex:none}' +
-    '#lcl.mini .pill .txt{display:none}#lcl.mini .pill{padding:8px}' +
+    '#lcl.mini .pill .txt,#lcl.mini .pill .dot{display:none}#lcl.mini .pill{padding:0;width:40px;height:40px;justify-content:center;opacity:.6;font-size:18px}#lcl.mini .pill:hover,#lcl.drag .pill{opacity:1}' +
+    '#lcl .pill{touch-action:none}#lcl .nb{background:#e2b04e;color:#0c1a2c;border-radius:999px;padding:0 7px;font-weight:700;font-size:12.5px}#lcl.mini .nb{position:absolute;top:-6px;right:-8px;padding:0 6px}' +
     '#lcl .menu{margin-top:8px;width:270px;padding:12px;border-radius:14px;background:rgba(12,26,44,.96);border:1px solid #2c4262;box-shadow:0 12px 30px rgba(0,0,0,.45)}' +
     '#lcl .k{font:600 10.5px ui-monospace,Menlo,monospace;letter-spacing:.12em;text-transform:uppercase;color:#e2b04e;margin-bottom:8px}' +
     '#lcl button{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:8px;width:100%;padding:9px 10px;border-radius:9px;cursor:pointer;color:#e6edf6}' +
@@ -28,6 +29,33 @@
     '#lcl a.f span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#lcl a.f small{color:#9fb2c9;flex:none}#lcl .fl{max-height:220px;overflow:auto}';
   document.head.appendChild(css);
   var box = document.createElement('div'); box.id = 'lcl'; document.body.appendChild(box);
+  // Compacto: cerrado se ve solo el ícono (el texto se muestra los primeros segundos). Se puede arrastrar a cualquier borde y queda guardado.
+  var compact = false, dragging = false, moved = false, dragEnd = 0, pos = null, PK = 'localia-boton-' + (embedded ? 'portal' : 'pc');
+  try { pos = JSON.parse(localStorage.getItem(PK) || 'null'); } catch (e) {}
+  compact = !!pos;   // si ya lo movió alguna vez, conoce el botón: arranca compacto
+  setTimeout(function () { compact = true; render(); }, 5000);
+  function place() {
+    if (!pos) { box.style.left = box.style.top = ''; box.style.right = ''; return; }
+    var w = box.offsetWidth || 40, hgt = box.offsetHeight || 40;
+    var x = Math.round(pos.x * innerWidth), y = Math.round(pos.y * innerHeight);
+    x = Math.max(6, Math.min(x, innerWidth - w - 6)); y = Math.max(6, Math.min(y, innerHeight - hgt - 6));
+    box.style.right = 'auto'; box.style.bottom = 'auto'; box.style.left = x + 'px'; box.style.top = y + 'px';
+  }
+  window.addEventListener('resize', place);
+  var sx = 0, sy = 0, ox = 0, oy = 0;
+  box.addEventListener('pointerdown', function (e) {
+    if (open || !e.target.closest('.pill')) return;
+    var r = box.getBoundingClientRect(); sx = e.clientX; sy = e.clientY; ox = r.left; oy = r.top; moved = false; dragging = true;
+  });
+  // El movimiento se escucha en toda la ventana: un dedo rápido sale del botón antes del primer evento
+  window.addEventListener('pointermove', function (e) {
+    if (!dragging) return; var dx = e.clientX - sx, dy = e.clientY - sy;
+    if (!moved && Math.abs(dx) + Math.abs(dy) < 8) return;
+    if (!moved) { moved = true; box.classList.add('drag'); }
+    pos = { x: (ox + dx) / innerWidth, y: (oy + dy) / innerHeight }; place();
+  });
+  function endDrag() { if (!dragging) return; dragging = false; box.classList.remove('drag'); if (moved) { dragEnd = Date.now(); moved = false; try { localStorage.setItem(PK, JSON.stringify(pos)); } catch (x) {} } }
+  window.addEventListener('pointerup', endDrag); window.addEventListener('pointercancel', endDrag);
   // Teclado en el celular: el escritorio remoto no puede abrir el teclado del teléfono por su cuenta.
   // En pantallas táctiles se muestra un botón fijo que activa el campo de teclado de KasmVNC (noVNC_keyboardinput).
   var touch = (window.matchMedia && matchMedia('(pointer: coarse)').matches) || 'ontouchstart' in window || navigator.maxTouchPoints > 0;
@@ -53,9 +81,9 @@
   function render() {
     if (!st) return;
     var id = st.identity, where = id && id.online ? (id.city || '') + ', ' + (N[id.country] || id.country) : name(st.active);
-    var nb = chat.unread ? ' <span style="background:#e2b04e;color:#0c1a2c;border-radius:999px;padding:0 7px;font-weight:700">💬 ' + chat.unread + '</span>' : '';
-    var h_ = embedded ? '<div class="pill" data-a="toggle">📁 <span class="txt"><b>' + (st.chat ? 'Archivos y chats' : 'Archivos') + '</b>' + nb + ' ▴</span></div>'
-      : '<div class="pill" data-a="toggle"><span class="dot" style="' + (id && id.online === false ? 'background:#f07068' : '') + '"></span><span class="txt">' + (st.direct ? '📁 <b>Archivos y opciones</b>' : 'Te ven en <b>' + h(where) + '</b>') + nb + ' ▾</span></div>';
+    var nb = chat.unread ? '<span class="nb">💬 ' + chat.unread + '</span>' : '';
+    var h_ = embedded ? '<div class="pill" data-a="toggle" title="Archivos (podés moverlo)"><span class="ico">📁</span><span class="txt"><b>' + (st.chat ? 'Archivos y chats' : 'Archivos') + '</b> ▴</span>' + nb + '</div>'
+      : '<div class="pill" data-a="toggle" title="Archivos y opciones (podés moverlo)"><span class="dot" style="' + (id && id.online === false ? 'background:#f07068' : '') + '"></span>' + '<span class="ico">📁</span><span class="txt">' + (st.direct ? '<b>Archivos y opciones</b>' : 'Te ven en <b>' + h(where) + '</b>') + ' ▾</span>' + nb + '</div>';
     if (open) {
       h_ += '<div class="menu"><div class="k">Localía · ' + h(st.name) + '</div>';
       if (!embedded && st.exits.length > 1) {
@@ -76,8 +104,9 @@
       if (msg) h_ += '<div class="msg">' + h(msg) + '</div>';
       h_ += '</div>';
     }
-    box.className = (embedded ? 'emb ' : '') + (open ? '' : 'mini-auto');
+    box.className = (embedded && !pos ? 'emb ' : '') + (open || !compact ? '' : 'mini') + (dragging ? ' drag' : '');
     box.innerHTML = h_;
+    place();
   }
   function api(p, body) {
     return fetch('/__localia/' + p, body ? { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Localia': '1' }, body: JSON.stringify(body), credentials: 'same-origin' } : { credentials: 'same-origin', cache: 'no-store' }).then(function (r) { return r.json(); });
@@ -98,6 +127,7 @@
       .catch(function () { busy = false; msg = 'No se pudo subir. Probá de nuevo.'; render(); });
   });
   box.addEventListener('click', function (e) {
+    if (Date.now() - dragEnd < 250) return;   // fue un arrastre, no un toque
     var t = e.target.closest('[data-a]'); if (!t || busy) return; var a = t.getAttribute('data-a');
     if (a === 'toggle') { open = !open; msg = ''; files = null; render(); }
     if (a === 'kb') { open = false; render(); keyboard(); }
