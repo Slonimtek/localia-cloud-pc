@@ -1,6 +1,7 @@
 <!doctype html><html lang="es"><head><meta charset="utf-8"><title>Prueba del botón flotante</title>
 <style>body{margin:0;height:100vh;background:linear-gradient(160deg,#0f2747,#0a1629);font:14px system-ui;color:#9fb2c9}p{padding:20px}</style></head>
 <body><p>Simulación del escritorio (KasmVNC). El botón flotante va arriba a la derecha.</p>
+<button id="noVNC_keyboard_button" style="display:none" onclick="window.__kbClicks=(window.__kbClicks||0)+1"></button><textarea id="noVNC_keyboardinput" style="position:absolute;left:-9999px"></textarea>
 <script>
 // API simulada: igual que /__localia/* del gateway
 let active='BR';const ids={AR:{ip:'15.220.121.62',city:'Buenos Aires',country:'AR'},BR:{ip:'56.126.81.122',city:'São Paulo',country:'BR'},US:{ip:'13.218.194.101',city:'Ashburn',country:'US'}};

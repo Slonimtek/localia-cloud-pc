@@ -28,6 +28,24 @@
     '#lcl a.f span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#lcl a.f small{color:#9fb2c9;flex:none}#lcl .fl{max-height:220px;overflow:auto}';
   document.head.appendChild(css);
   var box = document.createElement('div'); box.id = 'lcl'; document.body.appendChild(box);
+  // Teclado en el celular: el escritorio remoto no puede abrir el teclado del teléfono por su cuenta.
+  // En pantallas táctiles se muestra un botón fijo que activa el campo de teclado de KasmVNC (noVNC_keyboardinput).
+  var touch = (window.matchMedia && matchMedia('(pointer: coarse)').matches) || 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  function keyboard() {
+    var kb = document.getElementById('noVNC_keyboard_button'), ki = document.getElementById('noVNC_keyboardinput');
+    if (ki && document.activeElement === ki) { ki.blur(); return false; }   // segundo toque: lo cierra
+    if (kb) kb.click();
+    if (ki && document.activeElement !== ki) { ki.focus(); }
+    return !!ki;
+  }
+  if (touch) {
+    var kbtn = document.createElement('button'); kbtn.type = 'button'; kbtn.id = 'lclkb'; kbtn.setAttribute('aria-label', 'Abrir el teclado'); kbtn.textContent = '⌨️';
+    kbtn.style.cssText = 'position:fixed;left:12px;bottom:14px;z-index:2147483000;width:52px;height:52px;border-radius:50%;border:1px solid #2c4262;background:rgba(12,26,44,.9);color:#fff;font-size:24px;box-shadow:0 6px 20px rgba(0,0,0,.35);touch-action:manipulation';
+    // pointerdown + preventDefault: el foco no se va del campo de teclado al tocar el botón
+    kbtn.addEventListener('pointerdown', function (e) { e.preventDefault(); });
+    kbtn.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); keyboard(); });
+    document.body.appendChild(kbtn);
+  }
   var pick = document.createElement('input'); pick.type = 'file'; pick.style.display = 'none'; document.body.appendChild(pick);
   function h(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function size(n) { return n > 1048576 ? (n / 1048576).toFixed(1).replace('.', ',') + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB'; }
@@ -51,7 +69,7 @@
           : '<div class="msg">Todavía no hay nada. Lo que bajes adentro de la PC (un comprobante, un PDF) aparece acá.</div>') + '</div>';
       }
       if (!embedded) {
-        h_ += '<hr>' + (st.direct ? '' : '<button data-a="check">🛡️ Verificar mi IP</button>') + '<button data-a="full">⛶ Pantalla completa</button>';
+        h_ += '<hr>' + (touch ? '<button data-a="kb">⌨️ Abrir el teclado</button>' : '') + (st.direct ? '' : '<button data-a="check">🛡️ Verificar mi IP</button>') + '<button data-a="full">⛶ Pantalla completa</button>';
         h_ += st.mode === 'simple' ? '<button data-a="mode" data-m="completo">🖥️ Ver el escritorio completo</button>' : '<button data-a="mode" data-m="simple">✨ Volver al modo simple</button>';
         h_ += '<button data-a="panel">↩ Ir a mi panel</button>';
       }
@@ -82,6 +100,7 @@
   box.addEventListener('click', function (e) {
     var t = e.target.closest('[data-a]'); if (!t || busy) return; var a = t.getAttribute('data-a');
     if (a === 'toggle') { open = !open; msg = ''; files = null; render(); }
+    if (a === 'kb') { open = false; render(); keyboard(); }
     if (a === 'chat') window.open('/__localia/chat/', '_blank');
     if (a === 'sound') { var on = !chat.sound; api('chat/api/settings', { sound: on }).then(function (j) { chat.sound = j.sound; if (j.sound) { unlock(); setTimeout(beep, 150); } render(); }).catch(function () {}); }
     if (a === 'up') pick.click();
