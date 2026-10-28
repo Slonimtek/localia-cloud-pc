@@ -178,7 +178,7 @@ function pcCardFull(pc){const e=ex(pc.active);const busy=['pending','stopping','
   <p style="margin-top:12px;font-size:14.5px">${ico.globe} <b>Así te ven ahora:</b> ${idLine(pc)}</p></div>
   <div class="pcd-act">${provisioning?`<a class="btn btn-primary" href="#armando/${pc.id}">Ver cómo se arma</a>`:`<a class="btn btn-primary" href="#pc/${pc.id}" ${pc.state!=='running'?'':''}>${ico.monitor} Abrir mi PC</a>`}
    ${pc.state==='stopped'?`<button class="btn btn-ghost btn-sm" data-act="pc-start" data-id="${pc.id}">${ico.power} Prender</button>`:`<button class="btn btn-ghost btn-sm" data-act="pc-stop" data-id="${pc.id}" ${pc.state!=='running'||busy?'disabled':''}>${ico.power} Apagar</button>`}
-   <a class="btn btn-ghost btn-sm" href="https://${pc.host}/__localia/chat/" target="_blank" rel="noopener">💬 Chats</a>
+   ${pc.chat!==false?`<a class="btn btn-ghost btn-sm" href="https://${pc.host}/__localia/chat/" target="_blank" rel="noopener">💬 Chats</a>`:''}
    <button class="btn btn-ghost btn-sm" data-act="pc-reboot" data-id="${pc.id}" ${pc.state!=='running'?'disabled':''}>${ico.restart} Reiniciar</button>
    <button class="btn btn-ghost btn-sm" data-act="pc-check" data-id="${pc.id}" ${pc.state!=='running'?'disabled':''}>${ico.shield} Verificar IP</button>
    <button class="btn btn-ghost btn-sm" data-act="pc-delete" data-id="${pc.id}">${ico.trash} Borrar</button></div></div>
@@ -216,6 +216,9 @@ function vOps(){const o=S.ops;if(!S.user||!S.user.admin)return `${topbar()}<main
  <section class="box" style="margin-bottom:16px"><h3>${ico.monitor} PCs</h3><div class="tbl-wrap"><table class="ops-t"><thead><tr><th>PC</th><th>Cuenta</th><th>Estado</th><th>IP privada</th><th>Te ven en</th><th>Chequeo</th></tr></thead><tbody>
  ${o.pcs.map(p=>`<tr><td><b>${esc(p.name)}</b> <span class="muted mono sm">${p.id} · ${p.specs.type}</span></td><td class="sm">${esc(p.user)}</td><td>${stPill(p.state)}</td><td class="mono sm">${esc(p.privateIp||'—')}</td><td>${esc(p.activeName)}</td><td class="sm">${idLine(p)}</td></tr>`).join('')||'<tr><td colspan="6" class="muted">Sin PCs.</td></tr>'}
  </tbody></table></div></section>
+ <section class="box" style="margin-bottom:16px"><h3>Usuarios</h3><p class="sm muted">Creá una cuenta para alguien. La contraseña se muestra una sola vez; pasásela por un canal seguro.</p>
+  <div class="form" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr));align-items:end;margin:12px 0"><label>Email<input id="nuEmail" type="email" autocomplete="off"></label><label>Nombre<input id="nuName" autocomplete="off"></label><label style="display:flex;gap:8px;align-items:center"><input id="nuChat" type="checkbox" checked style="width:auto"> Con chat privado</label><button class="btn btn-primary btn-sm" data-act="ops-user-new">Crear usuario</button></div>
+  <div class="tbl"><table><thead><tr><th>Email</th><th>Nombre</th><th class="num">PCs</th><th>Chat</th></tr></thead><tbody>${(o.userList||[]).map(x=>`<tr><td>${esc(x.email)}${x.admin?' <span class="sev sev-info" style="min-width:0">admin</span>':''}</td><td>${esc(x.name)}</td><td class="num">${x.pcs}</td><td><button class="btn btn-ghost btn-sm" data-act="ops-user-chat" data-id="${x.id}" data-on="${x.chat?'1':'0'}">${x.chat?'💬 Con chat · quitar':'Sin chat · activar'}</button></td></tr>`).join('')}</tbody></table></div></section>
  <section class="box"><h3>Eventos</h3><ul class="feed">${o.events.slice(0,25).map(e=>`<li><time>${ago(e.at)}</time><span>${e.kind==='bad'?'⚠️ ':e.kind==='ok'?'✅ ':''}${esc(e.text)}</span></li>`).join('')}</ul></section></main>`}
 
 /* ---------- QR del acceso directo ---------- */
@@ -284,6 +287,11 @@ const A={
  'add-exit':async el=>{try{await api(`/api/pcs/${el.dataset.id}/exits`,{method:'POST',body:{code:el.dataset.code}});toast(`Sumaste ${ex(el.dataset.code).name}.`)}catch(e){toast(e.message,true)}await loadPcs();$('#app').innerHTML=vPanel()},
  'close-modal':()=>closeModal(),
  'ops-refresh':async()=>{await loadOps();$('#app').innerHTML=vOps()},
+ 'ops-user-new':async el=>{const email=$('#nuEmail').value.trim(),name=$('#nuName').value.trim(),chat=$('#nuChat').checked;if(!email)return toast('Poné el email.',true);el.disabled=true;
+  try{const r=await api('/api/ops/users',{method:'POST',body:{email,name,chat}});await loadOps();$('#app').innerHTML=vOps();
+   openModal(`<h3>Usuario creado</h3><p>Pasale estos datos a ${esc(r.user.name)}. La contraseña no se vuelve a mostrar.</p><div class="cmd"><span class="mono">https://${esc(S.cfg.portal)}<br>Usuario: ${esc(r.user.email)}<br>Contraseña: ${esc(r.password)}</span></div><p class="sm muted">${r.user.chat?'Tiene chat privado.':'Sin chat: su PC no muestra la bandeja ni los links de chat.'} Al entrar, toca "Crear mi PC".</p><div class="cta-row" style="margin:14px 0 0"><button class="btn btn-primary" data-act="close-modal">Listo</button></div>`)}
+  catch(e){toast(e.message,true);el.disabled=false}},
+ 'ops-user-chat':async el=>{const on=el.dataset.on!=='1';el.disabled=true;try{await api('/api/ops/users/'+el.dataset.id,{method:'POST',body:{chat:on}});await loadOps();$('#app').innerHTML=vOps();toast(on?'Chat activado':'Chat quitado: sus links de chat dejaron de funcionar')}catch(e){toast(e.message,true);el.disabled=false}},
  'ops-cut':async el=>{S.busy=true;const c=el.dataset.code;el.disabled=true;el.innerHTML=`${ico.scissors} Cortando…`;
   try{const r=await api(`/api/ops/exits/${c}/cut`,{method:'POST',body:{}});openModal(`<h3>Prueba de corte · ${esc(ex(c).name)}</h3><p>${r.tested?`Cortamos el túnel y chequeamos ${r.tested} PC(s) que salían por ${esc(ex(c).name)}:`:'No hay PCs prendidas saliendo por este país: la prueba bajó y subió el túnel sin nadie afectado.'}</p>
    ${r.results.map(x=>`<p style="margin-top:8px">${x.online?`<b style="color:var(--bad)">⚠️ PC ${x.pc}: SALIÓ por ${esc(x.ip)} (${esc(x.country)})</b>`:`<b class="okt">${ico.check} PC ${x.pc}: sin internet durante el corte</b> <span class="muted">— no salió por otro lado</span>`}</p>`).join('')}

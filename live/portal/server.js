@@ -213,7 +213,7 @@ const agentUrl = (pc, p) => `http://${pc.privateIp}:8081${p}`;
 const agent = (pc, p, opts = {}, ms = 7000) => fetchJSON(agentUrl(pc, p), { ...opts, headers: { 'X-Localia-Token': pc.token, 'Content-Type': 'application/json', ...(opts.headers || {}) } }, ms);
 function pubPc(pc, live) {
   const t = TIERS[pc.tier]; const ex = exitBy(pc.active);
-  return { id: pc.id, name: pc.name, mode: modeOf(pc), place: placeOf(pc), expect: expectOf(pc), tier: pc.tier, tierName: t.name, specs: t, state: pc.ec2 || 'unknown', desktop: pc.desktop || null, exits: exitsFor(pc), active: pc.active,
+  return { id: pc.id, name: pc.name, chat: chatOn(pc), mode: modeOf(pc), place: placeOf(pc), expect: expectOf(pc), tier: pc.tier, tierName: t.name, specs: t, state: pc.ec2 || 'unknown', desktop: pc.desktop || null, exits: exitsFor(pc), active: pc.active,
     activeCity: ex && ex.city, activeName: ex && ex.name, host: `pc-${pc.id}.${BASE}`, identity: pc.identity || null, createdAt: pc.createdAt, lastActivity: pc.lastActivity || null,
     events: (pc.events || []).slice(0, 15), provision: pc.provision || null, ...(live || {}) };
 }
@@ -263,7 +263,9 @@ async function provision(pc) {
 }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 // Chat privado de cada PC (ver chat.js)
-const chat = require('./chat')({ DATA, PORTAL_HOST, send, body, log: ev, clientIp: req => clientIp(req), listPcs: () => db.pcs.filter(x => x.status !== 'deleted'), getPc: id => db.pcs.find(x => x.id === id && x.status !== 'deleted') });
+// Cada usuario puede tener el chat o no (lo decide el admin en Operación). Sin chat: ni bandeja ni links que funcionen.
+const chatOn = pc => { const o = db.users.find(x => x.id === pc.userId); return !o || o.chat !== false; };
+const chat = require('./chat')({ DATA, PORTAL_HOST, send, body, log: ev, clientIp: req => clientIp(req), listPcs: () => db.pcs.filter(x => x.status !== 'deleted' && chatOn(x)), getPc: id => db.pcs.find(x => x.id === id && x.status !== 'deleted' && chatOn(x)) });
 
 // ---------- página "¿desde dónde me ven?" (la abre la PC al prender) ----------
 function clientIp(req) { return String(req.headers['x-real-ip'] || req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim().replace('::ffff:', ''); }
@@ -272,7 +274,7 @@ function clientIp(req) { return String(req.headers['x-real-ip'] || req.headers['
 async function api(req, res, url) {
   const u = userOf(req); const p = url.pathname; const m = req.method;
   if (p === '/api/caddy/ask') { const d = url.searchParams.get('domain') || ''; const ok = d === PORTAL_HOST || (d.endsWith('.' + BASE) && db.pcs.some(x => `pc-${x.id}.${BASE}` === d && x.status !== 'deleted')); res.writeHead(ok ? 200 : 403); return res.end(); }
-  if (p === '/api/donde') { const ip = clientIp(req); const mine = DIRECT && db.pcs.find(x => x.publicIp === ip && x.status !== 'deleted');   // ¿la página se abrió desde una PC nuestra?
+  if (p === '/api/donde') { const ip = clientIp(req); const mine = DIRECT && db.pcs.find(x => x.publicIp === ip && x.status !== 'deleted' && chatOn(x));   // ¿la página se abrió desde una PC nuestra?
     return send(res, 200, { ip, geo: await geo(ip), vpn: !DIRECT, chat: mine ? `https://pc-${mine.id}.${BASE}/__localia/chat/` : null }); }
   if (p === '/api/config') return send(res, 200, { base: BASE, portal: PORTAL_HOST, exits: EXITS.map(x => ({ code: x.code, name: x.name, city: x.city, tz: x.tz, kind: x.kind, country: x.country || x.code, soon: !!x.soon, available: !x.soon && (x.kind !== 'home' || !!(db.exitPeers || {})[x.code]) && !exitOff(x.code) })), tiers: TIERS, cloud: { name: cloud.name, label: cloud.label, place: cloud.place }, direct: DIRECT, limits: { perUser: MAX_PCS_PER_USER, total: MAX_PCS_TOTAL }, idleStopMin: IDLE_STOP_MIN });
   if (p === '/api/signup' && m === 'POST') {
@@ -352,7 +354,24 @@ async function api(req, res, url) {
     let exitStates = {};
     try { const ids = EXITS.filter(x => x.instanceId); for (const reg of [...new Set(ids.map(x => x.region))]) { const d = await exitCloud().describe(ids.filter(x => x.region === reg).map(x => x.instanceId), reg); for (const [id, v] of Object.entries(d)) exitStates[id] = v.state; } } catch (e) {}
     exits.forEach(x => { if (x.instanceId) x.ec2 = exitStates[x.instanceId] || 'unknown'; });
-    return send(res, 200, { exits, pcs: live.map(x => ({ ...pubPc(x), user: (db.users.find(y => y.id === x.userId) || {}).email, privateIp: x.privateIp })), users: db.users.length, events: db.events.slice(0, 60), tokens: (db.exitTokens || []).filter(t => !t.used).map(t => ({ code: t.code, at: t.at })) });
+    return send(res, 200, { exits, pcs: live.map(x => ({ ...pubPc(x), user: (db.users.find(y => y.id === x.userId) || {}).email, privateIp: x.privateIp })), users: db.users.length, userList: db.users.map(x => ({ id: x.id, email: x.email, name: x.name, admin: !!x.admin, chat: x.chat !== false, pcs: live.filter(p => p.userId === x.id).length, createdAt: x.createdAt })), events: db.events.slice(0, 60), tokens: (db.exitTokens || []).filter(t => !t.used).map(t => ({ code: t.code, at: t.at })) });
+  }
+  // ----- usuarios: el admin los crea con o sin chat -----
+  if (p === '/api/ops/users' && m === 'POST') {
+    const b = await body(req); const email = String(b.email || '').trim().toLowerCase();
+    if (!/^\S+@\S+\.\S+$/.test(email)) return send(res, 400, { error: 'Revisá el email.' });
+    if (db.users.find(x => x.email === email)) return send(res, 409, { error: 'Ya existe una cuenta con ese email.' });
+    const pass = String(b.password || '') || crypto.randomBytes(9).toString('base64').replace(/[^A-Za-z0-9]/g, '').slice(0, 12);
+    if (pass.length < 8) return send(res, 400, { error: 'La contraseña tiene que tener 8 caracteres o más.' });
+    const nu = { id: rid(8), email, name: String(b.name || '').trim().slice(0, 60) || email.split('@')[0], pass: hashPass(pass), admin: false, chat: b.chat !== false, createdAt: now(), createdBy: u.email };
+    db.users.push(nu); ev(null, `Usuario creado: ${email}${nu.chat ? '' : ' (sin chat)'}`, 'ok'); save();
+    return send(res, 200, { user: { ...pubUser(nu), chat: nu.chat }, password: pass });   // la contraseña se muestra una sola vez
+  }
+  const um = p.match(/^\/api\/ops\/users\/([a-z0-9]+)$/);
+  if (um && m === 'POST') {
+    const x = db.users.find(y => y.id === um[1]); if (!x) return send(res, 404, { error: 'No encontramos ese usuario.' });
+    const b = await body(req); if (b.chat !== undefined) { x.chat = !!b.chat; ev(null, `${x.email}: chat ${x.chat ? 'activado' : 'desactivado'}`, 'warn'); }
+    save(); return send(res, 200, { ok: true, chat: x.chat !== false });
   }
   const om = p.match(/^\/api\/ops\/exits\/([A-Z]{2})\/([a-z-]+)$/);
   if (om && m === 'POST') {
@@ -431,6 +450,7 @@ const esc = v => String(v == null ? '' : v).replace(/[&<>"]/g, c => ({ '&': '&am
 const ICON_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#0c1a2c"/><path d="M32 9c-10.5 0-19 8.2-19 18.4C13 40.4 32 55 32 55s19-14.6 19-27.6C51 17.2 42.5 9 32 9z" fill="#2a82d2"/><rect x="21.5" y="18.5" width="21" height="14" rx="3" fill="#fff"/><rect x="27.5" y="35" width="9" height="3" rx="1.5" fill="#fff"/></svg>';
 async function directApi(req, res, url, pc) {
   const p = url.pathname.replace('/__localia/', '');
+  if ((p === 'chat' || p.startsWith('chat/')) && !chatOn(pc)) return send(res, 404, { error: 'Esta PC no tiene chat.' });
   if (p === 'chat') { res.writeHead(302, { Location: '/__localia/chat/' }); return res.end(); }
   if (p.startsWith('chat/')) return await chat.owner(req, res, p.slice(5), pc);   // bandeja del dueño, con la sesión del portal
   if (p === 'manifest.webmanifest') {
@@ -439,7 +459,7 @@ async function directApi(req, res, url, pc) {
   }
   if (p === 'icon.svg') { res.writeHead(200, { 'Content-Type': 'image/svg+xml', 'Cache-Control': 'max-age=86400' }); return res.end(ICON_SVG); }
   if (p === 'overlay.js') { res.writeHead(200, { 'Content-Type': 'text/javascript; charset=utf-8', 'Cache-Control': 'no-cache' }); return fs.createReadStream(path.join(__dirname, 'overlay.js')).pipe(res); }
-  if (p === 'state') return send(res, 200, { name: pc.name, direct: DIRECT, mode: modeOf(pc), maxUpload: MAX_UPLOAD, active: pc.active, portal: `https://${PORTAL_HOST}/#panel`, exits: exitsFor(pc).map(c => { const e = exitBy(c); return { code: c, name: e.name, city: e.city }; }), identity: pc.identity || null });
+  if (p === 'state') return send(res, 200, { name: pc.name, direct: DIRECT, chat: chatOn(pc), mode: modeOf(pc), maxUpload: MAX_UPLOAD, active: pc.active, portal: `https://${PORTAL_HOST}/#panel`, exits: exitsFor(pc).map(c => { const e = exitBy(c); return { code: c, name: e.name, city: e.city }; }), identity: pc.identity || null });
   if (p === 'identity') { await refreshPc(pc); return send(res, 200, { identity: await checkIdentity(pc) }); }
   if (p === 'exit' && req.method === 'POST') { const b = await body(req); if (DIRECT || !availableExits().includes(b.code)) return send(res, 400, { error: 'País no disponible.' }); await switchExit(pc, b.code); return send(res, 200, { active: pc.active }); }
   // ----- archivos: entre la compu del usuario y la carpeta Descargas de la PC -----
@@ -512,7 +532,7 @@ const server = http.createServer(async (req, res) => {
       // Bandeja de chats abierta desde el navegador de la propia PC (modo directo): la PC se reconoce por su IP pública,
       // que es solo suya y la informa Caddy (X-Real-IP). Vale únicamente para el chat, nunca para el escritorio.
       const own = DIRECT && pcForHost(req.headers.host); const cu = new URL(req.url, `https://${host}`);
-      if (own && own.publicIp && clientIp(req) === own.publicIp && (cu.pathname === '/__localia/chat' || cu.pathname.startsWith('/__localia/chat/'))) {
+      if (own && chatOn(own) && own.publicIp && clientIp(req) === own.publicIp && (cu.pathname === '/__localia/chat' || cu.pathname.startsWith('/__localia/chat/'))) {
         if (cu.pathname === '/__localia/chat') { res.writeHead(302, { Location: '/__localia/chat/' }); return res.end(); }
         return await chat.owner(req, res, cu.pathname.slice('/__localia/chat/'.length), own);
       }

@@ -45,6 +45,12 @@ Desde el 04/10/2026 el modelo es **sin salidas por país**: el cliente elige la 
 - **Armar la imagen:** en una máquina Debian 12 nueva, copiar `pc-image/*` a `/tmp` y correr `bake.sh`, `localia-apps.sh`, `localia-simple.sh`, `pc-firewall.sh <ip privada del portal>` y al final `finalize.sh`; apagar, sacar un snapshot y poner su ID en `HCLOUD_IMAGE`.
 - **Desplegar el portal:** copiar `portal/` a `/opt/localia/portal` del servidor y `systemctl restart localia-portal`.
 
+## Usuarios
+
+- **Alta:** el admin entra a **Operación → Usuarios**, pone email y nombre, y elige si tiene **chat privado**. La contraseña se genera sola y se muestra una sola vez. El usuario después crea su PC con "Crear mi PC".
+- **Sin chat:** su PC no muestra la bandeja ni el botón "Mis chats", y ningún link de chat suyo funciona. Se puede activar o quitar después desde la misma tabla.
+- **Registro propio:** también sigue existiendo el alta con código de invitación (`INVITE_CODE`); esas cuentas nacen con chat.
+
 ## Chat privado de cada PC
 
 Cada PC trae un chat propio para que su dueño atienda a sus clientes.
