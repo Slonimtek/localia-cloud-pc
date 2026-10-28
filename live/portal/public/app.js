@@ -217,7 +217,7 @@ function vOps(){const o=S.ops;if(!S.user||!S.user.admin)return `${topbar()}<main
  ${o.pcs.map(p=>`<tr><td><b>${esc(p.name)}</b> <span class="muted mono sm">${p.id} · ${p.specs.type}</span></td><td class="sm">${esc(p.user)}</td><td>${stPill(p.state)}</td><td class="mono sm">${esc(p.privateIp||'—')}</td><td>${esc(p.activeName)}</td><td class="sm">${idLine(p)}</td></tr>`).join('')||'<tr><td colspan="6" class="muted">Sin PCs.</td></tr>'}
  </tbody></table></div></section>
  <section class="box" style="margin-bottom:16px"><h3>Usuarios</h3><p class="sm muted">Creá una cuenta para alguien. La contraseña se muestra una sola vez; pasásela por un canal seguro.</p>
-  <div class="form" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr));align-items:end;margin:12px 0"><label>Email<input id="nuEmail" type="email" autocomplete="off"></label><label>Nombre<input id="nuName" autocomplete="off"></label><label style="display:flex;gap:8px;align-items:center"><input id="nuChat" type="checkbox" checked style="width:auto"> Con chat privado</label><button class="btn btn-primary btn-sm" data-act="ops-user-new">Crear usuario</button></div>
+  <div class="form" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr));align-items:end;margin:12px 0"><label>Email<input id="nuEmail" type="email" autocomplete="off" value="${esc((S.nu||{}).email||'')}"></label><label>Nombre<input id="nuName" autocomplete="off" value="${esc((S.nu||{}).name||'')}"></label><label style="display:flex;gap:8px;align-items:center"><input id="nuChat" type="checkbox" ${(S.nu||{}).chat===false?'':'checked'} style="width:auto"> Con chat privado</label><button class="btn btn-primary btn-sm" data-act="ops-user-new">Crear usuario</button></div>
   <div class="tbl"><table><thead><tr><th>Email</th><th>Nombre</th><th class="num">PCs</th><th>Chat</th></tr></thead><tbody>${(o.userList||[]).map(x=>`<tr><td>${esc(x.email)}${x.admin?' <span class="sev sev-info" style="min-width:0">admin</span>':''}</td><td>${esc(x.name)}</td><td class="num">${x.pcs}</td><td><button class="btn btn-ghost btn-sm" data-act="ops-user-chat" data-id="${x.id}" data-on="${x.chat?'1':'0'}">${x.chat?'💬 Con chat · quitar':'Sin chat · activar'}</button></td></tr>`).join('')}</tbody></table></div></section>
  <section class="box"><h3>Eventos</h3><ul class="feed">${o.events.slice(0,25).map(e=>`<li><time>${ago(e.at)}</time><span>${e.kind==='bad'?'⚠️ ':e.kind==='ok'?'✅ ':''}${esc(e.text)}</span></li>`).join('')}</ul></section></main>`}
 
@@ -242,7 +242,7 @@ async function route(){clearTimers();closeModal();const {r,a}=parse();const app=
  if(r==='pc'){S.pc=null;app.innerHTML=vSession();await loadPc(a);app.innerHTML=vSession();checkIdentity(false);
   every(async()=>{const was=S.pc&&S.pc.state+'/'+S.pc.desktop;await loadPc(a);const is=S.pc&&S.pc.state+'/'+S.pc.desktop;if(was!==is&&parse().r==='pc')app.innerHTML=vSession()},6000);return}
  if(r==='panel'){await loadPcs();app.innerHTML=vPanel();drawQRs();every(async()=>{await loadPcs();if(parse().r==='panel'&&!S.busy){app.innerHTML=vPanel();drawQRs()}},8000);return}
- if(r==='operacion'){S.ops=null;app.innerHTML=vOps();await loadOps();app.innerHTML=vOps();every(async()=>{await loadOps();if(parse().r==='operacion'&&!S.busy)app.innerHTML=vOps()},10000);return}
+ if(r==='operacion'){S.ops=null;app.innerHTML=vOps();await loadOps();app.innerHTML=vOps();every(async()=>{await loadOps();const a=document.activeElement;const typing=a&&['nuEmail','nuName','nuChat'].includes(a.id);if(parse().r==='operacion'&&!S.busy&&!typing)app.innerHTML=vOps()},10000);return}
  app.innerHTML=vHome();
 }
 async function loadPc(id){try{S.pc=(await api('/api/pcs/'+id)).pc}catch(e){if(e.status===401){S.user=null;route()}else toast(e.message,true)}}
@@ -288,7 +288,7 @@ const A={
  'close-modal':()=>closeModal(),
  'ops-refresh':async()=>{await loadOps();$('#app').innerHTML=vOps()},
  'ops-user-new':async el=>{const email=$('#nuEmail').value.trim(),name=$('#nuName').value.trim(),chat=$('#nuChat').checked;if(!email)return toast('Poné el email.',true);el.disabled=true;
-  try{const r=await api('/api/ops/users',{method:'POST',body:{email,name,chat}});await loadOps();$('#app').innerHTML=vOps();
+  try{const r=await api('/api/ops/users',{method:'POST',body:{email,name,chat}});S.nu=null;await loadOps();$('#app').innerHTML=vOps();
    openModal(`<h3>Usuario creado</h3><p>Pasale estos datos a ${esc(r.user.name)}. La contraseña no se vuelve a mostrar.</p><div class="cmd"><span class="mono">https://${esc(S.cfg.portal)}<br>Usuario: ${esc(r.user.email)}<br>Contraseña: ${esc(r.password)}</span></div><p class="sm muted">${r.user.chat?'Tiene chat privado.':'Sin chat: su PC no muestra la bandeja ni los links de chat.'} Al entrar, toca "Crear mi PC".</p><div class="cta-row" style="margin:14px 0 0"><button class="btn btn-primary" data-act="close-modal">Listo</button></div>`)}
   catch(e){toast(e.message,true);el.disabled=false}},
  'ops-user-chat':async el=>{const on=el.dataset.on!=='1';el.disabled=true;try{await api('/api/ops/users/'+el.dataset.id,{method:'POST',body:{chat:on}});await loadOps();$('#app').innerHTML=vOps();toast(on?'Chat activado':'Chat quitado: sus links de chat dejaron de funcionar')}catch(e){toast(e.message,true);el.disabled=false}},
@@ -318,6 +318,8 @@ const A={
  'copy-cmd':()=>{const t=$('#cmdTxt').textContent;navigator.clipboard&&navigator.clipboard.writeText(t).then(()=>toast('Copiado')).catch(()=>{})},
 };
 document.addEventListener('click',e=>{if(e.target.matches('[data-bg]')){closeModal();return}const el=e.target.closest('[data-act]');if(!el||el.disabled)return;const f=A[el.dataset.act];if(f){e.preventDefault();f(el,e)}});
+document.addEventListener('input',e=>{if(['nuEmail','nuName','nuChat'].includes(e.target.id)){S.nu={email:$('#nuEmail').value,name:$('#nuName').value,chat:$('#nuChat').checked}}});
+document.addEventListener('change',e=>{if(e.target.id==='nuChat'){S.nu={email:$('#nuEmail').value,name:$('#nuName').value,chat:e.target.checked}}});
 document.addEventListener('change',e=>{const el=e.target.closest('[data-chg]');if(el&&el.dataset.chg==='exit'&&S.pc)switchExit(S.pc.id,el.value)});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
 try{const t=localStorage.getItem('localia-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}
