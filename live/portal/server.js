@@ -371,6 +371,12 @@ async function api(req, res, url) {
   if (um && m === 'POST') {
     const x = db.users.find(y => y.id === um[1]); if (!x) return send(res, 404, { error: 'No encontramos ese usuario.' });
     const b = await body(req); if (b.chat !== undefined) { x.chat = !!b.chat; ev(null, `${x.email}: chat ${x.chat ? 'activado' : 'desactivado'}`, 'warn'); }
+    if (b.newPassword === true) {   // genera una contraseña nueva; la anterior deja de servir y se muestra una sola vez
+      if (x.admin) return send(res, 400, { error: 'La contraseña de un admin no se cambia desde acá.' });
+      const pass = crypto.randomBytes(9).toString('base64').replace(/[^A-Za-z0-9]/g, '').slice(0, 12);
+      x.pass = hashPass(pass); x.passChangedAt = now(); ev(null, `${x.email}: contraseña nueva (por ${u.email})`, 'warn'); save();
+      return send(res, 200, { ok: true, password: pass, email: x.email, name: x.name });
+    }
     save(); return send(res, 200, { ok: true, chat: x.chat !== false });
   }
   const om = p.match(/^\/api\/ops\/exits\/([A-Z]{2})\/([a-z-]+)$/);
