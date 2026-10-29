@@ -74,6 +74,55 @@
     kbtn.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); keyboard(); });
     document.body.appendChild(kbtn);
   }
+  // Scroll con un dedo en el celular: el escritorio remoto trata el dedo como un mouse (arrastrar = seleccionar).
+  // Acá un dedo que se desliza manda la rueda del mouse (con inercia, como en el teléfono), un toque corto es un clic
+  // y un toque largo es clic derecho. Con dos dedos queda el comportamiento original (zoom).
+  if (touch) (function () {
+    var K = 1.4, g = null, inertia = 0;
+    // En el celular se oculta la barra lateral de KasmVNC (en inglés, se abre sola y tapa la pantalla): el teclado, los archivos y la pantalla completa ya están en nuestro botón.
+    var hideBar = document.createElement('style'); hideBar.textContent = '#noVNC_control_bar_anchor{display:none!important}'; document.head.appendChild(hideBar);
+    function screenCanvas(t) { if (!t || !t.closest || t.closest('#lcl,#lclkb') || !t.closest('#noVNC_container,#noVNC_screen,canvas')) return null; return document.querySelector('#noVNC_container canvas') || document.querySelector('canvas'); }
+    function mouse(cv, type, x, y, btn) { cv.dispatchEvent(new MouseEvent(type, { clientX: x, clientY: y, screenX: x, screenY: y, bubbles: true, cancelable: true, view: window, button: btn || 0, buttons: type === 'mouseup' ? 0 : (btn === 2 ? 2 : 1) })); }
+    function wheel(cv, x, y, dx, dy) { cv.dispatchEvent(new WheelEvent('wheel', { clientX: x, clientY: y, deltaX: dx, deltaY: dy, deltaMode: 0, bubbles: true, cancelable: true, view: window })); }
+    function stop(e) { e.stopImmediatePropagation(); if (e.cancelable) e.preventDefault(); }
+    document.addEventListener('touchstart', function (e) {
+      clearTimeout(inertia);
+      if (e.touches.length !== 1) { g = null; return; }
+      var cv = screenCanvas(e.target); if (!cv) { g = null; return; }
+      var p = e.touches[0], t = Date.now();
+      g = { cv: cv, x: p.clientX, y: p.clientY, lx: p.clientX, ly: p.clientY, t: t, lt: t, scroll: false, vx: 0, vy: 0 };
+      stop(e);
+    }, { capture: true, passive: false });
+    document.addEventListener('touchmove', function (e) {
+      if (!g) return; if (e.touches.length !== 1) { g = null; return; }
+      var p = e.touches[0], t = Date.now();
+      if (!g.scroll && Math.abs(p.clientX - g.x) + Math.abs(p.clientY - g.y) > 10) g.scroll = true;
+      if (g.scroll) {
+        var dx = g.lx - p.clientX, dy = g.ly - p.clientY, dt = Math.max(1, t - g.lt);
+        wheel(g.cv, p.clientX, p.clientY, dx * K, dy * K);
+        g.vx = 0.8 * (dx / dt) + 0.2 * g.vx; g.vy = 0.8 * (dy / dt) + 0.2 * g.vy;
+      }
+      g.lx = p.clientX; g.ly = p.clientY; g.lt = t; stop(e);
+    }, { capture: true, passive: false });
+    document.addEventListener('touchend', function (e) {
+      if (!g) return; var s = g; g = null; stop(e);
+      if (!s.scroll) {   // toque: clic (largo = clic derecho)
+        var right = Date.now() - s.t > 550;
+        mouse(s.cv, 'mousemove', s.x, s.y); mouse(s.cv, 'mousedown', s.x, s.y, right ? 2 : 0);
+        setTimeout(function () { mouse(s.cv, 'mouseup', s.x, s.y, right ? 2 : 0); }, 40);
+        return;
+      }
+      // inercia: sigue deslizando y frena de a poco
+      var vx = s.vx, vy = s.vy, last = Date.now();
+      if (Math.abs(vy) + Math.abs(vx) < 0.3 || Date.now() - s.lt > 120) return;
+      inertia = setTimeout(function step() {
+        var t = Date.now(), dt = Math.min(50, Math.max(1, t - last)); last = t; vx *= Math.pow(0.995, dt); vy *= Math.pow(0.995, dt);
+        if (Math.abs(vy) + Math.abs(vx) < 0.05) return;
+        wheel(s.cv, s.lx, s.ly, vx * dt * K, vy * dt * K); inertia = setTimeout(step, 16);
+      }, 16);
+    }, { capture: true, passive: false });
+    document.addEventListener('touchcancel', function () { g = null; }, true);
+  })();
   var pick = document.createElement('input'); pick.type = 'file'; pick.style.display = 'none'; document.body.appendChild(pick);
   function h(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function size(n) { return n > 1048576 ? (n / 1048576).toFixed(1).replace('.', ',') + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB'; }
